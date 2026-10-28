@@ -99,5 +99,7 @@ export const copy = {
     loading: '불러오는 중…',
     errorTitle: '문제가 생겼어요',
     retry: '다시 시도',
+    dbNotReady: '데이터베이스가 아직 준비되지 않았어요. Supabase SQL Editor에서 0001_init.sql과 sample_work.sql을 실행해 주세요.',
+    unknownError: '알 수 없는 오류가 생겼어요. 잠시 후 다시 시도해 주세요.',
   },
 } as const;

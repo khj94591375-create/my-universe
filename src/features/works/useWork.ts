@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getWork } from '../../data/works';
+import { toMessage } from '../../data/errors';
 import type { Work } from '../../data/types';
 import { useSession } from '../auth/SessionProvider';
 
@@ -40,7 +41,7 @@ export function useWork(workId: string): WorkState {
     setState({ work: null, loading: true, error: null });
     loadWork(workId, userId).then(
       (work) => alive && setState({ work, loading: false, error: null }),
-      (e: unknown) => alive && setState({ work: null, loading: false, error: e instanceof Error ? e.message : String(e) }),
+      (e: unknown) => alive && setState({ work: null, loading: false, error: toMessage(e) }),
     );
     return () => {
       alive = false;

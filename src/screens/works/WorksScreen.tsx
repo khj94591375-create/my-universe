@@ -7,6 +7,7 @@ import { Loading } from '../../components/Loading';
 import { BrandMark } from '../../components/BrandMark';
 import { copy } from '../../config/copy';
 import { getSampleWork, listMyWorks } from '../../data/works';
+import { toMessage } from '../../data/errors';
 import type { WorkWithStats } from '../../data/types';
 import { useSession } from '../../features/auth/SessionProvider';
 import { NewWorkForm } from './NewWorkForm';
@@ -31,7 +32,7 @@ export default function WorksScreen() {
       const [mine, sample] = await Promise.all([listMyWorks(userId), getSampleWork()]);
       setState({ status: 'ready', mine, sample });
     } catch (e) {
-      setState({ status: 'error', message: e instanceof Error ? e.message : String(e) });
+      setState({ status: 'error', message: toMessage(e) });
     }
   }, [userId]);
 
