@@ -1,0 +1,19 @@
+.card {
+  background: var(--c-card);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  padding: var(--sp-4) 18px;
+  min-width: 0;
+}
+.highlight {
+  border: 2px solid var(--c-gold);
+}
+.navy {
+  background: var(--c-navy);
+  border-color: var(--c-navy);
+  color: var(--c-cream);
+}
+.title {
+  font-size: 15.5px;
+  margin-bottom: 10px;
+}

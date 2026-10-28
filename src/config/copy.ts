@@ -1,0 +1,59 @@
+/**
+ * 화면 문구 전부. [변경 가능]
+ * 버튼 이름·안내 문구를 바꿀 때는 이 파일만 고친다. (BUILD_SPEC 4.5)
+ */
+export const copy = {
+  brand: {
+    name: 'My Universe',
+    message: '당신의 이야기는 이미 충분히 넓다. 잊었던 별을 다시 찾으면 된다.',
+    principle: 'AI는 제안하고, 선택과 집필은 작가가 합니다.',
+  },
+  start: {
+    title: '잊었던 별을 다시 찾는 곳',
+    lead: '웹소설 작가의 세계관을 기억하는 AI 작업 공간',
+    values: [
+      { title: '기록의 수고를 덜어요', body: '원고만 올리면 인물·설정·복선이 정리돼요.' },
+      { title: '막힌 순간에 출발점을 줘요', body: '오래 잊힌 복선을 꺼내 다음 회차로 이어요.' },
+      { title: '집필에서 출판까지', body: '같은 설정집으로 삽화와 표지 시안까지 만들어요.' },
+    ],
+    login: '구글로 시작하기',
+    sample: '예시 작품 둘러보기',
+    loginSoon: '로그인은 다음 단계(M1)에서 연결돼요.',
+    aiNotice: 'AI 분석을 쓰면 원고가 AI 회사(Anthropic·OpenAI) 서버로 전송돼요.',
+  },
+  works: {
+    title: '내 작품',
+    newWork: '새 작품 만들기',
+    emptyTitle: '아직 작품이 없어요',
+    emptyBody: '첫 작품을 만들고 원고를 올리면 우주가 만들어져요.',
+    sampleLabel: '예시 작품 · 읽기 전용',
+  },
+  home: {
+    eyebrow: '오늘도 이어 써 볼까요',
+    slumpButton: '막혔어요! 하나 골라주세요',
+    emptyTitle: '원고를 올리면 잊힌 별이 여기에 나타나요',
+    emptyAction: '원고 올리기',
+  },
+  upload: {
+    title: '원고를 올리면 설정을 정리해 드려요',
+    empty: '워드(.docx), PDF, 텍스트 파일을 여러 개 한 번에 올리거나, 회차 본문을 붙여 넣을 수 있어요.',
+    hwp: '한글 파일은 PDF로 저장해서 올려 주세요.',
+  },
+  forgot: { title: '오래 잊힌 순서로 보여 드려요', empty: '원고를 올리면 오래 잊힌 항목이 여기에 쌓여요.' },
+  map: { title: '별을 고르면 다음 회차를 설계해요', empty: '설정집에 항목이 생기면 별자리가 그려져요.' },
+  bible: { title: '캐릭터 · 설정 · 복선', empty: '원고를 올리거나 직접 추가하면 설정집이 채워져요.' },
+  episodes: { title: '원고를 올리면 자동으로 쌓여요', empty: '아직 기록된 회차가 없어요.' },
+  studio: {
+    title: '설정집의 모습 그대로 그려 드려요',
+    empty: '등장인물과 장면을 고르면 삽화와 표지 시안을 만들 수 있어요.',
+    copyright:
+      'AI가 만든 이미지는 사람이 기여한 부분만 저작권이 인정돼요. 출판에 쓸 때는 직접 수정한 부분을 기록해 두세요.',
+  },
+  settings: { title: '내 설정' },
+  common: {
+    comingSoon: '이 기능은 다음 단계에서 만들어져요.',
+    back: '작품 목록으로',
+    notFound: '페이지를 찾을 수 없어요.',
+    toStart: '처음으로',
+  },
+} as const;

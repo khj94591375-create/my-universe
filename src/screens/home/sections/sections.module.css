@@ -1,0 +1,32 @@
+.placeholder {
+  color: var(--c-sub);
+  font-size: var(--fs-sm);
+  padding: var(--sp-2) 0;
+}
+.big {
+  font-size: 30px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.big span {
+  font-size: var(--fs-md);
+  font-weight: 400;
+  color: var(--c-sub);
+}
+.bar {
+  height: 8px;
+  border-radius: 9px;
+  background: var(--c-neutral-bg);
+  overflow: hidden;
+  margin: var(--sp-2) 0 10px;
+}
+.bar span {
+  display: block;
+  height: 100%;
+  background: var(--c-gold);
+}
+.tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}

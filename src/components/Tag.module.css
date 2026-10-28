@@ -1,0 +1,32 @@
+.tag {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 2px 9px;
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+}
+.neutral {
+  background: var(--c-neutral-bg);
+  color: var(--c-sub);
+}
+.warn {
+  background: var(--c-warn-bg);
+  color: var(--c-warn);
+}
+.ok {
+  background: var(--c-ok-bg);
+  color: var(--c-ok);
+}
+.info {
+  background: var(--c-info-bg);
+  color: var(--c-info);
+}
+.gold {
+  background: var(--c-cream);
+  color: var(--c-gold-ink);
+}
+.ai {
+  background: var(--c-ai-bg);
+  color: var(--c-ai);
+}

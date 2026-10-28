@@ -1,0 +1,28 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  text-align: center;
+  padding: 48px var(--sp-5);
+  background: var(--c-card);
+  border: 1px dashed var(--c-line);
+  border-radius: var(--r-md);
+}
+.star {
+  fill: var(--c-gold);
+  opacity: 0.45;
+}
+.title {
+  font-weight: 700;
+  font-size: var(--fs-lg);
+}
+.body {
+  color: var(--c-sub);
+  font-size: var(--fs-sm);
+  max-width: 46ch;
+}
+.stage {
+  color: var(--c-sub);
+  font-size: var(--fs-xs);
+}

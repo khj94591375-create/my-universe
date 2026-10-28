@@ -1,0 +1,16 @@
+node_modules
+dist
+.DS_Store
+*.log
+
+# 로컬 환경 변수(개인 값). 공개 값은 .env.production에 둔다.
+.env
+.env.local
+
+# 채점용 실제 원고는 공개 저장소에 올리지 않는다 (BUILD_SPEC 10장)
+eval/manuscripts/*
+!eval/manuscripts/.gitkeep
+
+# Supabase 로컬 파일
+supabase/.temp
+supabase/.branches
