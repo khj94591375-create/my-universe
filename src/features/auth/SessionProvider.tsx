@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase';
 import { takeLoginErrorFromUrl } from './auth';
+import { clearWorkData } from '../works/workData';
 
 type SessionState = {
   session: Session | null;
@@ -30,7 +31,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       if (alive) setState((s) => ({ ...s, session: data.session, loading: false }));
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (alive) setState((s) => ({ ...s, session, loading: false }));
+      // 다른 계정으로 바뀌면 이전 계정의 작품 데이터를 비운다
+      setState((s) => {
+        if (s.session?.user.id !== session?.user.id) clearWorkData();
+        return alive ? { ...s, session, loading: false } : s;
+      });
     });
     return () => {
       alive = false;

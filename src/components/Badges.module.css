@@ -1,0 +1,59 @@
+.kind {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: var(--r-pill);
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+.character {
+  color: var(--c-info);
+}
+.setting {
+  color: var(--c-ok);
+}
+.foreshadow {
+  color: var(--c-gold-ink);
+}
+.ai {
+  cursor: help;
+}
+.quote {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 3px solid var(--c-gold);
+  background: var(--c-paper);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: var(--fs-sm);
+}
+.quote footer {
+  margin-top: 2px;
+  font-size: var(--fs-xs);
+  color: var(--c-sub);
+  display: flex;
+  gap: var(--sp-2);
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  background: var(--c-cream);
+  color: var(--c-navy);
+  border-radius: var(--r-pill);
+  padding: 3px 4px 3px 11px;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+.chip button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  line-height: 1;
+}
+.chip button:hover {
+  background: var(--c-white);
+}

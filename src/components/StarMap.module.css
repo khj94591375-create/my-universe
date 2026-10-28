@@ -1,0 +1,111 @@
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 45%, var(--c-navy-2), var(--c-navy) 70%);
+  border-radius: var(--r-md);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.svg:active {
+  cursor: grabbing;
+}
+.kindLine {
+  stroke: var(--c-navy-line);
+  stroke-width: 1.4;
+}
+.coLine {
+  stroke: var(--c-on-navy);
+  stroke-opacity: 0.45;
+}
+.aiLine {
+  stroke: var(--c-ai-bg);
+  stroke-opacity: 0.8;
+  stroke-dasharray: 6 5;
+}
+.manualLine {
+  stroke: var(--c-gold);
+  stroke-dasharray: 3 5;
+  stroke-linecap: round;
+}
+.lineOn {
+  stroke-opacity: 1;
+  stroke: var(--c-gold);
+}
+.center circle {
+  fill: var(--c-cream);
+}
+.center text {
+  fill: var(--c-navy);
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 17px;
+  text-anchor: middle;
+}
+.hub circle {
+  fill: var(--c-navy-2);
+  stroke: var(--c-on-navy);
+  stroke-width: 1.5;
+}
+.hub text {
+  fill: var(--c-on-navy);
+  font-size: 19px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+.star {
+  cursor: pointer;
+  outline: none;
+}
+.star path {
+  fill: var(--c-white);
+  transition: transform 0.15s;
+}
+.star text {
+  fill: var(--c-cream);
+  font-size: 20px;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--c-navy);
+  stroke-width: 5px;
+}
+.character path {
+  fill: var(--c-info-bg);
+}
+.setting path {
+  fill: var(--c-ok-bg);
+}
+.foreshadow path {
+  fill: var(--c-cream);
+}
+.hit {
+  fill: transparent;
+}
+.star:hover path,
+.star:focus-visible path {
+  transform: scale(1.35);
+}
+.star:focus-visible .hit {
+  stroke: var(--c-gold);
+  stroke-width: 2;
+}
+.selected path {
+  fill: var(--c-gold);
+  stroke: var(--c-white);
+  stroke-width: 2;
+}
+.selected text {
+  fill: var(--c-gold);
+  font-weight: 700;
+}
+.focused .hit {
+  stroke: var(--c-gold);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+}
+.aiMark {
+  font-size: 13px !important;
+  fill: var(--c-ai-bg) !important;
+  font-weight: 700;
+}

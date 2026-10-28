@@ -8,7 +8,7 @@
 
 | 항목 | 상태 |
 |---|---|
-| 현재 단계 | **M1 완료(코드) → 다음은 M2** |
+| 현재 단계 | **M2 완료 → 다음은 M3** |
 | 저장소 | https://github.com/khj94591375-create/my-universe (Public, 기본 브랜치 `main`) |
 | 배포 주소 | https://khj94591375-create.github.io/my-universe/ (`main`에 push하면 GitHub Actions가 자동 배포) |
 | GitHub Pages | 켜짐(Source: GitHub Actions). 첫 배포 성공 |
@@ -68,8 +68,22 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - 다른 구글 계정으로 로그인하면 앞 계정의 작품이 보이지 않는다(RLS 확인)
 - `npm run build` 통과, `main`에 push 후 배포 주소에서 동작
 
-### 3.4 다음 작업: M2 (기본 기능 이전, AI 없음)
-BUILD_SPEC 13장 M2. 설정집, 회차 기록, 홈, 잊힌 복선 찾기(템플릿 가이드), 우주 지도, 붙여 넣기 입력. 7.1~7.4, 7.7, 7.8 로직 단위 테스트. 쓰기 버튼은 `WriteButton`을 쓴다.
+### 3.4 M1 확인 결과
+사용자가 SQL 실행, URL Configuration, 테스트 사용자 등록 후 배포 주소에서 로그인·작품 만들기·두 계정 분리까지 확인 완료.
+(처음 로그인 때 "연결할 수 없음"은 Site URL이 기본값 localhost:3000이었기 때문. URL Configuration 저장으로 해결)
+
+## 3-2. M2에서 만든 것 (기본 기능, AI 없음)
+
+- 규칙 로직(`src/features/`): `foreshadow/gap.ts`(7.1), `slump.ts`(7.2), `reuse.ts`(7.7), `josa.ts`·`guideTemplate.ts`(7.8), `analysis/detect.ts`(7.3), `cooccur.ts`(7.4), `split.ts`(7.6), `map/layout.ts`(6.7 배치). 단위 테스트 `src/features/__tests__/rules.test.ts`(`npm test`, 20개)
+- 데이터: `src/data/workData.ts`(작품 전체 불러오기), `items.ts`(항목·별칭·연결선·합치기), `episodes.ts`(회차·장면·등장). 화면 공용 저장소 `src/features/works/workData.ts`(`useWorkData`, `refreshWorkData`), 저장 공통 처리 `features/works/save.ts`
+- 규칙 정리 흐름: `features/analysis/runRules.ts`(붙여 넣기 저장 → 장면 나누기 → 재등장 → 재사용 예정→재사용됨 → 같은 장면 연결선 재계산)
+- 화면: 홈(`screens/home`), 잊힌 복선 찾기(`screens/forgot`, 기본 가이드), 우주 지도(`screens/map`, `components/StarMap.tsx`), 설정집(`screens/bible`), 회차 기록(`screens/episodes`), 원고 불러오기 붙여 넣기 탭(`screens/upload`)
+- 부품: `Badges.tsx`(GapTag, StatusTag, KindTag, AiBadge, EvidenceQuote, Chip), `Toast.tsx`, `TextField.tsx`(TextArea, SelectField 추가)
+- DB 변경 없음(새 SQL 실행 필요 없음)
+- 검증: 단위 테스트 20개, 예시 작품 데이터로 만든 가짜 Supabase + Playwright로 화면 흐름 전체(읽기 전용, 항목 추가·별칭·붙여 넣기·덮어쓰기 확인·상태 변경·재사용됨 자동 전환·등장 해제·연결 추가·합치기·수정, 400px 폭) 확인
+
+### 3.5 다음 작업: M3 (원고 자동 읽기, 규칙)
+BUILD_SPEC 13장 M3. 파일 여러 개 올리기(docx·pdf·txt), 회차 번호·여러 회차 나누기(7.5), 검토 화면(규칙 결과). 규칙 정리는 `runRules.ts`를 그대로 쓴다. 쓰기 버튼은 `WriteButton`.
 
 ## 4. 작업 습관
 

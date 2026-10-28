@@ -1,0 +1,121 @@
+.listWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.filter {
+  border: 1px solid var(--c-line);
+  background: var(--c-card);
+  border-radius: var(--r-pill);
+  padding: 5px 12px;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+.filterOn {
+  background: var(--c-navy);
+  border-color: var(--c-navy);
+  color: var(--c-white);
+  font-weight: 700;
+}
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.card {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--c-card);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  padding: var(--sp-3) var(--sp-4);
+  cursor: pointer;
+}
+.card:hover {
+  border-color: var(--c-gold);
+}
+.selected {
+  border: 2px solid var(--c-gold);
+  background: var(--c-white);
+}
+.cardHead,
+.cardTags {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cardMeta {
+  font-size: var(--fs-xs);
+  color: var(--c-sub);
+}
+.muted {
+  color: var(--c-sub);
+  font-size: var(--fs-sm);
+}
+.guide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.guideTitle {
+  font-family: var(--f-display);
+  font-size: var(--fs-lg);
+}
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.block h3 {
+  font-size: var(--fs-sm);
+  color: var(--c-sub);
+}
+.blockHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.opening {
+  font-family: var(--f-display);
+  font-size: var(--fs-md);
+  background: var(--c-paper);
+  padding: var(--sp-3);
+  border-radius: var(--r-sm);
+}
+.directions {
+  margin: 0;
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.directions li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.linkBtn {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--c-navy);
+  padding: 0 var(--sp-2);
+}

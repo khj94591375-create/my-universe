@@ -1,0 +1,140 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+  justify-content: space-between;
+}
+.kinds {
+  display: flex;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+}
+.kindToggle {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+.search {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex: 1 1 200px;
+  max-width: 320px;
+}
+.zoom {
+  display: flex;
+  gap: 4px;
+}
+.canvas {
+  position: relative;
+  height: min(70vh, 640px);
+  min-height: 380px;
+}
+.info,
+.linkBar {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  max-width: min(320px, calc(100% - 24px));
+  background: var(--c-card);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-float);
+  padding: var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--fs-sm);
+}
+.linkBar {
+  right: 12px;
+  max-width: none;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+.linkForm {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.infoHead {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+}
+.close {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+.infoActions {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  font-weight: 700;
+}
+.muted {
+  color: var(--c-sub);
+  font-size: var(--fs-xs);
+}
+.legend {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: var(--fs-xs);
+}
+.legend i {
+  display: inline-block;
+  width: 22px;
+  height: 0;
+  vertical-align: middle;
+  border-top: 2px solid var(--c-sub);
+}
+.legend .lAi {
+  border-top: 2px dashed var(--c-ai);
+}
+.legend .lManual {
+  border-top: 2px dotted var(--c-gold-ink);
+}
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.panelBlock h3 {
+  font-size: var(--fs-sm);
+  color: var(--c-sub);
+  margin-bottom: 4px;
+}
+.chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.switch {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  font-weight: 700;
+  font-size: var(--fs-sm);
+}
+.chatNote {
+  border: 1px dashed var(--c-line);
+  border-radius: var(--r-sm);
+  padding: var(--sp-3);
+  color: var(--c-sub);
+  font-size: var(--fs-sm);
+}

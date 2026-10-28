@@ -1,7 +1,10 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button } from '../../components/Button';
+import { EmptyState } from '../../components/EmptyState';
+import { WriteButton } from '../../components/WriteButton';
 import { Column, Columns, ScreenLayout } from '../../components/ScreenLayout';
 import { copy } from '../../config/copy';
+import { WorkDataGate } from '../shared/WorkDataGate';
+import { SlumpButton } from '../shared/SlumpButton';
 import { ForgottenListSection } from './sections/ForgottenListSection';
 import { TodaySuggestionSection } from './sections/TodaySuggestionSection';
 import { ResolveProgressSection } from './sections/ResolveProgressSection';
@@ -15,25 +18,32 @@ export default function HomeScreen() {
   const { workId = '' } = useParams();
   const nav = useNavigate();
   return (
-    <ScreenLayout
-      eyebrow={copy.home.eyebrow}
-      title="다음 회차를 이어 써 볼까요"
-      action={
-        <Button variant="accent" size="lg" onClick={() => nav(`/w/${workId}/forgot`)}>
-          {copy.home.slumpButton}
-        </Button>
+    <WorkDataGate workId={workId}>
+      {(data) =>
+        data.episodes.length === 0 ? (
+          <EmptyState
+            title={copy.home.emptyTitle}
+            action={
+              <WriteButton workId={workId} variant="accent" onClick={() => nav(`/w/${workId}/upload`)}>
+                {copy.home.emptyAction}
+              </WriteButton>
+            }
+          />
+        ) : (
+          <ScreenLayout eyebrow={copy.home.eyebrow} title={copy.home.nextTitle(data.next)} action={<SlumpButton workId={workId} />}>
+            <Columns>
+              <Column>
+                <ForgottenListSection workId={workId} />
+                <TodaySuggestionSection workId={workId} />
+              </Column>
+              <Column>
+                <ResolveProgressSection workId={workId} />
+                <RecentUploadsSection workId={workId} />
+              </Column>
+            </Columns>
+          </ScreenLayout>
+        )
       }
-    >
-      <Columns>
-        <Column>
-          <ForgottenListSection workId={workId} />
-          <TodaySuggestionSection workId={workId} />
-        </Column>
-        <Column>
-          <ResolveProgressSection workId={workId} />
-          <RecentUploadsSection workId={workId} />
-        </Column>
-      </Columns>
-    </ScreenLayout>
+    </WorkDataGate>
   );
 }

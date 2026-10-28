@@ -1,0 +1,140 @@
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.row {
+  border-top: 1px solid var(--c-line);
+}
+.row:first-child {
+  border-top: 0;
+}
+.rowOpen {
+  background: var(--c-paper);
+}
+.rowBtn {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  gap: var(--sp-3);
+  align-items: start;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 12px 4px;
+  cursor: pointer;
+}
+.no {
+  font-weight: 700;
+  color: var(--c-gold-ink);
+  font-variant-numeric: tabular-nums;
+}
+.rowMain {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.muted {
+  color: var(--c-sub);
+  font-size: var(--fs-sm);
+}
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.detailHead {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  align-items: center;
+}
+.detailHead h2 {
+  font-family: var(--f-display);
+  font-size: var(--fs-lg);
+}
+.items h3 {
+  font-size: var(--fs-sm);
+  margin-bottom: 4px;
+}
+.checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--sp-2);
+}
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  padding: 4px 10px;
+  font-size: var(--fs-sm);
+  background: var(--c-white);
+}
+.checkOn {
+  border-color: var(--c-gold);
+  background: var(--c-cream);
+}
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  font-family: var(--f-display);
+  line-height: 1.9;
+}
+.scene {
+  border-left: 2px solid var(--c-line);
+  padding-left: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.sceneNo {
+  font-family: var(--f-body);
+  font-size: var(--fs-xs);
+  color: var(--c-sub);
+}
+.mark {
+  background: var(--c-cream);
+  color: inherit;
+  border-bottom: 2px solid var(--c-gold);
+  padding: 0 1px;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.formActions,
+.actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+.formActions {
+  justify-content: flex-end;
+}
+@media (max-width: 860px) {
+  .rowBtn {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+  .side {
+    grid-column: 2;
+    flex-direction: row;
+    align-items: center;
+  }
+}
