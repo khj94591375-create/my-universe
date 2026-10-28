@@ -87,3 +87,27 @@
   align-items: center;
   flex-wrap: wrap;
 }
+.pasteZone {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--r-sm);
+  border: 2px dashed var(--c-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: none;
+  overflow: hidden;
+}
+.pasteZone:focus-visible,
+.pasteOver {
+  border-color: var(--c-gold);
+  background: var(--c-cream);
+}
+.pasteZone .thumb {
+  border: 0;
+}
+.pastePlus {
+  font-size: 26px;
+  color: var(--c-sub);
+}
