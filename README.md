@@ -6,6 +6,7 @@
 - 배포 주소: https://khj94591375-create.github.io/my-universe/
 - 제작 기준 문서: [`docs/BUILD_SPEC.md`](docs/BUILD_SPEC.md) (모든 구현은 이 문서를 따른다)
 - 결정 기록: [`docs/DECISIONS.md`](docs/DECISIONS.md)
+- 현재 상태와 다음 작업: [`docs/HANDOFF.md`](docs/HANDOFF.md)
 
 ## 진행 단계
 

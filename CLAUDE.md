@@ -1,5 +1,6 @@
 # 이 저장소에서 작업하는 AI에게
 
+0. 처음이면 `docs/HANDOFF.md`로 현재 상태와 다음 작업을 확인한다.
 1. 모든 구현은 `docs/BUILD_SPEC.md`를 따른다. 먼저 0장(읽는 순서, 절대 원칙)을 읽는다.
 2. 한 번에 한 단계(M0~M7)만 만든다. 현재 단계는 `README.md`의 표를 본다. 단계를 끝내면 표를 갱신한다.
 3. 색·글꼴·간격은 `src/styles/tokens.css`, 문구는 `src/config/copy.ts`, 메뉴는 `src/config/nav.ts`에서만 바꾼다. 컴포넌트에 색상값·문구를 직접 쓰지 않는다.
