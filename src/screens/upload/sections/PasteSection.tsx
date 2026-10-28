@@ -7,7 +7,10 @@ import { TextArea, TextField } from '../../../components/TextField';
 import { copy } from '../../../config/copy';
 import { savePastedEpisode } from '../../../features/analysis/runRules';
 import { save } from '../../../features/works/save';
-import { useWorkData } from '../../../features/works/workData';
+import { refreshWorkData, useWorkData } from '../../../features/works/workData';
+import { aiAnalyzeEpisodes } from '../../../features/ai/analyze';
+import { useAiStatus } from '../../../features/ai/aiStatus';
+import { showToast } from '../../../components/Toast';
 import s from './upload.module.css';
 
 /** 붙여 넣기: 회차 번호, 제목, 본문 → 저장 → 규칙 정리(장면 나누기, 재등장, 연결선). */
@@ -20,6 +23,8 @@ export function PasteSection({ workId }: { workId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [aiLabel, setAiLabel] = useState<string | null>(null);
+  const ai = useAiStatus();
 
   // 회차 번호 기본값 = 다음 회차
   useEffect(() => {
@@ -31,9 +36,28 @@ export function PasteSection({ workId }: { workId: string }) {
     if (!data) return;
     setBusy(true);
     setConfirm(false);
-    const ok = await save(workId, () => savePastedEpisode(workId, { no: n, title, body }, data.items, overwrite), copy.upload.done(n));
+    let saved: { id: string; no: number } | null = null;
+    const ok = await save(
+      workId,
+      async () => {
+        const ep = await savePastedEpisode(workId, { no: n, title, body }, data.items, overwrite);
+        saved = { id: ep.id, no: ep.no };
+      },
+      copy.upload.done(n),
+    );
+    if (ok && saved) {
+      if (ai.on) {
+        const [r] = await aiAnalyzeEpisodes(workId, [saved], (done, total, no) => setAiLabel(copy.ai.analyzing(done, total, no)));
+        setAiLabel(null);
+        refreshWorkData(workId);
+        if (!r.ok) showToast(r.error ?? copy.ai.failed, 'error');
+        else if (r.found) showToast(copy.ai.analyzed(r.found));
+      } else {
+        showToast(copy.ai.analyzeOff);
+      }
+    }
     setBusy(false);
-    if (ok) nav(`/w/${workId}/episodes?open=${n}`);
+    if (ok) nav(`/w/${workId}/review?eps=${n}`);
   };
 
   const submit = (e: FormEvent) => {
@@ -68,7 +92,7 @@ export function PasteSection({ workId }: { workId: string }) {
         ) : (
           <div className={s.actions}>
             <WriteButton workId={workId} type="submit" variant="accent" loading={busy}>
-              {busy ? copy.upload.saving : copy.upload.submit}
+              {aiLabel ?? (busy ? copy.upload.saving : copy.upload.submit)}
             </WriteButton>
           </div>
         )}

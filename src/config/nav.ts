@@ -7,6 +7,7 @@ export type NavItem = { path: string; label: string; icon: string; stage: string
 export const workNav: NavItem[] = [
   { path: 'home', label: '내 우주 홈', icon: '⌂', stage: 'M2' },
   { path: 'upload', label: '원고 불러오기', icon: '⇪', stage: 'M3' },
+  { path: 'review', label: '정리 결과 검토', icon: '☑', stage: 'M3' },
   { path: 'forgot', label: '잊힌 복선 찾기', icon: '✦', stage: 'M2' },
   { path: 'map', label: '우주 지도', icon: '✧', stage: 'M2' },
   { path: 'bible', label: '설정집', icon: '▤', stage: 'M2' },

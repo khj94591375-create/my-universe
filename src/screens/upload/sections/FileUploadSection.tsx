@@ -10,6 +10,9 @@ import { saveEpisodes, type BatchResult, type BatchRow } from '../../../features
 import { parseManuscript } from '../../../features/manuscript/parse';
 import { ACCEPT, ManuscriptError, extractText } from '../../../features/manuscript/readFile';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
+import { aiAnalyzeEpisodes, type AiAnalyzeResult } from '../../../features/ai/analyze';
+import { useAiStatus } from '../../../features/ai/aiStatus';
+import { showToast } from '../../../components/Toast';
 import { refreshWorkData, useWorkData } from '../../../features/works/workData';
 import s from './upload.module.css';
 
@@ -41,6 +44,9 @@ export function FileUploadSection({ workId }: { workId: string }) {
   const [progress, setProgress] = useState<{ done: number; total: number; no: number } | null>(null);
   const [results, setResults] = useState<BatchResult[] | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  const [aiProgress, setAiProgress] = useState<string | null>(null);
+  const [aiFailed, setAiFailed] = useState<AiAnalyzeResult[]>([]);
+  const ai = useAiStatus();
 
   const existing = new Set(data?.episodes.map((e) => e.no) ?? []);
 
@@ -112,7 +118,26 @@ export function FileUploadSection({ workId }: { workId: string }) {
     setRows((old) => old.filter((r) => !okKeys.has(r.key)));
     const merged = [...(results ?? []).filter((r) => !res.some((x) => x.key === r.key)), ...res];
     setResults(merged);
-    if (res.every((r) => r.ok)) nav(`/w/${workId}/review?eps=${merged.filter((r) => r.ok).map((r) => r.no).sort((a, b) => a - b).join(',')}`);
+    // 규칙 정리 다음 AI 정리(켜져 있을 때만). 실패한 회차는 "AI 다시 정리"
+    const saved = res.filter((r) => r.ok && r.episodeId).map((r) => ({ id: r.episodeId!, no: r.no }));
+    let aiOk = true;
+    if (saved.length && ai.on) {
+      const aiRes = await runAi(saved);
+      aiOk = aiRes.every((r) => r.ok);
+    } else if (saved.length) {
+      showToast(copy.ai.analyzeOff);
+    }
+    if (res.every((r) => r.ok) && aiOk) nav(`/w/${workId}/review?eps=${merged.filter((r) => r.ok).map((r) => r.no).sort((a, b) => a - b).join(',')}`);
+  };
+
+  const runAi = async (eps: { id: string; no: number }[]) => {
+    const aiRes = await aiAnalyzeEpisodes(workId, eps, (done, total, no) => setAiProgress(copy.ai.analyzing(done, total, no)));
+    setAiProgress(null);
+    refreshWorkData(workId);
+    setAiFailed((old) => [...old.filter((f) => !aiRes.some((r) => r.episodeId === f.episodeId)), ...aiRes.filter((r) => !r.ok)]);
+    const found = aiRes.reduce((n, r) => n + r.found, 0);
+    if (found) showToast(copy.ai.analyzed(found));
+    return aiRes;
   };
 
   const failed = (results ?? []).filter((r) => !r.ok);
@@ -220,6 +245,31 @@ export function FileUploadSection({ workId }: { workId: string }) {
                 </WriteButton>
               </div>
             )}
+          </div>
+        )}
+
+        {aiProgress && (
+          <p className={s.progress} role="status" aria-live="polite">
+            {aiProgress}
+          </p>
+        )}
+
+        {aiFailed.length > 0 && !aiProgress && (
+          <div className={s.failed} role="alert">
+            <h3>{copy.ai.analyzeFailed}</h3>
+            <ul>
+              {aiFailed.map((f) => (
+                <li key={f.episodeId}>
+                  <span>
+                    <strong>{f.no}화</strong> — {f.error}
+                  </span>
+                  <Button size="sm" variant="ghost" onClick={() => runAi([{ id: f.episodeId, no: f.no }])}>
+                    {copy.ai.analyzeRetry}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+            {okNos.length > 0 && <Button onClick={() => nav(`/w/${workId}/review?eps=${okNos.join(',')}`)}>{copy.upload.toReview}</Button>}
           </div>
         )}
 

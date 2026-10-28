@@ -11,6 +11,7 @@ import { save } from '../../../features/works/save';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { useWorkData } from '../../../features/works/workData';
 import { kindOptions } from './NewItemSection';
+import { SheetImage } from './SheetImage';
 import s from './bible.module.css';
 
 const statusOptions: [ItemStatus, string][] = (['open', 'resolved', 'reuse_planned', 'reused'] as ItemStatus[]).map((st) => [st, copy.labels.status[st]]);
@@ -105,6 +106,7 @@ export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
           {copy.bible.look}: {item.look}
         </p>
       )}
+      <SheetImage workId={workId} item={item} canWrite={canWrite} />
       <div className={s.aliases}>
         <span className={s.muted}>{copy.bible.aliases}</span>
         {item.aliases.map((a) => (

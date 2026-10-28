@@ -79,6 +79,8 @@ export type Link = {
 /** 화면에서 쓰는 항목: 별칭과 계산 값(처음·마지막 등장, gap)을 붙인 것. */
 export type ItemView = Item & {
   aliases: string[];
+  /** AI가 찾아 아직 확정하지 않은 별칭(aliases에도 들어 있다) */
+  aiAliases: string[];
   first_ep: number | null;
   last_ep: number | null;
   mention_count: number;

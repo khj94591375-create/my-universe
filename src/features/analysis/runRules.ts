@@ -68,7 +68,7 @@ export async function savePastedEpisode(workId: string, input: PasteInput, items
 }
 
 export type BatchRow = PasteInput & { key: string; sourceFile: string };
-export type BatchResult = { key: string; no: number; ok: boolean; error?: string };
+export type BatchResult = { key: string; no: number; ok: boolean; error?: string; episodeId?: string };
 
 /**
  * 여러 회차를 회차 번호 순서대로 저장·정리한다. 한 회차가 실패해도 나머지는 계속한다(BUILD_SPEC 6.4).
@@ -86,8 +86,8 @@ export async function saveEpisodes(
   for (const [i, row] of sorted.entries()) {
     onProgress(i, sorted.length, row.no);
     try {
-      await saveEpisode(workId, row, items, overwrite, row.sourceFile);
-      results.push({ key: row.key, no: row.no, ok: true });
+      const ep = await saveEpisode(workId, row, items, overwrite, row.sourceFile);
+      results.push({ key: row.key, no: row.no, ok: true, episodeId: ep.id });
     } catch (e) {
       results.push({ key: row.key, no: row.no, ok: false, error: toMessage(e) });
     }

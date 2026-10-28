@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
@@ -11,6 +12,9 @@ import { save } from '../../../features/works/save';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { useWorkData } from '../../../features/works/workData';
 import { reuseOf } from './ForgotListSection';
+import { callAi, type GuideResult } from '../../../data/ai';
+import { aiErrorMessage, refreshAiStatus, useAiStatus } from '../../../features/ai/aiStatus';
+import { showToast } from '../../../components/Toast';
 import s from './forgot.module.css';
 
 /** 선택한 항목의 가이드: 시작 문장 예시 + 방향 3개(각각 근거 문장) + 상태 바꾸기(BUILD_SPEC 6.6, 7.8). */
@@ -18,6 +22,10 @@ export function GuidePanelSection({ workId, itemId }: { workId: string; itemId: 
   const { data } = useWorkData(workId);
   const { work } = useWork(workId);
   const canWrite = useCanWrite(work);
+  const ai = useAiStatus();
+  const [aiGuides, setAiGuides] = useState<Record<string, GuideResult>>({});
+  const [loadingAi, setLoadingAi] = useState(false);
+  const [showBasic, setShowBasic] = useState(false);
   const item = itemId && data ? data.itemById.get(itemId) : null;
   if (!data) return null;
   if (!item) {
@@ -37,6 +45,22 @@ export function GuidePanelSection({ workId, itemId }: { workId: string; itemId: 
     .sort((x, y) => (y.ep ?? 0) - (x.ep ?? 0));
   const reuse = item.kind === 'foreshadow' && item.status === 'resolved' ? reuseOf(data, item) : null;
   const setStatus = (st: ItemStatus) => save(workId, () => setItemStatus(item.id, st));
+  const aiGuide = !showBasic ? aiGuides[item.id] : undefined;
+  const askAi = async () => {
+    setLoadingAi(true);
+    try {
+      const g = await callAi<GuideResult>('guide', { workId, itemId: item.id });
+      setAiGuides((m) => ({ ...m, [item.id]: g }));
+      setShowBasic(false);
+    } catch (e) {
+      showToast(aiErrorMessage(e), 'error');
+    }
+    setLoadingAi(false);
+    refreshAiStatus();
+  };
+  // AI 제안 중 근거가 검증되지 않은 것은 보여 주지 않는다(BUILD_SPEC 0.3-2)
+  const aiDirections = aiGuide ? aiGuide.directions.filter((d) => d.evidence) : [];
+  const aiDropped = aiGuide ? aiGuide.directions.length - aiDirections.length : 0;
 
   return (
     <Card tone="highlight" className={s.guide}>
@@ -49,31 +73,58 @@ export function GuidePanelSection({ workId, itemId }: { workId: string; itemId: 
       </div>
       {item.note && <p className={s.muted}>{item.note}</p>}
 
-      <div className={s.block}>
-        <div className={s.blockHead}>
-          <h3>{copy.forgot.openingLabel(data.next)}</h3>
-          <span title={copy.forgot.basicGuideTip}>
-            <Tag>{copy.forgot.basicGuide}</Tag>
-          </span>
+      {aiGuide ? (
+        <>
+          <div className={s.block}>
+            <div className={s.blockHead}>
+              <h3>{copy.forgot.openingLabel(data.next)}</h3>
+              <Tag tone="ai">{copy.ai.suggestion}</Tag>
+            </div>
+            <p className={s.opening}>{aiGuide.opening_line}</p>
+          </div>
+          <div className={s.block}>
+            <h3>{copy.forgot.directionsLabel}</h3>
+            <ol className={s.directions}>
+              {aiDirections.map((d, idx) => (
+                <li key={idx}>
+                  <strong>{d.type}</strong>
+                  <p>{d.text}</p>
+                  <EvidenceQuote text={d.evidence!} ep={Number(/E(\d+)/.exec(d.tag)?.[1]) || null} />
+                </li>
+              ))}
+            </ol>
+            {aiDropped > 0 && <p className={s.muted}>{copy.forgot.dropped(aiDropped)} ({copy.ai.noEvidence})</p>}
+            {aiGuide.reuse_reason && <p className={s.muted}>{aiGuide.reuse_reason}</p>}
+          </div>
+        </>
+      ) : (
+        <>
+        <div className={s.block}>
+          <div className={s.blockHead}>
+            <h3>{copy.forgot.openingLabel(data.next)}</h3>
+            <span title={copy.forgot.basicGuideTip}>
+              <Tag>{copy.forgot.basicGuide}</Tag>
+            </span>
+          </div>
+          <p className={s.opening}>{guide.opening}</p>
         </div>
-        <p className={s.opening}>{guide.opening}</p>
-      </div>
-
-      <div className={s.block}>
-        <h3>{copy.forgot.directionsLabel}</h3>
-        <ol className={s.directions}>
-          {guide.directions.map((d, idx) => {
-            const ev = evidences.length ? evidences[idx % evidences.length] : null;
-            return (
-              <li key={d.title}>
-                <strong>{d.title}</strong>
-                <p>{d.body}</p>
-                {ev ? <EvidenceQuote text={ev.text} ep={ev.ep} /> : <p className={s.muted}>{copy.forgot.noEvidence}</p>}
-              </li>
-            );
-          })}
-        </ol>
-      </div>
+        <div className={s.block}>
+          <h3>{copy.forgot.directionsLabel}</h3>
+          <ol className={s.directions}>
+            {guide.directions.map((d, idx) => {
+              const ev = evidences.length ? evidences[idx % evidences.length] : null;
+              return (
+                <li key={d.title}>
+                  <strong>{d.title}</strong>
+                  <p>{d.body}</p>
+                  {ev ? <EvidenceQuote text={ev.text} ep={ev.ep} /> : <p className={s.muted}>{copy.forgot.noEvidence}</p>}
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+        </>
+      )}
 
       {reuse && (
         <div className={s.block}>
@@ -98,11 +149,21 @@ export function GuidePanelSection({ workId, itemId }: { workId: string; itemId: 
         <Link to={`/w/${workId}/map?sel=${item.id}`} className={s.linkBtn}>
           {copy.forgot.toMap} →
         </Link>
-        <Button variant="ghost" disabled title={copy.forgot.aiLater}>
-          {copy.forgot.aiChat}
-        </Button>
+        {canWrite && (aiGuide ? (
+          <Button variant="ghost" onClick={() => setShowBasic(true)}>
+            {copy.forgot.basicAgain}
+          </Button>
+        ) : (
+          <Button variant="ghost" onClick={askAi} loading={loadingAi} disabled={!ai.on} title={ai.reason ?? undefined}>
+            {loadingAi ? copy.forgot.aiGuideLoading : copy.forgot.aiGuide}
+          </Button>
+        ))}
+        <Link to={`/w/${workId}/map?sel=${item.id}`} className={s.linkBtn}>
+          {copy.forgot.aiChat} →
+        </Link>
       </div>
       {!canWrite && <p className={s.muted}>{copy.shell.loginToWrite}</p>}
+      {canWrite && !ai.on && ai.reason && <p className={s.muted}>{ai.reason}</p>}
     </Card>
   );
 }

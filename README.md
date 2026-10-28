@@ -16,7 +16,7 @@
 | M1 | 데이터베이스, 구글 로그인, 작품 목록, 예시 작품 | 완료 |
 | M2 | 기본 기능 이전(설정집, 회차, 홈, 잊힌 복선, 우주 지도) | 완료 |
 | M3 | 원고 자동 읽기(규칙) | 완료 |
-| M4 | Claude 연결(RAG v1) | 예정 |
+| M4 | Claude 연결(RAG v1) | 뼈대 완료 · API 키 대기 |
 | M5 | 채점, 설정 충돌 | 예정 |
 | M6 | 삽화 스튜디오 | 예정 |
 | M7 | 사용자 테스트, 마무리 | 예정 |
@@ -40,6 +40,7 @@ Supabase 대시보드 → **SQL Editor** → **New query**에 아래 파일 내�
 2. `supabase/seed/sample_work.sql` — 예시 작품 "별의 도서관"(여러 번 실행해도 됨)
 3. `supabase/migrations/0002_link_direction.sql` — 연결선 방향(화살표). 시드를 다시 실행했다면 이것도 다시 실행
 4. `supabase/migrations/0003_link_per_direction.sql` — 같은 두 항목 사이에 방향마다 선 하나씩
+5. `supabase/migrations/0004_ai_ready.sql` — AI 연결 준비(별칭 출처, 사용량 +1, 비슷한 장면 찾기)
 
 ## 디자인·문구를 바꾸는 곳
 
@@ -49,6 +50,12 @@ Supabase 대시보드 → **SQL Editor** → **New query**에 아래 파일 내�
 | 버튼 이름·안내 문구 | `src/config/copy.ts` |
 | 메뉴 순서·이름·아이콘 | `src/config/nav.ts` |
 | 화면 안 카드 배치 | `src/screens/<화면>/<화면>Screen.tsx`의 섹션 순서 |
+
+## AI 서버 함수(Supabase Edge Functions)
+
+- 코드: `supabase/functions/`(공용 `_shared/` + `ai-status`, `analyze-episode`, `guide`, `design-next`, `chat`, `delete-account`)
+- 배포: `main`에 함수가 바뀌면 GitHub Actions(`functions.yml`)가 올린다. 저장소 비밀값 `SUPABASE_ACCESS_TOKEN`이 없으면 건너뛴다.
+- 키(`ANTHROPIC_API_KEY` 등)는 Supabase 대시보드 → Edge Functions → Secrets에만 넣는다. 키가 없으면 AI 버튼은 이유와 함께 꺼져 있고 기본 기능은 그대로 동작한다.
 
 ## 보안 규칙
 

@@ -120,3 +120,41 @@ export async function mergeItems(keepId: string, dropId: string) {
   }
   await deleteItem(dropId);
 }
+
+/* ── AI 추정 확정·거절(BUILD_SPEC 6.5) ── */
+
+export async function confirmItem(id: string) {
+  return updateItem(id, { confirmed: true });
+}
+
+/** AI가 찾은 별칭을 작가 입력으로 확정한다. */
+export async function confirmAlias(itemId: string, alias: string) {
+  const { error } = await db().from('item_aliases').update({ source: 'manual' }).eq('item_id', itemId).eq('alias', alias);
+  if (error) throw error;
+}
+
+/** AI가 찾은 관계를 확정: 작가가 이은 선으로 바꾼다. */
+export async function confirmAiLink(id: string) {
+  const { error } = await db().from('links').update({ kind: 'manual' }).eq('id', id);
+  if (error) throw error;
+}
+
+/** 회수 추정을 받아들이면 상태를 회수 완료로 바꾸고, 제안을 작가 확인 기록으로 남긴다. 상태는 작가가 눌러야 바뀐다 [고정]. */
+export async function acceptResolution(itemId: string, appearanceId: string) {
+  await setItemStatus(itemId, 'resolved');
+  const { error } = await db().from('appearances').update({ source: 'manual' }).eq('id', appearanceId);
+  if (error) throw error;
+}
+
+/** "AI 추정 모두 확정": 새 항목, 별칭, 관계. 회수 추정은 상태를 바꾸므로 넣지 않는다. */
+export async function confirmAllAi(workId: string, itemIds: string[]) {
+  const c = db();
+  const r1 = await c.from('items').update({ confirmed: true }).eq('work_id', workId).eq('confirmed', false);
+  if (r1.error) throw r1.error;
+  if (itemIds.length) {
+    const r2 = await c.from('item_aliases').update({ source: 'manual' }).in('item_id', itemIds).eq('source', 'ai');
+    if (r2.error) throw r2.error;
+  }
+  const r3 = await c.from('links').update({ kind: 'manual' }).eq('work_id', workId).eq('kind', 'ai');
+  if (r3.error) throw r3.error;
+}

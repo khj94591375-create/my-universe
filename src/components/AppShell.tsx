@@ -4,6 +4,8 @@ import { copy } from '../config/copy';
 import { LEGACY_SAMPLE_SLUG, SAMPLE_WORK_ID } from '../config/sample';
 import { useSession } from '../features/auth/SessionProvider';
 import { useWork } from '../features/works/useWork';
+import { useWorkData } from '../features/works/workData';
+import { unreviewedCount } from '../features/ai/review';
 import { BrandMark } from './BrandMark';
 import { Loading } from './Loading';
 import { ErrorState } from './ErrorState';
@@ -17,6 +19,8 @@ export function AppShell() {
   const { workId = '' } = useParams();
   const { session, loading: sessionLoading } = useSession();
   const { work, loading, error } = useWork(workId);
+  const { data } = useWorkData(workId);
+  const pending = unreviewedCount(data);
 
   if (workId === LEGACY_SAMPLE_SLUG) return <Navigate to={`/w/${SAMPLE_WORK_ID}/home`} replace />;
   if (sessionLoading || loading) return <Loading fullPage />;
@@ -43,6 +47,11 @@ export function AppShell() {
             <NavLink key={n.path} to={`/w/${workId}/${n.path}`} className={({ isActive }) => (isActive ? `${s.link} ${s.active}` : s.link)}>
               <i aria-hidden="true">{n.icon}</i>
               {n.label}
+              {n.path === 'review' && pending > 0 && (
+                <span className={s.badge} aria-label={copy.shell.pending(pending)}>
+                  {pending}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>

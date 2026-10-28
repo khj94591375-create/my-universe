@@ -8,7 +8,8 @@ import { EmptyState } from '../../../components/EmptyState';
 import { Tag } from '../../../components/Tag';
 import { copy } from '../../../config/copy';
 import { deleteAppearance, fetchChunkSeqs } from '../../../data/episodes';
-import { updateItem } from '../../../data/items';
+import { acceptResolution, updateItem } from '../../../data/items';
+import { StatusTag } from '../../../components/Badges';
 import { recomputeCoOccur } from '../../../features/analysis/runRules';
 import { save } from '../../../features/works/save';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
@@ -50,8 +51,10 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
         </Card>
       )}
       {episodes.map((ep) => {
+        // 회수 추정(제안)은 따로 보여 준다
+        const resolves = data.appearances.filter((a) => a.episode_id === ep.id && a.source === 'ai' && a.role === 'resolve');
         const apps = data.appearances
-          .filter((a) => a.episode_id === ep.id)
+          .filter((a) => a.episode_id === ep.id && !(a.source === 'ai' && a.role === 'resolve'))
           .sort((x, y) => (seqs.get(x.chunk_id ?? '') ?? 99) - (seqs.get(y.chunk_id ?? '') ?? 99));
         // 같은 장면에 함께 나온 쌍(이 회차 안에서)
         const byChunk = new Map<string, Set<string>>();
@@ -124,6 +127,37 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
                   );
                 })}
               </ul>
+            )}
+            {resolves.length > 0 && (
+              <div className={s.pairs}>
+                <h3>{copy.review.resolveTitle}</h3>
+                <ul className={s.rows}>
+                  {resolves.map((r) => {
+                    const item = data.itemById.get(r.item_id);
+                    if (!item) return null;
+                    return (
+                      <li key={r.id} className={s.row}>
+                        <div className={s.rowHead}>
+                          <strong>{copy.review.resolveRow(item.name, ep.no)}</strong>
+                          <AiBadge evidence={r.evidence} />
+                          <StatusTag status={item.status} />
+                          {canWrite && (
+                            <span className={s.actions}>
+                              <Button size="sm" onClick={() => save(workId, () => acceptResolution(item.id, r.id))}>
+                                {copy.review.markResolved}
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => save(workId, () => deleteAppearance(r.id), copy.toast.deleted)}>
+                                {copy.review.notResolved}
+                              </Button>
+                            </span>
+                          )}
+                        </div>
+                        <EvidenceQuote text={r.evidence} />
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             )}
             <div className={s.pairs}>
               <h3>{copy.review.pairsTitle}</h3>

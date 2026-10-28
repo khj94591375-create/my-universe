@@ -7,7 +7,7 @@ import { db } from './client';
  */
 
 export type WorkRaw = {
-  items: (Item & { aliases: string[] })[];
+  items: (Item & { aliases: string[]; aiAliases: string[] })[];
   episodes: Episode[];
   appearances: Appearance[];
   links: Link[];
@@ -16,7 +16,7 @@ export type WorkRaw = {
 export async function fetchWorkRaw(workId: string): Promise<WorkRaw> {
   const c = db();
   const [items, episodes, appearances, links] = await Promise.all([
-    c.from('items').select('*, item_aliases(alias)').eq('work_id', workId).order('created_at'),
+    c.from('items').select('*, item_aliases(*)').eq('work_id', workId).order('created_at'),
     c.from('episodes').select('*').eq('work_id', workId).order('no'),
     c
       .from('appearances')
@@ -26,10 +26,11 @@ export async function fetchWorkRaw(workId: string): Promise<WorkRaw> {
   ]);
   for (const r of [items, episodes, appearances, links]) if (r.error) throw r.error;
   return {
-    items: (items.data ?? []).map(({ item_aliases, ...i }) => ({
-      ...(i as Item),
-      aliases: ((item_aliases ?? []) as { alias: string }[]).map((a) => a.alias),
-    })),
+    items: (items.data ?? []).map(({ item_aliases, ...i }) => {
+      // source 칸은 0004 SQL 뒤에 생긴다. 없으면 모두 작가 입력으로 본다
+      const list = (item_aliases ?? []) as { alias: string; source?: string }[];
+      return { ...(i as Item), aliases: list.map((a) => a.alias), aiAliases: list.filter((a) => a.source === 'ai').map((a) => a.alias) };
+    }),
     episodes: (episodes.data ?? []) as Episode[],
     appearances: (appearances.data ?? []).map(({ items: _w, ...a }) => a as Appearance),
     links: (links.data ?? []) as Link[],

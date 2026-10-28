@@ -8,7 +8,7 @@
 
 | 항목 | 상태 |
 |---|---|
-| 현재 단계 | **M3 완료 → 다음은 M4** |
+| 현재 단계 | **M4 뼈대 완료(API 키 대기) → 키를 넣으면 M4 마무리, 그다음 M5** |
 | 저장소 | https://github.com/khj94591375-create/my-universe (Public, 기본 브랜치 `main`) |
 | 배포 주소 | https://khj94591375-create.github.io/my-universe/ (`main`에 push하면 GitHub Actions가 자동 배포) |
 | GitHub Pages | 켜짐(Source: GitHub Actions). 첫 배포 성공 |
@@ -93,8 +93,25 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - 검증: 단위 테스트 32개. 가짜 Supabase + Playwright로 실제 docx·pdf·txt(6화 묶음)·EUC-KR txt·hwp를 한 번에 올려 6화 저장, 등장 43개·같은 장면 연결선 10개(예시 작품 시드와 동일), 홈 "다음은 7화 차례예요", 덮어쓰기/건너뛰기, 전체 다시 정리, 예시 작품 쓰기 막힘, 400px 확인
 - 참고: 규칙 정리는 설정집에 있는 이름·별칭만 찾는다. 새 작품에서 바로 쓰려면 설정집에 항목을 먼저 넣거나, 올린 뒤 "전체 다시 정리"
 
-### 3.6 다음 작업: M4 (Claude 연결, RAG v1)
-BUILD_SPEC 13장 M4, 8장. 사람이 할 일: Claude API 결제·키 발급, `supabase secrets set ANTHROPIC_API_KEY=...`(키는 저장소·화면에 절대 넣지 않음). 만들 것: Edge Functions `_shared`(claude, retrieval, verify, limits), `analyze-episode`, `guide`, `design-next`, `chat`, 검토 화면 AI 추정 처리, 사용량 표시. 쓰기 버튼은 `WriteButton`.
+## 3-4. API 키 없이 만든 것 (M4 뼈대 + 내 설정 + 이미지 시트)
+
+- DB `supabase/migrations/0004_ai_ready.sql`(**사용자 실행 필요**): `item_aliases.source`, `increment_ai_usage()`(service role 전용), `search_chunks()`(pg_trgm word_similarity, service role 전용)
+- 서버 `supabase/functions/`:
+  - `_shared/`: `verify.ts`(8.3 근거 검증), `context.ts`(8.2 근거 조립: 8장면·12,000자·150항목), `rules.ts`(8.4 거르기, 8.6 draft 제거), `retrieval.ts`(`retrieve(workId, query, itemIds)`), `claude.ts`(SDK + 구조화 출력, 1회 재시도, 키 없으면 `ai_off`), `schemas.ts`(zod), `prompts.ts`, `limits.ts`, `http.ts`, `deps.ts`(버전 고정)
+  - 함수: `ai-status`, `analyze-episode`, `guide`, `design-next`, `chat`, `delete-account`
+  - 순수 로직 테스트 `_shared/shared.test.ts`(vitest), 함수 전체는 `deno check` 통과, 가짜 Claude 서버로 요청 모양·재시도·키 없음 확인
+  - 배포 `.github/workflows/functions.yml`(GitHub 비밀값 `SUPABASE_ACCESS_TOKEN`이 있을 때만)
+- 화면: `src/data/ai.ts`(invoke + 오류 코드), `features/ai/aiStatus.ts`(켜짐/꺼짐·이유), 원고 올린 뒤 AI 정리(진행·실패 회차 다시 정리), 검토 화면 AI 추정(별칭·관계·새 항목 맞아요/지우기, 회수 추정 회수 완료/아니에요, 모두 확정), 메뉴 "정리 결과 검토" 숫자, 잊힌 복선 "AI 가이드 받기"(검증 안 된 근거는 숨김), 우주 지도 설계·초안 스위치·대화
+- 내 설정 `screens/settings`: 오늘 AI 사용량, 데이터 내보내기(JSON), 내 작품 모두 지우기, 계정 삭제(함수 연결 후)
+- 설정집 이미지 시트 직접 올리기(`data/images.ts`, `screens/bible/sections/SheetImage.tsx`)
+- 검증: 단위 테스트 41개, 가짜 Supabase + Playwright로 AI 꺼짐(함수 없음)·켜짐(가짜 함수) 두 경우, 내보내기·지우기·이미지 시트, M2·M3 회귀 확인
+
+### 3.6 M4 마무리(사용자가 키를 준비하면)
+1. Claude API 키 발급(Claude Console → API Keys), 결제 수단 등록
+2. Supabase → Edge Functions → Secrets: `ANTHROPIC_API_KEY`(필수), 필요하면 `CLAUDE_MODEL_MAIN`(기본 claude-sonnet-5-5), `CLAUDE_MODEL_FAST`(기본 claude-haiku-5-5), `DAILY_AI_TEXT_LIMIT`
+3. 함수 배포: Supabase → Account → Access Tokens에서 토큰 발급 → GitHub 저장소 Settings → Secrets and variables → Actions → `SUPABASE_ACCESS_TOKEN` → Actions 탭에서 "Deploy Supabase Edge Functions" 실행
+4. 확인할 것: 서버 키 이름(`SUPABASE_SERVICE_ROLE_KEY` 또는 `SUPABASE_SECRET_KEYS`)이 함수에서 읽히는지, 실제 원고로 analyze-episode 결과 품질과 근거 검증 통과율, 60초 안에 끝나는지
+5. 그다음 M5(채점 도구, 설정 충돌)
 
 ## 4. 작업 습관
 

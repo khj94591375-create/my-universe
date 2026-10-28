@@ -66,3 +66,24 @@
   color: var(--c-warn);
   font-size: var(--fs-sm);
 }
+.sheet {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.thumb,
+.thumbEmpty {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--r-sm);
+  object-fit: cover;
+  border: 1px solid var(--c-line);
+  background: var(--c-neutral-bg);
+}
+.sheetActions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
