@@ -179,3 +179,8 @@
 .removeLink:hover {
   border-color: var(--c-warn);
 }
+.hint {
+  flex-basis: 100%;
+  color: var(--c-sub);
+  font-size: var(--fs-xs);
+}

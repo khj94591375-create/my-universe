@@ -173,3 +173,27 @@ describe('연결선 방향', () => {
     expect(directionFor({ a: 'x', b: 'y', direction: 'none' }, 'x')).toBe('both');
   });
 });
+
+import { controlPoint, pairOffsets, pointOnCurve } from '../map/links';
+
+describe('같은 두 별 사이의 선 두 개', () => {
+  const base = { a: 'x', b: 'y', kind: 'manual' as const };
+  it('선이 하나면 직선, 둘이면 서로 반대쪽으로 휜다', () => {
+    expect(pairOffsets([{ ...base, id: '1', direction: 'forward' }]).get('1')).toBe(0);
+    const two = pairOffsets([{ ...base, id: 'f', direction: 'forward' }, { ...base, id: 'b', direction: 'backward' }]);
+    expect(two.get('f')).toBe(-35);
+    expect(two.get('b')).toBe(35);
+  });
+  it('같은 장면 선은 휘지 않는다', () => {
+    expect(pairOffsets([{ ...base, id: 'c', kind: 'co_occur' }]).has('c')).toBe(false);
+  });
+  it('곡선 꼭대기는 가운데에서 offset만큼 떨어진다', () => {
+    const a = { x: 0, y: 0 };
+    const b = { x: 100, y: 0 };
+    const mid = pointOnCurve(a, controlPoint(a, b, 20), b, 0.5);
+    expect(mid.x).toBeCloseTo(50);
+    expect(Math.abs(mid.y)).toBeCloseTo(20);
+    const other = pointOnCurve(a, controlPoint(a, b, -20), b, 0.5);
+    expect(Math.sign(other.y)).toBe(-Math.sign(mid.y));
+  });
+});

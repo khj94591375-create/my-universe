@@ -165,6 +165,7 @@ export const copy = {
       removeYes: '지우기',
       removed: '연결선을 지웠어요.',
       autoLink: '원고에서 자동 계산',
+      twoWayHint: '방향마다 관계가 다르면, 방향을 바꿔 한 번 더 이어 주세요.',
       close: '닫기',
     },
     panel: {
@@ -281,6 +282,6 @@ export const copy = {
     retry: '다시 시도',
     dbNotReady: '데이터베이스가 아직 준비되지 않았어요. Supabase SQL Editor에서 0001_init.sql과 sample_work.sql을 실행해 주세요.',
     unknownError: '알 수 없는 오류가 생겼어요. 잠시 후 다시 시도해 주세요.',
-    dbUpdate: '데이터베이스 업데이트가 필요해요. Supabase SQL Editor에서 0002_link_direction.sql을 실행해 주세요.',
+    dbUpdate: '데이터베이스 업데이트가 필요해요. Supabase SQL Editor에서 0002_link_direction.sql과 0003_link_per_direction.sql을 실행해 주세요.',
   },
 } as const;

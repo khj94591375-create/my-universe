@@ -156,6 +156,7 @@ export function MapCanvasSection({ workId, selected, onToggle }: { workId: strin
                 <Button type="submit" size="sm">
                   {copy.map.info.linkSave}
                 </Button>
+                <span className={s.hint}>{copy.map.info.twoWayHint}</span>
                 <Button variant="ghost" size="sm" onClick={() => { setLinkFrom(null); setLinkTo(null); }}>
                   {copy.map.info.linkCancel}
                 </Button>

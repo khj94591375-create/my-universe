@@ -3,7 +3,7 @@ import { copy } from '../config/copy';
 import type { ItemKind, ItemView, Link } from '../data/types';
 import { gapLabel } from '../features/foreshadow/gap';
 import { hubPos, layoutStars, starOpacity, type Pos } from '../features/map/layout';
-import { linkEnds } from '../features/map/links';
+import { controlPoint, linkEnds, pairOffsets, pointOnCurve } from '../features/map/links';
 import s from './StarMap.module.css';
 
 /*
@@ -39,6 +39,18 @@ export function StarMap({
 
   const pos = useMemo(() => layoutStars(items, links), [items, links]);
   const byId = useMemo(() => new Map(items.map((i) => [i.id, i])), [items]);
+  const offsets = useMemo(() => pairOffsets(links), [links]);
+  /** 선의 시작·제어점·끝(화살표 방향). 같은 두 별 사이에 선이 여럿이면 서로 반대쪽으로 휜다. */
+  const geometry = (l: Link) => {
+    const { from, to, directed } = linkEnds(l);
+    const pa = pos.get(l.a);
+    const pb = pos.get(l.b);
+    const p0 = pos.get(from);
+    const p1 = pos.get(to);
+    if (!pa || !pb || !p0 || !p1) return null;
+    const c = controlPoint(pa, pb, offsets.get(l.id) ?? 0);
+    return { p0, p1, c, directed, to };
+  };
   // 별들이 차지한 범위에 맞춰 화면 크기를 정한다(라벨이 읽히도록)
   const vb = useMemo(() => {
     const pts = [...pos.values(), { x: 0, y: 0 }];
@@ -141,27 +153,29 @@ export function StarMap({
         </defs>
         {/* 항목 사이 연결선 */}
         {links.map((l) => {
-          const { from, to, directed } = linkEnds(l);
-          const a = pos.get(from);
-          const b = pos.get(to);
-          if (!a || !b) return null;
+          const g = geometry(l);
+          if (!g) return null;
           const on = lit.has(l.kind === 'co_occur' ? `${l.a}|${l.b}` : l.id);
-          const cls = l.kind === 'co_occur' ? s.coLine : l.kind === 'ai' ? s.aiLine : s.manualLine;
-          // 방향이 있으면 화살촉이 별에 가려지지 않게 끝을 별 크기만큼 줄인다
-          const end = directed ? shorten(a, b, starRadius(byId.get(to)?.mention_count ?? 0) + 8) : b;
+          const tip = <title>{l.kind === 'ai' ? `${copy.labels.ai}${l.label ? `: ${l.label}` : ''}` : (l.label ?? copy.map.legendCo)}</title>;
+          if (l.kind === 'co_occur') {
+            return (
+              <line key={l.id} x1={g.p0.x} y1={g.p0.y} x2={g.p1.x} y2={g.p1.y} className={`${s.coLine} ${on ? s.lineOn : ''}`} strokeWidth={Math.min(1 + l.weight * 0.6, 4)}>
+                {tip}
+              </line>
+            );
+          }
+          // 방향이 있으면 화살촉이 별에 가려지지 않게 끝을 별 크기만큼 당긴다(곡선의 끝 방향으로)
+          const end = g.directed ? shorten(g.c, g.p1, starRadius(byId.get(g.to)?.mention_count ?? 0) + 8) : g.p1;
           return (
-            <line
+            <path
               key={l.id}
-              x1={a.x}
-              y1={a.y}
-              x2={end.x}
-              y2={end.y}
-              className={`${cls} ${on ? s.lineOn : ''}`}
-              strokeWidth={l.kind === 'co_occur' ? Math.min(1 + l.weight * 0.6, 4) : 1.6}
-              markerEnd={directed && l.kind !== 'co_occur' ? `url(#arrow-${l.kind})` : undefined}
+              d={`M${g.p0.x},${g.p0.y} Q${g.c.x},${g.c.y} ${end.x},${end.y}`}
+              className={`${s.curve} ${l.kind === 'ai' ? s.aiLine : s.manualLine} ${on ? s.lineOn : ''}`}
+              strokeWidth={1.6}
+              markerEnd={g.directed ? `url(#arrow-${l.kind})` : undefined}
             >
-              <title>{l.kind === 'ai' ? `${copy.labels.ai}${l.label ? `: ${l.label}` : ''}` : (l.label ?? copy.map.legendCo)}</title>
-            </line>
+              {tip}
+            </path>
           );
         })}
         {/* 중심과 종류 */}
@@ -185,11 +199,10 @@ export function StarMap({
         })}
         {/* 관계 이름(AI 추정·작가가 이은 선) */}
         {links.map((l) => {
-          const a = pos.get(l.a);
-          const b = pos.get(l.b);
-          if (!a || !b || !l.label || l.kind === 'co_occur') return null;
+          const g = geometry(l);
+          if (!g || !l.label || l.kind === 'co_occur') return null;
           return (
-            <text key={`t-${l.id}`} {...labelSpot(a, b, kinds)} className={`${s.linkLabel} ${l.kind === 'manual' ? s.linkLabelManual : ''}`}>
+            <text key={`t-${l.id}`} {...labelSpot(g.p0, g.c, g.p1, kinds)} className={`${s.linkLabel} ${l.kind === 'manual' ? s.linkLabelManual : ''}`}>
               {l.label}
             </text>
           );
@@ -241,14 +254,15 @@ function shorten(a: Pos, b: Pos, by: number): Pos {
   return { x: b.x - ((b.x - a.x) / d) * by, y: b.y - ((b.y - a.y) / d) * by };
 }
 
-/** 관계 이름 위치: 선 가운데에 두되, 가운데 원이나 종류 동그라미와 겹치면 선을 따라 옮긴다. */
-function labelSpot(a: Pos, b: Pos, kinds: ItemKind[]) {
+/** 관계 이름 위치: 선(곡선) 가운데에 두되, 가운데 원이나 종류 동그라미와 겹치면 선을 따라 옮긴다. */
+function labelSpot(a: Pos, c: Pos, b: Pos, kinds: ItemKind[]) {
   const blockers = [{ x: 0, y: 0, r: 95 }, ...kinds.map((k) => ({ ...hubPos(k), r: 60 }))];
   for (const t of [0.5, 0.35, 0.65, 0.22, 0.78]) {
-    const p = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
-    if (blockers.every((o) => Math.hypot(p.x - o.x, p.y - o.y) > o.r)) return { x: p.x, y: p.y - 6 };
+    const p = pointOnCurve(a, c, b, t);
+    if (blockers.every((o) => Math.hypot(p.x - o.x, p.y - o.y) > o.r)) return { x: p.x, y: p.y + 6 };
   }
-  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 - 6 };
+  const m = pointOnCurve(a, c, b, 0.5);
+  return { x: m.x, y: m.y + 6 };
 }
 
 /** 작품 제목을 가운데 원 안에 들어가도록 최대 3줄로 나눈다. 넘치면 말줄임(…). */

@@ -45,16 +45,16 @@ export function orderPair(x: string, y: string): [string, string] {
   return x < y ? [x, y] : [y, x];
 }
 
-/** 작가가 직접 잇는 연결선. directed면 from → to 화살표. */
+/** 작가가 직접 잇는 연결선. directed면 from → to 화살표. 같은 두 항목이라도 방향마다 선 하나씩. */
 export async function addManualLink(workId: string, from: string, to: string, label: string, directed = false) {
   const [a, b] = orderPair(from, to);
   const direction: LinkDirection = directed ? (from === a ? 'forward' : 'backward') : 'none';
-  const row: Record<string, unknown> = { work_id: workId, a, b, kind: 'manual' as LinkKind, label: label.trim() || null, weight: 1 };
-  if (directed) row.direction = direction;
-  // 방향이 없으면 direction 칸을 보내지 않는다(0002 SQL 실행 전에도 동작하도록)
   const { error } = await db()
     .from('links')
-    .upsert(row, { onConflict: 'a,b,kind' });
+    .upsert(
+      { work_id: workId, a, b, kind: 'manual' as LinkKind, label: label.trim() || null, weight: 1, direction },
+      { onConflict: 'a,b,kind,direction' },
+    );
   if (error) throw error;
 }
 
@@ -105,7 +105,7 @@ export async function mergeItems(keepId: string, dropId: string) {
       const other = l.a === dropId ? l.b : l.a;
       if (other === keepId) return null;
       const [a, b] = orderPair(keepId, other);
-      const row = { work_id: l.work_id, a, b, kind: l.kind, label: l.label, weight: l.weight, evidence: l.evidence };
+      const row = { work_id: l.work_id, a, b, kind: l.kind, label: l.label, weight: l.weight, evidence: l.evidence, direction: 'none' };
       if (!l.direction || l.direction === 'none') return row;
       // drop이 있던 자리(a/b)와 keep이 들어간 자리가 다르면 방향을 뒤집는다
       const dropWasA = l.a === dropId;
@@ -115,7 +115,7 @@ export async function mergeItems(keepId: string, dropId: string) {
     })
     .filter((r): r is NonNullable<typeof r> => r != null);
   if (rows.length) {
-    const { error } = await c.from('links').upsert(rows, { onConflict: 'a,b,kind', ignoreDuplicates: true });
+    const { error } = await c.from('links').upsert(rows, { onConflict: 'a,b,kind,direction', ignoreDuplicates: true });
     if (error) throw error;
   }
   await deleteItem(dropId);
