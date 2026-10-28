@@ -10,6 +10,7 @@ import {
   updateEpisode,
 } from '../../data/episodes';
 import { setItemStatus } from '../../data/items';
+import { toMessage } from '../../data/errors';
 import { computeCoOccur } from './cooccur';
 import { detectAppearances, findInText } from './detect';
 import { splitScenes, splitSentences } from './split';
@@ -42,8 +43,8 @@ export function episodeExists(workId: string, no: number) {
   return findEpisodeByNo(workId, no).then((e) => e != null);
 }
 
-/** 붙여 넣은 회차를 저장하고 규칙 정리까지 한다. overwrite면 같은 번호 회차를 지우고 새로 만든다. */
-export async function savePastedEpisode(workId: string, input: PasteInput, items: ItemView[], overwrite: boolean): Promise<Episode> {
+/** 회차 하나를 저장하고 규칙 정리까지 한다(같은 장면 연결선은 따로). overwrite면 같은 번호 회차를 지우고 새로 만든다. */
+export async function saveEpisode(workId: string, input: PasteInput, items: ItemView[], overwrite: boolean, sourceFile: string): Promise<Episode> {
   const old = await findEpisodeByNo(workId, input.no);
   if (old) {
     if (!overwrite) throw new Error('같은 번호의 회차가 이미 있어요.');
@@ -53,11 +54,60 @@ export async function savePastedEpisode(workId: string, input: PasteInput, items
     no: input.no,
     title: input.title.trim() || `${input.no}화`,
     body: input.body.replace(/\r\n?/g, '\n').trim(),
-    source_file: '붙여 넣기',
+    source_file: sourceFile,
   });
   await analyzeEpisodeByRules(episode, items);
+  return episode;
+}
+
+/** 붙여 넣은 회차를 저장하고 규칙 정리까지 한다. */
+export async function savePastedEpisode(workId: string, input: PasteInput, items: ItemView[], overwrite: boolean): Promise<Episode> {
+  const episode = await saveEpisode(workId, input, items, overwrite, '붙여 넣기');
   await recomputeCoOccur(workId);
   return episode;
+}
+
+export type BatchRow = PasteInput & { key: string; sourceFile: string };
+export type BatchResult = { key: string; no: number; ok: boolean; error?: string };
+
+/**
+ * 여러 회차를 회차 번호 순서대로 저장·정리한다. 한 회차가 실패해도 나머지는 계속한다(BUILD_SPEC 6.4).
+ * onProgress(끝낸 수, 전체 수, 지금 회차 번호). 같은 장면 연결선은 마지막에 한 번 계산한다.
+ */
+export async function saveEpisodes(
+  workId: string,
+  rows: BatchRow[],
+  items: ItemView[],
+  overwrite: boolean,
+  onProgress: (done: number, total: number, no: number) => void,
+): Promise<BatchResult[]> {
+  const sorted = [...rows].sort((x, y) => x.no - y.no);
+  const results: BatchResult[] = [];
+  for (const [i, row] of sorted.entries()) {
+    onProgress(i, sorted.length, row.no);
+    try {
+      await saveEpisode(workId, row, items, overwrite, row.sourceFile);
+      results.push({ key: row.key, no: row.no, ok: true });
+    } catch (e) {
+      results.push({ key: row.key, no: row.no, ok: false, error: toMessage(e) });
+    }
+    // 화면이 멈추지 않도록 회차 사이에 한 번 쉰다
+    await new Promise((r) => setTimeout(r, 0));
+  }
+  onProgress(sorted.length, sorted.length, sorted[sorted.length - 1]?.no ?? 0);
+  if (results.some((r) => r.ok)) await recomputeCoOccur(workId);
+  return results;
+}
+
+/** 작품의 모든 회차를 규칙으로 다시 정리(설정집에 항목을 새로 넣은 뒤 쓴다). */
+export async function reanalyzeAll(workId: string, episodes: Episode[], items: ItemView[], onProgress: (done: number, total: number) => void) {
+  for (const [i, ep] of episodes.entries()) {
+    onProgress(i, episodes.length);
+    await analyzeEpisodeByRules(ep, items);
+    await new Promise((r) => setTimeout(r, 0));
+  }
+  onProgress(episodes.length, episodes.length);
+  await recomputeCoOccur(workId);
 }
 
 /** 회차 다시 정리(규칙). */

@@ -197,3 +197,36 @@ describe('같은 두 별 사이의 선 두 개', () => {
     expect(Math.sign(other.y)).toBe(-Math.sign(mid.y));
   });
 });
+
+import { parseManuscript } from '../manuscript/parse';
+
+describe('7.5 회차 번호와 여러 회차 나누기', () => {
+  it('파일명의 N화를 먼저 쓴다', () => {
+    const [e] = parseManuscript('별의도서관_3화.txt', '본문 첫 줄이다.\n둘째 줄.');
+    expect(e).toEqual({ no: 3, title: '', body: '본문 첫 줄이다.\n둘째 줄.' });
+  });
+  it('첫 줄이 회차 표시면 번호와 제목을 쓰고 본문에서 뺀다', () => {
+    const [e] = parseManuscript('원고.docx', '제 12 화. 등불이 켜진 밤\n\n별의 도서관은 해가 지면 깨어난다.');
+    expect(e.no).toBe(12);
+    expect(e.title).toBe('등불이 켜진 밤');
+    expect(e.body).toBe('별의 도서관은 해가 지면 깨어난다.');
+  });
+  it('본문 중간의 "제 N 화"도 찾는다', () => {
+    expect(parseManuscript('원고.txt', '프롤로그 다음 이야기\n제5화를 시작한다.')[0].no).toBe(5);
+  });
+  it('번호가 없으면 null(화면에서 다음 번호 제안)', () => {
+    expect(parseManuscript('원고.txt', '그냥 본문이다.')[0].no).toBeNull();
+  });
+  it('회차 표시 줄이 2개 이상이면 나눈다', () => {
+    const r = parseManuscript('모음.txt', '별의 도서관\n\n1화 등불\n첫 회 본문\n\n2화 서가\n둘째 회 본문');
+    expect(r.map((e) => [e.no, e.title, e.body])).toEqual([
+      [1, '등불', '첫 회 본문'],
+      [2, '서가', '둘째 회 본문'],
+    ]);
+  });
+  it('"3화째"처럼 뒤에 글자가 붙은 줄은 회차 표시가 아니다', () => {
+    const r = parseManuscript('4화.txt', '3화째 소식이 없었다.\n1화 등장인물이 돌아왔다는 말은 거짓이었다고 그는 아주 길게 설명하며 한숨을 쉬었다.');
+    expect(r).toHaveLength(1);
+    expect(r[0].no).toBe(4);
+  });
+});

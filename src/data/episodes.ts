@@ -62,7 +62,7 @@ export async function deleteAppearances(itemId: string, episodeId: string) {
 export async function fetchChunkItems(workId: string) {
   const c = db();
   const [chunks, apps] = await Promise.all([
-    c.from('chunks').select('id', { count: 'exact', head: true }).eq('work_id', workId),
+    c.from('chunks').select('id').eq('work_id', workId),
     c.from('appearances').select('item_id, chunk_id, items!inner(work_id)').eq('items.work_id', workId).not('chunk_id', 'is', null),
   ]);
   if (chunks.error) throw chunks.error;
@@ -73,7 +73,7 @@ export async function fetchChunkItems(workId: string) {
     set.add(a.item_id as string);
     map.set(a.chunk_id as string, set);
   }
-  return { total: chunks.count ?? 0, map };
+  return { total: chunks.data?.length ?? 0, map };
 }
 
 /** 같은 장면 연결선을 통째로 바꾼다. */
@@ -83,5 +83,19 @@ export async function replaceCoOccurLinks(workId: string, pairs: { a: string; b:
   if (e1) throw e1;
   if (pairs.length === 0) return;
   const { error } = await c.from('links').insert(pairs.map((p) => ({ work_id: workId, a: p.a, b: p.b, kind: 'co_occur', weight: p.weight })));
+  if (error) throw error;
+}
+
+/** 장면 번호표(장면 id → 회차 안 순서). 검토 화면의 "N화 장면 M" 표시용. */
+export async function fetchChunkSeqs(episodeIds: string[]): Promise<Map<string, number>> {
+  if (episodeIds.length === 0) return new Map();
+  const { data, error } = await db().from('chunks').select('id, seq').in('episode_id', episodeIds);
+  if (error) throw error;
+  return new Map((data ?? []).map((c) => [c.id as string, c.seq as number]));
+}
+
+/** 등장 기록 하나를 지운다(잘못 찾은 경우). */
+export async function deleteAppearance(id: string) {
+  const { error } = await db().from('appearances').delete().eq('id', id);
   if (error) throw error;
 }

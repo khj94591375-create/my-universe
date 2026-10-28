@@ -8,7 +8,7 @@
 
 | 항목 | 상태 |
 |---|---|
-| 현재 단계 | **M2 완료 → 다음은 M3** |
+| 현재 단계 | **M3 완료 → 다음은 M4** |
 | 저장소 | https://github.com/khj94591375-create/my-universe (Public, 기본 브랜치 `main`) |
 | 배포 주소 | https://khj94591375-create.github.io/my-universe/ (`main`에 push하면 GitHub Actions가 자동 배포) |
 | GitHub Pages | 켜짐(Source: GitHub Actions). 첫 배포 성공 |
@@ -82,8 +82,19 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - DB 변경: M2 본체는 없음. 이후 연결선 방향 기능으로 `supabase/migrations/0002_link_direction.sql`, 방향별 선 두 개 기능으로 `0003_link_per_direction.sql` 추가(**사용자가 SQL Editor에서 실행 필요**). 실행 전에는 방향 없는 선만 저장되고, 방향을 고르면 "데이터베이스 업데이트가 필요해요" 안내가 뜸
 - 검증: 단위 테스트 20개, 예시 작품 데이터로 만든 가짜 Supabase + Playwright로 화면 흐름 전체(읽기 전용, 항목 추가·별칭·붙여 넣기·덮어쓰기 확인·상태 변경·재사용됨 자동 전환·등장 해제·연결 추가·합치기·수정, 400px 폭) 확인
 
-### 3.5 다음 작업: M3 (원고 자동 읽기, 규칙)
-BUILD_SPEC 13장 M3. 파일 여러 개 올리기(docx·pdf·txt), 회차 번호·여러 회차 나누기(7.5), 검토 화면(규칙 결과). 규칙 정리는 `runRules.ts`를 그대로 쓴다. 쓰기 버튼은 `WriteButton`.
+## 3-3. M3에서 만든 것 (원고 자동 읽기, 규칙)
+
+- 파일 읽기 `src/features/manuscript/readFile.ts`: docx(mammoth 브라우저판), pdf(pdfjs-dist, 워커), txt(UTF-8 → 실패 시 EUC-KR), hwp·hwpx 거부. 라이브러리는 필요할 때만 불러옴
+- 회차 번호·여러 회차 나누기 `features/manuscript/parse.ts`(7.5): 파일명 → 첫 줄 → "제 N 화" → 없으면 다음 번호 제안(? 표시). "N화" 줄이 2개 이상이면 나눔. 단위 테스트 포함
+- 여러 회차 저장 `features/analysis/runRules.ts`의 `saveEpisodes`(진행 표시, 회차별 실패 후 계속, 마지막에 같은 장면 연결선), `reanalyzeAll`
+- 화면: 원고 불러오기 "파일 올리기" 탭(`screens/upload/sections/FileUploadSection.tsx`), 검토 화면 `/#/w/:id/review?eps=`(`screens/review`), 회차 기록 "전체 다시 정리"
+- 연습용 파일 `public/samples/star-library-1-6.txt`
+- DB 변경 없음
+- 검증: 단위 테스트 32개. 가짜 Supabase + Playwright로 실제 docx·pdf·txt(6화 묶음)·EUC-KR txt·hwp를 한 번에 올려 6화 저장, 등장 43개·같은 장면 연결선 10개(예시 작품 시드와 동일), 홈 "다음은 7화 차례예요", 덮어쓰기/건너뛰기, 전체 다시 정리, 예시 작품 쓰기 막힘, 400px 확인
+- 참고: 규칙 정리는 설정집에 있는 이름·별칭만 찾는다. 새 작품에서 바로 쓰려면 설정집에 항목을 먼저 넣거나, 올린 뒤 "전체 다시 정리"
+
+### 3.6 다음 작업: M4 (Claude 연결, RAG v1)
+BUILD_SPEC 13장 M4, 8장. 사람이 할 일: Claude API 결제·키 발급, `supabase secrets set ANTHROPIC_API_KEY=...`(키는 저장소·화면에 절대 넣지 않음). 만들 것: Edge Functions `_shared`(claude, retrieval, verify, limits), `analyze-episode`, `guide`, `design-next`, `chat`, 검토 화면 AI 추정 처리, 사용량 표시. 쓰기 버튼은 `WriteButton`.
 
 ## 4. 작업 습관
 

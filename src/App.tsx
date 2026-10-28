@@ -8,6 +8,7 @@ import ForgotScreen from './screens/forgot/ForgotScreen';
 import MapScreen from './screens/map/MapScreen';
 import BibleScreen from './screens/bible/BibleScreen';
 import EpisodesScreen from './screens/episodes/EpisodesScreen';
+import ReviewScreen from './screens/review/ReviewScreen';
 import { StudioScreen } from './screens/PlaceholderScreens';
 import { NotFoundScreen, SettingsScreen } from './screens/SimplePages';
 import { SessionProvider } from './features/auth/SessionProvider';
@@ -30,6 +31,7 @@ export default function App() {
             <Route index element={<Navigate to="home" replace />} />
             <Route path="home" element={<HomeScreen />} />
             <Route path="upload" element={<UploadScreen />} />
+            <Route path="review" element={<ReviewScreen />} />
             <Route path="forgot" element={<ForgotScreen />} />
             <Route path="map" element={<MapScreen />} />
             <Route path="bible" element={<BibleScreen />} />

@@ -4,6 +4,7 @@ import { copy } from '../../config/copy';
 import { WorkDataGate } from '../shared/WorkDataGate';
 import { EpisodeListSection } from './sections/EpisodeListSection';
 import { EpisodeDetailSection } from './sections/EpisodeDetailSection';
+import { ReanalyzeAllButton } from './sections/ReanalyzeAllButton';
 
 /** 회차 기록(BUILD_SPEC 6.9). 열어 본 회차는 주소의 ?open=회차번호 로 기억한다. */
 export default function EpisodesScreen() {
@@ -17,7 +18,7 @@ export default function EpisodesScreen() {
       return p;
     });
   return (
-    <ScreenLayout eyebrow={copy.episodes.eyebrow} title={copy.episodes.title}>
+    <ScreenLayout eyebrow={copy.episodes.eyebrow} title={copy.episodes.title} action={<ReanalyzeAllButton workId={workId} />}>
       <WorkDataGate workId={workId}>
         {() => (
           <>
