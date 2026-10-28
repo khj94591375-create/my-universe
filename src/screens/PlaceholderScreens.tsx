@@ -1,7 +1,9 @@
 import { ScreenLayout } from '../components/ScreenLayout';
 import { EmptyState } from '../components/EmptyState';
 import { Card } from '../components/Card';
+import { WriteButton } from '../components/WriteButton';
 import { copy } from '../config/copy';
+import { useParams } from 'react-router-dom';
 
 /*
  * M0용 화면 뼈대. 각 화면은 해당 단계에서 screens/<이름>/ 폴더의 실제 화면으로 교체한다.
@@ -9,9 +11,16 @@ import { copy } from '../config/copy';
  */
 
 export function UploadScreen() {
+  const { workId = '' } = useParams();
   return (
     <ScreenLayout eyebrow="원고 불러오기" title={copy.upload.title}>
-      <EmptyState title="원고 파일을 올리거나 붙여 넣으세요" body={`${copy.upload.empty} ${copy.upload.hwp}`} stage="M3" />
+      <EmptyState
+        title="원고 파일을 올리거나 붙여 넣으세요"
+        body={`${copy.upload.empty} ${copy.upload.hwp}`}
+        // TODO(M3): 실제 업로드 연결. 지금은 예시 작품에서 쓰기가 막히는지만 보여 준다.
+        action={<WriteButton workId={workId} disabled title={copy.common.comingSoon}>{copy.upload.action}</WriteButton>}
+        stage="M3"
+      />
     </ScreenLayout>
   );
 }

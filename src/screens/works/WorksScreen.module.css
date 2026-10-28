@@ -49,17 +49,10 @@
   font-size: var(--fs-md);
   margin-top: var(--sp-3);
 }
-.cardLink {
-  text-decoration: none;
-}
 .card {
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
-}
-.card p {
-  color: var(--c-sub);
-  font-size: var(--fs-sm);
 }
 .cardTop {
   display: flex;
@@ -69,4 +62,61 @@
 }
 .cardTop h3 {
   font-size: var(--fs-lg);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: var(--sp-3);
+}
+.meta {
+  color: var(--c-sub);
+  font-size: var(--fs-sm);
+}
+.titleLink {
+  text-decoration: none;
+}
+.titleLink:hover {
+  text-decoration: underline;
+}
+.cardActions {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+.openLink {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--c-navy);
+  margin-right: auto;
+}
+.renameRow {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form {
+  background: var(--c-card);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  padding: var(--sp-4) 18px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.formFields {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+.formActions {
+  display: flex;
+  gap: var(--sp-2);
+  justify-content: flex-end;
+}
+.formError {
+  color: var(--c-warn);
+  font-size: var(--fs-sm);
 }

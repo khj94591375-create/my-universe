@@ -5,27 +5,34 @@ import WorksScreen from './screens/works/WorksScreen';
 import HomeScreen from './screens/home/HomeScreen';
 import { BibleScreen, EpisodesScreen, ForgotScreen, MapScreen, StudioScreen, UploadScreen } from './screens/PlaceholderScreens';
 import { NotFoundScreen, SettingsScreen } from './screens/SimplePages';
+import { SessionProvider } from './features/auth/SessionProvider';
+import { RequireAuth } from './features/auth/RequireAuth';
 
-/** 라우팅: GitHub Pages에서 새로고침해도 404가 나지 않도록 HashRouter를 쓴다(BUILD_SPEC 3.1). */
+/**
+ * 라우팅: GitHub Pages에서 새로고침해도 404가 나지 않도록 HashRouter를 쓴다(BUILD_SPEC 3.1).
+ * 작품 목록·내 설정은 로그인 필요. 작품 화면은 예시 작품이면 누구나, 아니면 소유자만(AppShell + RLS).
+ */
 export default function App() {
   return (
-    <HashRouter>
-      <Routes>
-        <Route path="/" element={<StartScreen />} />
-        <Route path="/works" element={<WorksScreen />} />
-        <Route path="/settings" element={<SettingsScreen />} />
-        <Route path="/w/:workId" element={<AppShell />}>
-          <Route index element={<Navigate to="home" replace />} />
-          <Route path="home" element={<HomeScreen />} />
-          <Route path="upload" element={<UploadScreen />} />
-          <Route path="forgot" element={<ForgotScreen />} />
-          <Route path="map" element={<MapScreen />} />
-          <Route path="bible" element={<BibleScreen />} />
-          <Route path="episodes" element={<EpisodesScreen />} />
-          <Route path="studio" element={<StudioScreen />} />
-        </Route>
-        <Route path="*" element={<NotFoundScreen />} />
-      </Routes>
-    </HashRouter>
+    <SessionProvider>
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<StartScreen />} />
+          <Route path="/works" element={<RequireAuth><WorksScreen /></RequireAuth>} />
+          <Route path="/settings" element={<RequireAuth><SettingsScreen /></RequireAuth>} />
+          <Route path="/w/:workId" element={<AppShell />}>
+            <Route index element={<Navigate to="home" replace />} />
+            <Route path="home" element={<HomeScreen />} />
+            <Route path="upload" element={<UploadScreen />} />
+            <Route path="forgot" element={<ForgotScreen />} />
+            <Route path="map" element={<MapScreen />} />
+            <Route path="bible" element={<BibleScreen />} />
+            <Route path="episodes" element={<EpisodesScreen />} />
+            <Route path="studio" element={<StudioScreen />} />
+          </Route>
+          <Route path="*" element={<NotFoundScreen />} />
+        </Routes>
+      </HashRouter>
+    </SessionProvider>
   );
 }

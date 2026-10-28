@@ -8,14 +8,14 @@
 
 | 항목 | 상태 |
 |---|---|
-| 현재 단계 | **M0 완료 → 다음은 M1** |
+| 현재 단계 | **M1 완료(코드) → 다음은 M2** |
 | 저장소 | https://github.com/khj94591375-create/my-universe (Public, 기본 브랜치 `main`) |
 | 배포 주소 | https://khj94591375-create.github.io/my-universe/ (`main`에 push하면 GitHub Actions가 자동 배포) |
 | GitHub Pages | 켜짐(Source: GitHub Actions). 첫 배포 성공 |
 | Supabase 프로젝트 | 생성됨. URL `https://fzqbbazuqolefhsinlit.supabase.co`, 리전 서울 |
 | 공개 키 | `.env.production`, `.env.example`에 들어 있음(publishable key, 공개용) |
 | 구글 로그인 | Google Cloud OAuth 클라이언트(웹 애플리케이션) 생성, Supabase Auth의 Google 공급자에 Client ID·Secret 입력 완료 |
-| 데이터베이스 표 | **아직 없음**(M1에서 생성) |
+| 데이터베이스 표 | `supabase/migrations/0001_init.sql`, 예시 작품 `supabase/seed/sample_work.sql`. **사용자가 SQL Editor에서 실행해야 반영됨**(3.2) |
 | Claude API·OpenAI API | 아직 연결 안 함(M4, M6). OpenAI 크레딧은 이미지에만 쓴다 |
 
 ## 2. M0에서 만든 것
@@ -30,7 +30,17 @@
 - `.github/workflows/deploy.yml`: build → Pages 배포
 - "구글로 시작하기", "새 작품 만들기" 버튼은 의도적으로 비활성(M1에서 활성화)
 
-## 3. 다음 작업: M1 (데이터베이스와 로그인)
+## 2-1. M1에서 만든 것
+
+- DB: BUILD_SPEC 5.1 표 전부, 뷰 `item_stats`·`work_stats`(security_invoker), RLS(`can_read_work`·`owns_work` 함수), Storage 버킷 `images`(비공개, 첫 폴더 = 작품 id인 소유자만)
+- 예시 작품 "별의 도서관": 고정 id `00000000-0000-4000-8000-000000000001`(`src/config/sample.ts`), 6화(회차당 약 620~660자), 항목 9개, 별칭, 등장 기록 43개(규칙 7.3 방식, 근거 문장은 원고에 글자 그대로), co_occur 연결선(주인공급 60% 이상 등장 항목 제외) + AI·작가 연결선 예시
+  - 다음 회차 7화 기준 gap: 사라진 13번째 서가 5, 반쪽짜리 은열쇠 4, 달빛 서고의 규칙(회수 완료) 3, 검은 망토의 노인·푸른 잉크의 편지(재사용 예정) 2
+- 로그인: `src/features/auth/`(SessionProvider·useSession, signInWithGoogle·signOut, RequireAuth). `/works`, `/settings`는 로그인 필요
+- 데이터: `src/data/works.ts`(listMyWorks, getSampleWork, getWork, createWork, renameWork, deleteWork), `src/features/works/useWork.ts`(useWork, useCanWrite)
+- 부품: `Loading`, `ErrorState`, `ConfirmBar`, `TextField`, `WriteButton`(내 작품일 때만 활성, 예시 작품은 "로그인하면 내 작품에서 쓸 수 있어요")
+- 검증: 로컬 Postgres 16에서 마이그레이션·시드 2회 실행, 비로그인/사용자 A/사용자 B로 RLS 확인. Playwright(가짜 Supabase 응답)로 화면 흐름 확인. `npm run build` 통과
+
+## 3. M1에서 한 일과 남은 확인 (데이터베이스와 로그인)
 
 BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1을 따른다.
 
@@ -57,6 +67,9 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - 구글 로그인 → 작품 목록으로 이동, 새 작품을 만들 수 있다
 - 다른 구글 계정으로 로그인하면 앞 계정의 작품이 보이지 않는다(RLS 확인)
 - `npm run build` 통과, `main`에 push 후 배포 주소에서 동작
+
+### 3.4 다음 작업: M2 (기본 기능 이전, AI 없음)
+BUILD_SPEC 13장 M2. 설정집, 회차 기록, 홈, 잊힌 복선 찾기(템플릿 가이드), 우주 지도, 붙여 넣기 입력. 7.1~7.4, 7.7, 7.8 로직 단위 테스트. 쓰기 버튼은 `WriteButton`을 쓴다.
 
 ## 4. 작업 습관
 
