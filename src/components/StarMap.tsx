@@ -3,6 +3,7 @@ import { copy } from '../config/copy';
 import type { ItemKind, ItemView, Link } from '../data/types';
 import { gapLabel } from '../features/foreshadow/gap';
 import { hubPos, layoutStars, starOpacity, type Pos } from '../features/map/layout';
+import { linkEnds } from '../features/map/links';
 import s from './StarMap.module.css';
 
 /*
@@ -37,6 +38,7 @@ export function StarMap({
   const [hover, setHover] = useState<string | null>(null);
 
   const pos = useMemo(() => layoutStars(items, links), [items, links]);
+  const byId = useMemo(() => new Map(items.map((i) => [i.id, i])), [items]);
   // 별들이 차지한 범위에 맞춰 화면 크기를 정한다(라벨이 읽히도록)
   const vb = useMemo(() => {
     const pts = [...pos.values(), { x: 0, y: 0 }];
@@ -128,22 +130,35 @@ export function StarMap({
           const p = center(pos.get(i.id));
           return <line key={`k-${i.id}`} x1={h.x} y1={h.y} x2={p.x} y2={p.y} className={s.kindLine} opacity={0.35} />;
         })}
+        {/* 화살촉(방향 있는 선) */}
+        <defs>
+          <marker id="arrow-manual" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" className={s.arrowManual} />
+          </marker>
+          <marker id="arrow-ai" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" className={s.arrowAi} />
+          </marker>
+        </defs>
         {/* 항목 사이 연결선 */}
         {links.map((l) => {
-          const a = pos.get(l.a);
-          const b = pos.get(l.b);
+          const { from, to, directed } = linkEnds(l);
+          const a = pos.get(from);
+          const b = pos.get(to);
           if (!a || !b) return null;
           const on = lit.has(l.kind === 'co_occur' ? `${l.a}|${l.b}` : l.id);
           const cls = l.kind === 'co_occur' ? s.coLine : l.kind === 'ai' ? s.aiLine : s.manualLine;
+          // 방향이 있으면 화살촉이 별에 가려지지 않게 끝을 별 크기만큼 줄인다
+          const end = directed ? shorten(a, b, starRadius(byId.get(to)?.mention_count ?? 0) + 8) : b;
           return (
             <line
               key={l.id}
               x1={a.x}
               y1={a.y}
-              x2={b.x}
-              y2={b.y}
+              x2={end.x}
+              y2={end.y}
               className={`${cls} ${on ? s.lineOn : ''}`}
               strokeWidth={l.kind === 'co_occur' ? Math.min(1 + l.weight * 0.6, 4) : 1.6}
+              markerEnd={directed && l.kind !== 'co_occur' ? `url(#arrow-${l.kind})` : undefined}
             >
               <title>{l.kind === 'ai' ? `${copy.labels.ai}${l.label ? `: ${l.label}` : ''}` : (l.label ?? copy.map.legendCo)}</title>
             </line>
@@ -183,7 +198,7 @@ export function StarMap({
         {items.map((i) => {
           const p = center(pos.get(i.id));
           const isSel = selected.has(i.id);
-          const r = 10 + Math.min(i.mention_count, 8) * 0.8;
+          const r = starRadius(i.mention_count);
           const gap = i.gap != null && i.gap > 0 ? gapLabel(i.gap).text : '';
           return (
             <g
@@ -213,6 +228,17 @@ export function StarMap({
       </g>
     </svg>
   );
+}
+
+function starRadius(mentions: number) {
+  return 10 + Math.min(mentions, 8) * 0.8;
+}
+
+/** a → b 선의 끝을 by만큼 a 쪽으로 당긴다. */
+function shorten(a: Pos, b: Pos, by: number): Pos {
+  const d = Math.hypot(b.x - a.x, b.y - a.y);
+  if (d <= by * 2) return b;
+  return { x: b.x - ((b.x - a.x) / d) * by, y: b.y - ((b.y - a.y) / d) * by };
 }
 
 /** 관계 이름 위치: 선 가운데에 두되, 가운데 원이나 종류 동그라미와 겹치면 선을 따라 옮긴다. */

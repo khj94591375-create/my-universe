@@ -122,3 +122,9 @@
 .linkLabelManual {
   fill: var(--c-gold);
 }
+.arrowManual {
+  fill: var(--c-gold);
+}
+.arrowAi {
+  fill: var(--c-ai-bg);
+}

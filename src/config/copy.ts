@@ -157,6 +157,14 @@ export const copy = {
       linked_ok: '연결선을 추가했어요.',
       coTimes: (n: number) => `같은 장면 ${n}번`,
       noLabel: '관계 이름 없음',
+      dirForward: (x: string, y: string) => `「${x}」 → 「${y}」`,
+      dirBoth: '서로(방향 없음)',
+      direction: '방향',
+      removeLink: '지우기',
+      removeLinkConfirm: (x: string, y: string) => `「${x}」–「${y}」 연결선을 지울까요?`,
+      removeYes: '지우기',
+      removed: '연결선을 지웠어요.',
+      autoLink: '원고에서 자동 계산',
       close: '닫기',
     },
     panel: {
@@ -273,5 +281,6 @@ export const copy = {
     retry: '다시 시도',
     dbNotReady: '데이터베이스가 아직 준비되지 않았어요. Supabase SQL Editor에서 0001_init.sql과 sample_work.sql을 실행해 주세요.',
     unknownError: '알 수 없는 오류가 생겼어요. 잠시 후 다시 시도해 주세요.',
+    dbUpdate: '데이터베이스 업데이트가 필요해요. Supabase SQL Editor에서 0002_link_direction.sql을 실행해 주세요.',
   },
 } as const;

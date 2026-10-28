@@ -11,5 +11,9 @@ export function toMessage(e: unknown): string {
   if (err.code === 'PGRST205' || err.code === '42P01' || message.includes('Could not find the table')) {
     return copy.common.dbNotReady;
   }
+  // 칸이 없음 = 0002_link_direction.sql을 아직 실행하지 않음
+  if (err.code === 'PGRST204' || /column .*direction/.test(message)) {
+    return copy.common.dbUpdate;
+  }
   return message || copy.common.unknownError;
 }

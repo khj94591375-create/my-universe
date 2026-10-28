@@ -158,3 +158,18 @@ describe('우주 지도 가운데 작품 제목', () => {
     expect(centerLines('가나다라마바사아자차카타파하가나다라마바사').every((l) => l.length <= 6)).toBe(true);
   });
 });
+
+import { directionFor, linkEnds } from '../map/links';
+
+describe('연결선 방향', () => {
+  it('forward는 a → b, backward는 b → a, 없으면 방향 없음', () => {
+    expect(linkEnds({ a: 'x', b: 'y', direction: 'forward' })).toEqual({ from: 'x', to: 'y', directed: true });
+    expect(linkEnds({ a: 'x', b: 'y', direction: 'backward' })).toEqual({ from: 'y', to: 'x', directed: true });
+    expect(linkEnds({ a: 'x', b: 'y' }).directed).toBe(false);
+  });
+  it('항목 쪽에서 본 방향', () => {
+    expect(directionFor({ a: 'x', b: 'y', direction: 'backward' }, 'y')).toBe('out');
+    expect(directionFor({ a: 'x', b: 'y', direction: 'backward' }, 'x')).toBe('in');
+    expect(directionFor({ a: 'x', b: 'y', direction: 'none' }, 'x')).toBe('both');
+  });
+});

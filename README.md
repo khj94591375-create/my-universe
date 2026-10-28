@@ -38,6 +38,7 @@ Supabase 대시보드 → **SQL Editor** → **New query**에 아래 파일 내�
 
 1. `supabase/migrations/0001_init.sql` — 표, 보안 규칙(RLS), 이미지 보관함
 2. `supabase/seed/sample_work.sql` — 예시 작품 "별의 도서관"(여러 번 실행해도 됨)
+3. `supabase/migrations/0002_link_direction.sql` — 연결선 방향(화살표). 시드를 다시 실행했다면 이것도 다시 실행
 
 ## 디자인·문구를 바꾸는 곳
 

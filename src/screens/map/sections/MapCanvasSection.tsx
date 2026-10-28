@@ -2,13 +2,15 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../../components/Button';
 import { MAP_HOME, StarMap, viewFocusing, type MapView } from '../../../components/StarMap';
-import { TextField } from '../../../components/TextField';
+import { SelectField, TextField } from '../../../components/TextField';
+import { ConfirmBar } from '../../../components/ConfirmBar';
 import { KindTag } from '../../../components/Badges';
 import { showToast } from '../../../components/Toast';
 import { copy } from '../../../config/copy';
 import { limits } from '../../../config/limits';
-import { addManualLink } from '../../../data/items';
-import type { ItemKind } from '../../../data/types';
+import { addManualLink, deleteLink } from '../../../data/items';
+import { directionFor } from '../../../features/map/links';
+import type { ItemKind, Link as LinkRow } from '../../../data/types';
 import { save } from '../../../features/works/save';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { useWorkData } from '../../../features/works/workData';
@@ -28,6 +30,8 @@ export function MapCanvasSection({ workId, selected, onToggle }: { workId: strin
   const [linkFrom, setLinkFrom] = useState<string | null>(null);
   const [linkTo, setLinkTo] = useState<string | null>(null);
   const [label, setLabel] = useState('');
+  const [dir, setDir] = useState<'both' | 'forward' | 'backward'>('both');
+  const [removing, setRemoving] = useState<string | null>(null);
 
   const items = useMemo(() => (data ? data.items.filter((i) => kinds.has(i.kind)) : []), [data, kinds]);
   const links = useMemo(() => {
@@ -63,7 +67,7 @@ export function MapCanvasSection({ workId, selected, onToggle }: { workId: strin
     ? data.links
         .filter((l) => l.a === info.id || l.b === info.id)
         .map((l) => ({ link: l, other: data.itemById.get(l.a === info.id ? l.b : l.a) }))
-        .filter((x): x is { link: (typeof data.links)[number]; other: NonNullable<typeof x.other> } => Boolean(x.other))
+        .filter((x): x is { link: LinkRow; other: NonNullable<typeof x.other> } => Boolean(x.other))
     : [];
   const epNos = info ? [...new Set(data.appearances.filter((a) => a.item_id === info.id).map((a) => data.episodes.find((e) => e.id === a.episode_id)?.no))].filter((n): n is number => n != null).sort((a, b) => a - b) : [];
   const from = linkFrom ? data.itemById.get(linkFrom) : null;
@@ -72,11 +76,14 @@ export function MapCanvasSection({ workId, selected, onToggle }: { workId: strin
   const saveLink = async (e: FormEvent) => {
     e.preventDefault();
     if (!from || !to) return;
-    const ok = await save(workId, () => addManualLink(workId, from.id, to.id, label), copy.map.info.linked_ok);
+    // forward: 처음 고른 별 → 두 번째 별, backward: 반대
+    const [x, y] = dir === 'backward' ? [to.id, from.id] : [from.id, to.id];
+    const ok = await save(workId, () => addManualLink(workId, x, y, label, dir !== 'both'), copy.map.info.linked_ok);
     if (ok) {
       setLinkFrom(null);
       setLinkTo(null);
       setLabel('');
+      setDir('both');
     }
   };
 
@@ -135,6 +142,17 @@ export function MapCanvasSection({ workId, selected, onToggle }: { workId: strin
                   「{from.name}」 — 「{to.name}」
                 </span>
                 <TextField label={copy.map.info.linkLabel} hideLabel placeholder={copy.map.info.linkLabel} value={label} onChange={(e) => setLabel(e.target.value)} autoFocus maxLength={40} />
+                <SelectField
+                  label={copy.map.info.direction}
+                  hideLabel
+                  value={dir}
+                  onChange={(e) => setDir(e.target.value as typeof dir)}
+                  options={[
+                    ['both', copy.map.info.dirBoth],
+                    ['forward', copy.map.info.dirForward(from.name, to.name)],
+                    ['backward', copy.map.info.dirForward(to.name, from.name)],
+                  ]}
+                />
                 <Button type="submit" size="sm">
                   {copy.map.info.linkSave}
                 </Button>
@@ -170,12 +188,38 @@ export function MapCanvasSection({ workId, selected, onToggle }: { workId: strin
               {copy.map.info.linked}: {linked.length === 0 && copy.map.info.none}
               {linked.length > 0 && (
                 <ul className={s.linkedList}>
-                  {linked.map(({ link, other }) => (
-                    <li key={link.id}>
-                      <strong>{other.name}</strong> — {link.label ?? (link.kind === 'co_occur' ? copy.map.info.coTimes(link.weight) : copy.map.info.noLabel)}
-                      <span className={s.linkKind}> ({link.kind === 'ai' ? copy.labels.ai : link.kind === 'manual' ? copy.map.legendManual : copy.map.legendCo})</span>
-                    </li>
-                  ))}
+                  {linked.map(({ link, other }) => {
+                    const d = directionFor(link, info.id);
+                    return (
+                      <li key={link.id} className={s.linkedItem}>
+                        <span>
+                          <span className={s.dir} aria-hidden="true">{d === 'out' ? '→' : d === 'in' ? '←' : '—'}</span>
+                          <strong>{other.name}</strong> · {link.label ?? (link.kind === 'co_occur' ? copy.map.info.coTimes(link.weight) : copy.map.info.noLabel)}
+                          <span className={s.linkKind}>
+                            {' '}
+                            ({link.kind === 'ai' ? copy.labels.ai : link.kind === 'manual' ? copy.map.legendManual : copy.map.info.autoLink})
+                          </span>
+                        </span>
+                        {canWrite && link.kind !== 'co_occur' && (
+                          <button type="button" className={s.removeLink} onClick={() => setRemoving(link.id)} aria-label={`${other.name} ${copy.map.info.removeLink}`}>
+                            ×
+                          </button>
+                        )}
+                        {removing === link.id && (
+                          <ConfirmBar
+                            message={copy.map.info.removeLinkConfirm(info.name, other.name)}
+                            confirmLabel={copy.map.info.removeYes}
+                            cancelLabel={copy.map.info.linkCancel}
+                            onCancel={() => setRemoving(null)}
+                            onConfirm={async () => {
+                              await save(workId, () => deleteLink(link.id), copy.map.info.removed);
+                              setRemoving(null);
+                            }}
+                          />
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>

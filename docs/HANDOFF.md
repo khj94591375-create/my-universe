@@ -79,7 +79,7 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - 규칙 정리 흐름: `features/analysis/runRules.ts`(붙여 넣기 저장 → 장면 나누기 → 재등장 → 재사용 예정→재사용됨 → 같은 장면 연결선 재계산)
 - 화면: 홈(`screens/home`), 잊힌 복선 찾기(`screens/forgot`, 기본 가이드), 우주 지도(`screens/map`, `components/StarMap.tsx`), 설정집(`screens/bible`), 회차 기록(`screens/episodes`), 원고 불러오기 붙여 넣기 탭(`screens/upload`)
 - 부품: `Badges.tsx`(GapTag, StatusTag, KindTag, AiBadge, EvidenceQuote, Chip), `Toast.tsx`, `TextField.tsx`(TextArea, SelectField 추가)
-- DB 변경 없음(새 SQL 실행 필요 없음)
+- DB 변경: M2 본체는 없음. 이후 연결선 방향 기능으로 `supabase/migrations/0002_link_direction.sql` 추가(**사용자가 SQL Editor에서 실행 필요**). 실행 전에는 방향 없는 선만 저장되고, 방향을 고르면 "데이터베이스 업데이트가 필요해요" 안내가 뜸
 - 검증: 단위 테스트 20개, 예시 작품 데이터로 만든 가짜 Supabase + Playwright로 화면 흐름 전체(읽기 전용, 항목 추가·별칭·붙여 넣기·덮어쓰기 확인·상태 변경·재사용됨 자동 전환·등장 해제·연결 추가·합치기·수정, 400px 폭) 확인
 
 ### 3.5 다음 작업: M3 (원고 자동 읽기, 규칙)

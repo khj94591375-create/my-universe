@@ -62,6 +62,8 @@ export type Appearance = {
 };
 
 export type LinkKind = 'co_occur' | 'ai' | 'manual';
+/** forward = a → b, backward = b → a, none = 방향 없음. 0002 SQL 전에는 없을 수 있다. */
+export type LinkDirection = 'none' | 'forward' | 'backward';
 export type Link = {
   id: string;
   work_id: string;
@@ -71,6 +73,7 @@ export type Link = {
   label: string | null;
   weight: number;
   evidence: string | null;
+  direction?: LinkDirection;
 };
 
 /** 화면에서 쓰는 항목: 별칭과 계산 값(처음·마지막 등장, gap)을 붙인 것. */

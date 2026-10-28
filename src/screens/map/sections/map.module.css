@@ -66,6 +66,10 @@
   flex-wrap: wrap;
   width: 100%;
 }
+.info {
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+}
 .infoHead {
   display: flex;
   gap: var(--sp-2);
@@ -147,4 +151,31 @@
 .linkKind {
   color: var(--c-sub);
   font-size: var(--fs-xs);
+}
+.linkedItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 2px 0;
+}
+.dir {
+  display: inline-block;
+  width: 1.2em;
+  color: var(--c-gold-ink);
+  font-weight: 700;
+}
+.removeLink {
+  border: 1px solid var(--c-line);
+  background: var(--c-white);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--c-warn);
+}
+.removeLink:hover {
+  border-color: var(--c-warn);
 }

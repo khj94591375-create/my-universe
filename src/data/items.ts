@@ -1,4 +1,4 @@
-import type { Item, ItemKind, ItemStatus, LinkKind } from './types';
+import type { Item, ItemKind, ItemStatus, LinkDirection, LinkKind } from './types';
 import { db } from './client';
 
 /* 설정집 항목·별칭·연결선 쓰기 함수(BUILD_SPEC 6.8). */
@@ -45,11 +45,16 @@ export function orderPair(x: string, y: string): [string, string] {
   return x < y ? [x, y] : [y, x];
 }
 
-export async function addManualLink(workId: string, x: string, y: string, label: string) {
-  const [a, b] = orderPair(x, y);
+/** 작가가 직접 잇는 연결선. directed면 from → to 화살표. */
+export async function addManualLink(workId: string, from: string, to: string, label: string, directed = false) {
+  const [a, b] = orderPair(from, to);
+  const direction: LinkDirection = directed ? (from === a ? 'forward' : 'backward') : 'none';
+  const row: Record<string, unknown> = { work_id: workId, a, b, kind: 'manual' as LinkKind, label: label.trim() || null, weight: 1 };
+  if (directed) row.direction = direction;
+  // 방향이 없으면 direction 칸을 보내지 않는다(0002 SQL 실행 전에도 동작하도록)
   const { error } = await db()
     .from('links')
-    .upsert({ work_id: workId, a, b, kind: 'manual' as LinkKind, label: label.trim() || null, weight: 1 }, { onConflict: 'a,b,kind' });
+    .upsert(row, { onConflict: 'a,b,kind' });
   if (error) throw error;
 }
 
@@ -100,7 +105,13 @@ export async function mergeItems(keepId: string, dropId: string) {
       const other = l.a === dropId ? l.b : l.a;
       if (other === keepId) return null;
       const [a, b] = orderPair(keepId, other);
-      return { work_id: l.work_id, a, b, kind: l.kind, label: l.label, weight: l.weight, evidence: l.evidence };
+      const row = { work_id: l.work_id, a, b, kind: l.kind, label: l.label, weight: l.weight, evidence: l.evidence };
+      if (!l.direction || l.direction === 'none') return row;
+      // drop이 있던 자리(a/b)와 keep이 들어간 자리가 다르면 방향을 뒤집는다
+      const dropWasA = l.a === dropId;
+      const keepIsA = a === keepId;
+      const flip = dropWasA !== keepIsA;
+      return { ...row, direction: flip ? (l.direction === 'forward' ? 'backward' : 'forward') : l.direction };
     })
     .filter((r): r is NonNullable<typeof r> => r != null);
   if (rows.length) {
