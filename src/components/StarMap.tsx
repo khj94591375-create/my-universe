@@ -152,7 +152,12 @@ export function StarMap({
         {/* 중심과 종류 */}
         <g className={s.center}>
           <circle r={52} />
-          <text y={6}>{title}</text>
+          <title>{title}</title>
+          {centerLines(title).map((line, idx, arr) => (
+            <text key={idx} y={(idx - (arr.length - 1) / 2) * 17 + 5} style={{ fontSize: arr.length > 2 ? 13 : arr.length > 1 ? 15 : 17 }}>
+              {line}
+            </text>
+          ))}
         </g>
         {kinds.map((k) => {
           const h = hubPos(k);
@@ -161,6 +166,17 @@ export function StarMap({
               <circle r={26} />
               <text y={50}>{copy.labels.kind[k]}</text>
             </g>
+          );
+        })}
+        {/* 관계 이름(AI 추정·작가가 이은 선) */}
+        {links.map((l) => {
+          const a = pos.get(l.a);
+          const b = pos.get(l.b);
+          if (!a || !b || !l.label || l.kind === 'co_occur') return null;
+          return (
+            <text key={`t-${l.id}`} {...labelSpot(a, b, kinds)} className={`${s.linkLabel} ${l.kind === 'manual' ? s.linkLabelManual : ''}`}>
+              {l.label}
+            </text>
           );
         })}
         {/* 별 */}
@@ -197,6 +213,43 @@ export function StarMap({
       </g>
     </svg>
   );
+}
+
+/** 관계 이름 위치: 선 가운데에 두되, 가운데 원이나 종류 동그라미와 겹치면 선을 따라 옮긴다. */
+function labelSpot(a: Pos, b: Pos, kinds: ItemKind[]) {
+  const blockers = [{ x: 0, y: 0, r: 95 }, ...kinds.map((k) => ({ ...hubPos(k), r: 60 }))];
+  for (const t of [0.5, 0.35, 0.65, 0.22, 0.78]) {
+    const p = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+    if (blockers.every((o) => Math.hypot(p.x - o.x, p.y - o.y) > o.r)) return { x: p.x, y: p.y - 6 };
+  }
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 - 6 };
+}
+
+/** 작품 제목을 가운데 원 안에 들어가도록 최대 3줄로 나눈다. 넘치면 말줄임(…). */
+export function centerLines(title: string, perLine = 6, maxLines = 3): string[] {
+  const lines: string[] = [];
+  let cur = '';
+  for (const word of title.trim().split(/\s+/)) {
+    let w = word;
+    if (cur && (cur + ' ' + w).length > perLine) {
+      lines.push(cur);
+      cur = '';
+    }
+    while (w.length > perLine) {
+      if (cur) {
+        lines.push(cur);
+        cur = '';
+      }
+      lines.push(w.slice(0, perLine));
+      w = w.slice(perLine);
+    }
+    cur = cur ? `${cur} ${w}` : w;
+  }
+  if (cur) lines.push(cur);
+  if (lines.length <= maxLines) return lines;
+  const kept = lines.slice(0, maxLines);
+  kept[maxLines - 1] = kept[maxLines - 1].slice(0, perLine - 1) + '…';
+  return kept;
 }
 
 function starPath(r: number) {

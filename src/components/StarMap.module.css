@@ -109,3 +109,16 @@
   fill: var(--c-ai-bg) !important;
   font-weight: 700;
 }
+.linkLabel {
+  fill: var(--c-ai-bg);
+  font-size: 18px;
+  font-weight: 700;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--c-navy);
+  stroke-width: 6px;
+  pointer-events: none;
+}
+.linkLabelManual {
+  fill: var(--c-gold);
+}

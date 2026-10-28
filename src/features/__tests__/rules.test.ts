@@ -147,3 +147,14 @@ describe('6.7 우주 지도 배치', () => {
     expect(starOpacity(1, 5)).toBeGreaterThan(starOpacity(4, 5));
   });
 });
+
+import { centerLines } from '../../components/StarMap';
+
+describe('우주 지도 가운데 작품 제목', () => {
+  it('짧으면 한 줄, 길면 여러 줄, 너무 길면 말줄임', () => {
+    expect(centerLines('별의 도서관')).toEqual(['별의 도서관']);
+    expect(centerLines('짧은제목')).toEqual(['짧은제목']);
+    expect(centerLines('회귀한 마법사는 도서관에서 살아남기로 했다')).toEqual(['회귀한', '마법사는', '도서관에서…']);
+    expect(centerLines('가나다라마바사아자차카타파하가나다라마바사').every((l) => l.length <= 6)).toBe(true);
+  });
+});

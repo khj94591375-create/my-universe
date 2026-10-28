@@ -58,11 +58,12 @@ export function MapCanvasSection({ workId, selected, onToggle }: { workId: strin
 
   const zoom = (f: number) => setView((v) => ({ k: Math.min(4, Math.max(0.35, v.k * f)), x: v.x * f, y: v.y * f }));
   const info = infoId ? data.itemById.get(infoId) : null;
+  // 연결된 항목과 관계 이름(같은 장면 연결선은 이름이 없어 "같은 장면 N번")
   const linked = info
     ? data.links
         .filter((l) => l.a === info.id || l.b === info.id)
-        .map((l) => data.itemById.get(l.a === info.id ? l.b : l.a))
-        .filter((x, i, arr) => x && arr.indexOf(x) === i)
+        .map((l) => ({ link: l, other: data.itemById.get(l.a === info.id ? l.b : l.a) }))
+        .filter((x): x is { link: (typeof data.links)[number]; other: NonNullable<typeof x.other> } => Boolean(x.other))
     : [];
   const epNos = info ? [...new Set(data.appearances.filter((a) => a.item_id === info.id).map((a) => data.episodes.find((e) => e.id === a.episode_id)?.no))].filter((n): n is number => n != null).sort((a, b) => a - b) : [];
   const from = linkFrom ? data.itemById.get(linkFrom) : null;
@@ -165,9 +166,19 @@ export function MapCanvasSection({ workId, selected, onToggle }: { workId: strin
             <p className={s.muted}>
               {copy.map.info.appears}: {epNos.length ? epNos.map((n) => `${n}화`).join(', ') : copy.map.info.none}
             </p>
-            <p className={s.muted}>
-              {copy.map.info.linked}: {linked.length ? linked.map((l) => l!.name).join(', ') : copy.map.info.none}
-            </p>
+            <div className={s.muted}>
+              {copy.map.info.linked}: {linked.length === 0 && copy.map.info.none}
+              {linked.length > 0 && (
+                <ul className={s.linkedList}>
+                  {linked.map(({ link, other }) => (
+                    <li key={link.id}>
+                      <strong>{other.name}</strong> — {link.label ?? (link.kind === 'co_occur' ? copy.map.info.coTimes(link.weight) : copy.map.info.noLabel)}
+                      <span className={s.linkKind}> ({link.kind === 'ai' ? copy.labels.ai : link.kind === 'manual' ? copy.map.legendManual : copy.map.legendCo})</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             <div className={s.infoActions}>
               <Link to={`/w/${workId}/forgot?item=${info.id}`}>{copy.map.info.guide}</Link>
               {canWrite && (

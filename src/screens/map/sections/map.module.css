@@ -138,3 +138,13 @@
   color: var(--c-sub);
   font-size: var(--fs-sm);
 }
+.linkedList {
+  margin: 4px 0 0;
+  padding-left: 1.1em;
+  color: var(--c-ink);
+  font-size: var(--fs-sm);
+}
+.linkKind {
+  color: var(--c-sub);
+  font-size: var(--fs-xs);
+}

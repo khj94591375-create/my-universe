@@ -155,6 +155,8 @@ export const copy = {
       linkSave: '연결하기',
       linkCancel: '취소',
       linked_ok: '연결선을 추가했어요.',
+      coTimes: (n: number) => `같은 장면 ${n}번`,
+      noLabel: '관계 이름 없음',
       close: '닫기',
     },
     panel: {
