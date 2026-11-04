@@ -35,3 +35,13 @@ describe('관계 이름 배치', () => {
     expect(placeLinkLabels([{ id: 'l', text: '스승', at: line(0, 200, 0), force: true }], 1, wall).has('l')).toBe(true);
   });
 });
+
+describe('별이 많을 때', () => {
+  it('별 300개도 빠르게(0.1초 안) 겹침 없이 배치한다', () => {
+    const many: StarLabelInput[] = Array.from({ length: 300 }, (_, i) => ({ id: `m${i}`, x: (i % 20) * 70, y: Math.floor(i / 20) * 55, r: 10, name: `별${i}`, priority: i % 9 }));
+    const t0 = performance.now();
+    const boxes = [...placeStarLabels(many, 1).values()];
+    expect(performance.now() - t0).toBeLessThan(100);
+    for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) expect(overlaps(boxes[i], boxes[j])).toBe(false);
+  });
+});

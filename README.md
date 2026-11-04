@@ -33,6 +33,16 @@ npm run dev
 
 규칙 로직 단위 테스트: `npm test`
 
+화면 테스트(진짜 Supabase 없이 가짜 서버로, `e2e/`):
+
+```bash
+npx playwright install chromium
+npm run e2e
+```
+
+`main`에 올리면 GitHub Actions가 타입 검사·단위 테스트·화면 테스트를 먼저 돌리고, **모두 통과해야 배포**한다(`.github/workflows/test.yml`, `deploy.yml`).
+실제 사이트에서 사람이 확인할 항목은 [`docs/CHECKLIST.md`](docs/CHECKLIST.md).
+
 ## 데이터베이스 준비 (처음 한 번)
 
 Supabase 대시보드 → **SQL Editor** → **New query**에 아래 파일 내용을 차례로 붙여 넣고 **Run**.

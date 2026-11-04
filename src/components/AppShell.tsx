@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { NavLink, Navigate, Outlet, useParams, Link } from 'react-router-dom';
 import { workNav } from '../config/nav';
 import { copy } from '../config/copy';
@@ -95,7 +96,9 @@ export function AppShell() {
               </div>
             )}
             <WorkTitleContext.Provider value={work.title}>
-              <Outlet />
+              <Suspense fallback={<Loading />}>
+                <Outlet />
+              </Suspense>
             </WorkTitleContext.Provider>
           </>
         )}

@@ -4,7 +4,7 @@ import type { ItemKind, ItemView, Link } from '../data/types';
 import { gapLabel } from '../features/foreshadow/gap';
 import { hubPos, layoutStars, type Pos } from '../features/map/layout';
 import { shapePath, starRadius, starState } from '../features/map/stars';
-import { circleBox, LABEL_FONT, LINK_FONT, placeLinkLabels, placeStarLabels } from '../features/map/labels';
+import { circleBox, LABEL_FONT, LINK_FONT, placeLinkLabels, placeStarLabels, textBox } from '../features/map/labels';
 import { controlPoint, linkEnds, pairOffsets, pointOnCurve } from '../features/map/links';
 import s from './StarMap.module.css';
 
@@ -201,7 +201,17 @@ export function StarMap({
   const dense = items.length > 30;
 
   // 이름표: 확대 배율에 맞춰 겹치지 않는 것만(고른 별·가리킨 별은 항상)
-  const blocked = useMemo(() => [circleBox(0, 0, 54), ...kinds.map((kd) => circleBox(hubPos(kd).x, hubPos(kd).y, 28))], [kinds.join()]); // eslint-disable-line react-hooks/exhaustive-deps
+  // 가운데 원·종류 동그라미·종류 이름(캐릭터·설정·복선) 자리는 별 이름이 피해 간다
+  const blocked = useMemo(() => {
+    const f = LABEL_FONT / ks;
+    return [
+      circleBox(0, 0, 54),
+      ...kinds.flatMap((kd) => {
+        const h = hubPos(kd);
+        return [circleBox(h.x, h.y, 28), textBox(h.x, h.y + 26 + f * 0.75, copy.labels.kind[kd], f)];
+      }),
+    ];
+  }, [kinds.join(), ks]); // eslint-disable-line react-hooks/exhaustive-deps
   const anchorKey = [...anchors].sort().join(',');
   const starLabels = useMemo(() => {
     const cands = items

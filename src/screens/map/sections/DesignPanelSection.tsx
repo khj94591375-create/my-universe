@@ -132,7 +132,7 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
 
       {/* ② 관계 확인 */}
       <section className={s.step} aria-labelledby="step2">
-        <h2 id="step2" className={s.stepHead}>
+        <h2 id="step2" className={s.stepHead} tabIndex={-1}>
           <span className={s.stepNo} aria-hidden="true">2</span>
           {copy.map.panel.step2}
         </h2>

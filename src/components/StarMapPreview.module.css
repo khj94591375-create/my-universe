@@ -5,3 +5,8 @@
 svg.preview {
   touch-action: auto;
 }
+/* 미리보기는 작게 줄어들어 보이므로 이름 글자를 크게 */
+svg.preview text {
+  font-size: 30px;
+  font-weight: 600;
+}

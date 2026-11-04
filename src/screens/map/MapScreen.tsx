@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { Column, Columns, ScreenLayout } from '../../components/ScreenLayout';
 import { EmptyState } from '../../components/EmptyState';
 import { copy } from '../../config/copy';
+import { showToast } from '../../components/Toast';
 import { art } from '../../config/art';
 import { useWorkData } from '../../features/works/workData';
 import { WorkDataGate } from '../shared/WorkDataGate';
@@ -32,6 +33,14 @@ export default function MapScreen() {
     if (urlSel !== selected.join(',')) setSelected(urlSel.split(',').filter(Boolean));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlSel]);
+  // 고른 별 비우기(빈 곳·Esc·모두 빼기). 실수로 눌렀을 수 있으니 알림에서 되돌릴 수 있게 한다.
+  const clearAll = () => {
+    const prev = selected;
+    setSelected([]);
+    setFocusId(null);
+    setLinkId(null);
+    if (prev.length) showToast(copy.map.panel.cleared(prev.length), 'info', { label: copy.map.panel.undo, run: () => setSelected(prev) });
+  };
   const toggle = (id: string) => setSelected((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
   const { data } = useWorkData(workId);
   const [focusId, setFocusId] = useState<string | null>(null);
@@ -58,10 +67,10 @@ export default function MapScreen() {
           ) : (
             <Columns ratio="1.75fr 1fr">
               <Column>
-                <MapCanvasSection workId={workId} selected={selected} onToggle={toggle} onClear={() => setSelected([])} focus={focus} />
+                <MapCanvasSection workId={workId} selected={selected} onToggle={toggle} onClear={clearAll} focus={focus} />
               </Column>
               <Column>
-                <DesignPanelSection workId={workId} selected={selected} onRemove={toggle} onClear={() => { setSelected([]); setFocusId(null); setLinkId(null); }} focus={focus} />
+                <DesignPanelSection workId={workId} selected={selected} onRemove={toggle} onClear={clearAll} focus={focus} />
               </Column>
             </Columns>
           )

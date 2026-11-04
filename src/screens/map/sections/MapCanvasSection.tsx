@@ -106,6 +106,8 @@ export function MapCanvasSection({ workId, selected, onToggle, onClear, focus }:
 
   const zoom = (f: number) => setView((v) => ({ k: Math.min(4, Math.max(0.35, v.k * f)), x: v.x * f, y: v.y * f }));
   const relation = linkId ? data.links.find((l) => l.id === linkId) : null;
+  const jumpId = infoId && selected.includes(infoId) ? infoId : selected[selected.length - 1];
+  const jumpItem = jumpId ? data.itemById.get(jumpId) : null;
   const from = linkFrom ? data.itemById.get(linkFrom) : null;
   const to = linkTo ? data.itemById.get(linkTo) : null;
 
@@ -304,6 +306,20 @@ export function MapCanvasSection({ workId, selected, onToggle, onClear, focus }:
         })()}
       </div>
 
+      {/* 휴대폰·좁은 화면: 별을 고르면 아래 설명(② 관계 확인)으로 바로 가는 띠 */}
+      {jumpItem && (
+        <button
+          type="button"
+          className={s.jumpBar}
+          onClick={() => {
+            const el = document.getElementById('step2');
+            el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            el?.focus({ preventScroll: true });
+          }}
+        >
+          {copy.map.panel.jump(jumpItem.name)}
+        </button>
+      )}
       <div className={s.legend}>
         <span className={s.legendGroup}>
           {KINDS.map((k) => (

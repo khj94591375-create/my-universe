@@ -434,3 +434,28 @@
   font-size: var(--fs-xs);
   line-height: 1.55;
 }
+/* 좁은 화면에서만 보이는 "자세히 보기" 띠 */
+.jumpBar {
+  display: none;
+}
+@media (max-width: 860px) {
+  .jumpBar {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid var(--c-strong);
+    border-radius: var(--r-sm);
+    background: var(--c-card);
+    color: var(--c-strong);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+.stepHead:focus {
+  outline: none;
+}
+.stepHead:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 2px;
+}

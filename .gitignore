@@ -14,3 +14,7 @@ eval/manuscripts/*
 # Supabase 로컬 파일
 supabase/.temp
 supabase/.branches
+
+# 화면 테스트 결과
+test-results/
+playwright-report/

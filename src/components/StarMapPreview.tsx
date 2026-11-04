@@ -9,7 +9,7 @@ import p from './StarMapPreview.module.css';
  * 홈 화면용 우주 지도 미리보기(읽기 전용). 실제 등록된 항목·관계만 그린다.
  * 이름은 자주 나온 별 몇 개만 보여 주고, 탐험은 우주 지도 화면에서 한다.
  */
-export function StarMapPreview({ items, links, label, maxLabels = 6 }: { items: ItemView[]; links: Link[]; label: string; maxLabels?: number }) {
+export function StarMapPreview({ items, links, label, maxLabels = 5 }: { items: ItemView[]; links: Link[]; label: string; maxLabels?: number }) {
   // 별이 많으면 배치 계산이 무거워서, 화면 글자를 먼저 보여 준 뒤 그린다
   const [ready, setReady] = useState(items.length <= 30);
   useEffect(() => {
