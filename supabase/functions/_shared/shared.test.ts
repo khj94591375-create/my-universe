@@ -114,3 +114,29 @@ describe('7.9 설정 충돌', () => {
     expect(r.map((x) => x.description)).toEqual(['눈 색이 다르다']);
   });
 });
+
+import { buildImagePrompt, DEFAULT_RATIO } from './imagePrompt.ts';
+
+describe('8.9 삽화 요청 문장', () => {
+  const items = [
+    { name: '리안', kind: 'character' as const, look: '열여섯 살, 짧은 갈색 머리, 남색 견습복' },
+    { name: '금서 구역', kind: 'setting' as const, look: '어두운 돌계단, 손잡이 없는 검은 문' },
+    { name: '세린', kind: 'character' as const, look: null },
+  ];
+  it('[고정] 고른 항목의 외모를 그대로 넣는다(두 번 만들어도 같다)', () => {
+    const a = buildImagePrompt({ purpose: 'illustration', style: '수채 판타지', scene: '리안이 금서 구역 문 앞에 선다', items, hasReference: false });
+    const b = buildImagePrompt({ purpose: 'illustration', style: '수채 판타지', scene: '다른 장면', items, hasReference: true });
+    for (const p of [a, b]) {
+      expect(p).toContain('- 리안: 열여섯 살, 짧은 갈색 머리, 남색 견습복');
+      expect(p).toContain('- 금서 구역: 어두운 돌계단, 손잡이 없는 검은 문');
+      expect(p).toContain('- 세린: (외모 정보 없음)');
+    }
+    expect(a).toContain('[화풍] 수채 판타지');
+    expect(b).toContain('[참조]');
+    expect(a).toContain('글자를 넣지 않는다.');
+  });
+  it('표지는 제목 자리를 비우고, 용도별 기본 비율', () => {
+    expect(buildImagePrompt({ purpose: 'cover', style: '', scene: '', items: [], hasReference: false })).toContain('제목이 들어갈 자리만 비워 둔다');
+    expect(DEFAULT_RATIO).toEqual({ sketch: '4:3', illustration: '4:3', cover: '3:4', sheet: '1:1' });
+  });
+});

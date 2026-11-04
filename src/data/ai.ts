@@ -26,7 +26,7 @@ export async function callAi<T>(name: string, body: Record<string, unknown> = {}
   return res as T;
 }
 
-export type AiStatus = { enabled: boolean; limits: { text: number; image: number }; usage: { text: number; image: number } | null };
+export type AiStatus = { enabled: boolean; imageEnabled?: boolean; limits: { text: number; image: number }; usage: { text: number; image: number } | null };
 
 export type GuideResult = {
   opening_line: string;

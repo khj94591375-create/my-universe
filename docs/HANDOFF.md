@@ -8,7 +8,7 @@
 
 | 항목 | 상태 |
 |---|---|
-| 현재 단계 | **M4 뼈대·M5 완료(API 키 대기) → 다음 M6(삽화 스튜디오, OpenAI 키 비워 둠)** |
+| 현재 단계 | **M4 뼈대·M5·M6 완료(Claude·OpenAI 키 대기) → M7 마무리** |
 | 저장소 | https://github.com/khj94591375-create/my-universe (Public, 기본 브랜치 `main`) |
 | 배포 주소 | https://khj94591375-create.github.io/my-universe/ (`main`에 push하면 GitHub Actions가 자동 배포) |
 | GitHub Pages | 켜짐(Source: GitHub Actions). 첫 배포 성공 |
@@ -118,6 +118,13 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - 채점 도구 `/#/eval`(`screens/eval`, `features/eval/{csv,gold,score}.ts`): 정답 CSV(파일·붙여 넣기), 찾은 비율·맞은 비율(전체·종류별), 회차·회수 판단·관계 정확도, AI 근거 통과율, 맞음/놓침/엉뚱하게 찾음, 표 복사. 예시 정답 `eval/gold/star-library.csv`(화면에서도 내려받기). 내 설정 → 도구에서 이동
 - 설정 충돌: 함수 `check-consistency`(7.9·8.8, 두 근거 모두 검증), 설정집 맨 아래 "설정 충돌"(검사 버튼, 무시·수정함·다시 열기), 홈 "설정 충돌" 카드(열린 충돌이 있을 때)
 - DB 변경 없음(consistency_issues는 0001에 있음)
+
+## 3-6. M6 (삽화 스튜디오)
+
+- 함수 `generate-image`(8.9): 요청 문장 `_shared/imagePrompt.ts`(look 항상 포함, 표지는 제목 자리 비움), OpenAI `_shared/openai.ts`(이미지 시트·다시 그리기 원본이 있으면 참조 이미지로), 비공개 Storage 저장 + images 행(prompt 저장), 성공했을 때만 사용량 +1
+- 화면 `screens/studio`: 용도·등장인물·장소·자동 묘사·장면·화풍·비율·보낼 문장 미리보기·남은 횟수(한도 초과 시 비활성 + 남은 시간), 갤러리(크게 보기·보낸 요청 문장·다시 그리기·이미지 시트로 등록·지우기), 저작권 안내
+- `ai-status`에 `imageEnabled` 추가
+- 키를 넣을 때: Supabase → Edge Functions → Secrets에 `OPENAI_API_KEY`, 필요하면 `OPENAI_IMAGE_MODEL`(기본 gpt-image-2), `DAILY_IMAGE_LIMIT`(기본 8)
 
 ## 4. 작업 습관
 

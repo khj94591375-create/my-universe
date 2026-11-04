@@ -2,9 +2,11 @@
 import { serve } from '../_shared/http.ts';
 import { aiEnabled } from '../_shared/claude.ts';
 import { dailyLimits, usageToday } from '../_shared/limits.ts';
+import { imageEnabled } from '../_shared/openai.ts';
 
 serve(async ({ admin, userId }) => ({
   enabled: aiEnabled(),
+  imageEnabled: imageEnabled(),
   limits: dailyLimits(),
   usage: userId ? await usageToday(admin, userId) : null,
 }));

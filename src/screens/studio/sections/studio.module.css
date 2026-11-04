@@ -1,0 +1,136 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.form > * {
+  flex: none;
+}
+.group {
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  padding: var(--sp-2) var(--sp-3);
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 0;
+}
+.group legend {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--c-sub);
+  padding: 0 4px;
+}
+.pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  padding: 4px 10px;
+  font-size: var(--fs-sm);
+  background: var(--c-white);
+  cursor: pointer;
+}
+.pickOn {
+  border-color: var(--c-gold);
+  background: var(--c-cream);
+  font-weight: 700;
+}
+.sheetDot {
+  color: var(--c-gold-ink);
+  font-size: 12px;
+}
+.looks h3 {
+  font-size: var(--fs-sm);
+  color: var(--c-sub);
+  margin-bottom: 4px;
+}
+.looks ul {
+  margin: 0;
+  padding-left: 1.1em;
+  font-size: var(--fs-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.row {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+.muted {
+  color: var(--c-sub);
+  font-size: var(--fs-xs);
+}
+.preview summary {
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--c-navy);
+}
+.preview pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--c-paper);
+  border-radius: var(--r-sm);
+  padding: var(--sp-3);
+  font-size: var(--fs-xs);
+  margin: var(--sp-2) 0 0;
+  font-family: var(--f-body);
+}
+.gallery {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: var(--sp-3);
+}
+.card {
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  padding: var(--sp-2);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--c-white);
+}
+.fresh {
+  border: 2px solid var(--c-gold);
+}
+.image,
+.imageEmpty {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: var(--c-neutral-bg);
+  border-radius: var(--r-sm);
+}
+.meta {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.actions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.link {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--c-navy);
+}
+.sheetPick {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.copyright {
+  font-size: var(--fs-xs);
+  color: var(--c-sub);
+}

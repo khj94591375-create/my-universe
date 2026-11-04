@@ -18,7 +18,7 @@
 | M3 | 원고 자동 읽기(규칙) | 완료 |
 | M4 | Claude 연결(RAG v1) | 뼈대 완료 · API 키 대기 |
 | M5 | 채점, 설정 충돌 | 완료 · 충돌 검사는 API 키 대기 |
-| M6 | 삽화 스튜디오 | 예정 |
+| M6 | 삽화 스튜디오 | 완료 · OpenAI 키 대기 |
 | M7 | 사용자 테스트, 마무리 | 예정 |
 
 ## 로컬에서 실행
@@ -53,9 +53,9 @@ Supabase 대시보드 → **SQL Editor** → **New query**에 아래 파일 내�
 
 ## AI 서버 함수(Supabase Edge Functions)
 
-- 코드: `supabase/functions/`(공용 `_shared/` + `ai-status`, `analyze-episode`, `guide`, `design-next`, `chat`, `delete-account`)
+- 코드: `supabase/functions/`(공용 `_shared/` + `ai-status`, `analyze-episode`, `guide`, `design-next`, `chat`, `check-consistency`, `generate-image`, `delete-account`)
 - 배포: `main`에 함수가 바뀌면 GitHub Actions(`functions.yml`)가 올린다. 저장소 비밀값 `SUPABASE_ACCESS_TOKEN`이 없으면 건너뛴다.
-- 키(`ANTHROPIC_API_KEY` 등)는 Supabase 대시보드 → Edge Functions → Secrets에만 넣는다. 키가 없으면 AI 버튼은 이유와 함께 꺼져 있고 기본 기능은 그대로 동작한다.
+- 키(`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `OPENAI_IMAGE_MODEL` 등)는 Supabase 대시보드 → Edge Functions → Secrets에만 넣는다. 키가 없으면 AI 버튼은 이유와 함께 꺼져 있고 기본 기능은 그대로 동작한다.
 
 ## 보안 규칙
 

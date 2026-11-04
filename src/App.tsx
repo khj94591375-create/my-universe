@@ -9,7 +9,7 @@ import MapScreen from './screens/map/MapScreen';
 import BibleScreen from './screens/bible/BibleScreen';
 import EpisodesScreen from './screens/episodes/EpisodesScreen';
 import ReviewScreen from './screens/review/ReviewScreen';
-import { StudioScreen } from './screens/PlaceholderScreens';
+import StudioScreen from './screens/studio/StudioScreen';
 import { NotFoundScreen } from './screens/SimplePages';
 import SettingsScreen from './screens/settings/SettingsScreen';
 import EvalScreen from './screens/eval/EvalScreen';
