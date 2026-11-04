@@ -14,6 +14,7 @@ export default function BibleScreen() {
   const [adding, setAdding] = useState(false);
   return (
     <ScreenLayout
+      tip="bible"
       eyebrow={copy.bible.eyebrow}
       title={copy.bible.title}
       action={

@@ -20,7 +20,7 @@ export default function ForgotScreen() {
     });
   const { data } = useWorkData(workId);
   return (
-    <ScreenLayout eyebrow={copy.forgot.eyebrow} title={copy.forgot.title} action={<SlumpButton workId={workId} size="md" />}>
+    <ScreenLayout tip="forgot" eyebrow={copy.forgot.eyebrow} title={copy.forgot.title} action={<SlumpButton workId={workId} size="md" />}>
       <WorkDataGate workId={workId}>
         {() =>
           data && data.items.length === 0 ? (

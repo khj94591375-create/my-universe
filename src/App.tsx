@@ -16,6 +16,7 @@ import EvalScreen from './screens/eval/EvalScreen';
 import { SessionProvider } from './features/auth/SessionProvider';
 import { RequireAuth } from './features/auth/RequireAuth';
 import { ToastHost } from './components/Toast';
+import { GuideTour } from './components/GuideTour';
 
 /**
  * 라우팅: GitHub Pages에서 새로고침해도 404가 나지 않도록 HashRouter를 쓴다(BUILD_SPEC 3.1).
@@ -43,6 +44,7 @@ export default function App() {
           </Route>
           <Route path="*" element={<NotFoundScreen />} />
         </Routes>
+        <GuideTour />
       </HashRouter>
       <ToastHost />
     </SessionProvider>

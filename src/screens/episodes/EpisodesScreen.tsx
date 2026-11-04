@@ -18,7 +18,7 @@ export default function EpisodesScreen() {
       return p;
     });
   return (
-    <ScreenLayout eyebrow={copy.episodes.eyebrow} title={copy.episodes.title} action={<ReanalyzeAllButton workId={workId} />}>
+    <ScreenLayout tip="episodes" eyebrow={copy.episodes.eyebrow} title={copy.episodes.title} action={<ReanalyzeAllButton workId={workId} />}>
       <WorkDataGate workId={workId}>
         {() => (
           <>

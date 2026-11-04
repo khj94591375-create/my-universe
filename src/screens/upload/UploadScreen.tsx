@@ -12,7 +12,7 @@ export default function UploadScreen() {
   const { workId = '' } = useParams();
   const [tab, setTab] = useState<'paste' | 'file'>('file');
   return (
-    <ScreenLayout eyebrow={copy.upload.eyebrow} title={copy.upload.title}>
+    <ScreenLayout tip="upload" eyebrow={copy.upload.eyebrow} title={copy.upload.title}>
       <div className={s.tabs} role="tablist">
         {(['file', 'paste'] as const).map((t) => (
           <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? `${s.tab} ${s.tabOn}` : s.tab} onClick={() => setTab(t)}>

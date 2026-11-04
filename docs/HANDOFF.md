@@ -136,6 +136,11 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - 접근성 추가: 건너뛰기 링크, 화면별 탭 제목, 지도 Esc, 성공색 대비, 키보드만으로 주요 흐름 확인, 320px에서 엄격한 axe 점검 0개
 - 남은 것(BUILD_SPEC 13장 M7): 신인 작가 3명 이상 테스트("막혔어요" 뒤 3번 이내 클릭으로 가이드·설계를 받는가), 키를 넣은 뒤 실제 AI 품질 확인
 
+## 3-8. 처음 사용 가이드
+
+- `src/config/guide.ts`(내용), `features/guide/{guideData,guideState}.ts`(기억), `components/GuideTour.tsx`(5장 모달: 로그인 사용자는 작품 목록 첫 방문, 비로그인은 예시 작품 첫 방문), `components/ScreenTip.tsx`(화면별 도움말, `ScreenLayout`의 `tip`)
+- 내 설정 "사용 가이드 다시 보기", "화면별 도움말 다시 켜기"
+
 ## 4. 작업 습관
 
 - 단계가 끝나면 `README.md`의 단계 표를 갱신하고, 중요한 판단은 `docs/DECISIONS.md`에 한 줄 추가한다

@@ -14,6 +14,7 @@ import { signOut } from '../../features/auth/auth';
 import { useSession } from '../../features/auth/SessionProvider';
 import { aiErrorMessage, useAiStatus } from '../../features/ai/aiStatus';
 import { clearWorkData } from '../../features/works/workData';
+import { openTour, useGuideState } from '../../features/guide/guideState';
 import s from './settings.module.css';
 
 /** 내 설정(BUILD_SPEC 6.11): 계정, 오늘 AI 사용량, 데이터 내보내기, 로그아웃, 데이터·계정 삭제. */
@@ -23,6 +24,7 @@ export default function SettingsScreen() {
   const userId = session?.user.id ?? '';
   const nav = useNavigate();
   const ai = useAiStatus();
+  const guide = useGuideState();
   const [busy, setBusy] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<'all' | 'account' | null>(null);
 
@@ -129,6 +131,21 @@ export default function SettingsScreen() {
             </div>
           )}
           {!serverReady && <p className={s.sub}>{copy.settings.deleteAccountOff}</p>}
+        </div>
+      </Card>
+
+      <Card title={copy.guide.settingsTitle}>
+        <div className={s.actions}>
+          <Button onClick={openTour}>{copy.guide.replay}</Button>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              guide.resetTips();
+              showToast(copy.guide.tipsOnDone);
+            }}
+          >
+            {copy.guide.tipsOn}
+          </Button>
         </div>
       </Card>
 

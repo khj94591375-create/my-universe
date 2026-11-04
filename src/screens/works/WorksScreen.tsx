@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { EmptyState } from '../../components/EmptyState';
 import { ErrorState } from '../../components/ErrorState';
@@ -26,7 +26,15 @@ export default function WorksScreen() {
   const { session } = useSession();
   const userId = session?.user.id ?? '';
   const [state, setState] = useState<ListState>({ status: 'loading' });
-  const [creating, setCreating] = useState(false);
+  const [params, setParams] = useSearchParams();
+  const [creating, setCreating] = useState(params.get('new') === '1');
+  // 가이드의 "새 작품 만들기"로 오면 폼을 연다
+  useEffect(() => {
+    if (params.get('new') === '1') {
+      setCreating(true);
+      setParams({}, { replace: true });
+    }
+  }, [params, setParams]);
 
   const load = useCallback(async () => {
     setState({ status: 'loading' });

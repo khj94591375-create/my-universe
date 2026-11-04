@@ -25,7 +25,7 @@ export default function MapScreen() {
   const { data } = useWorkData(workId);
 
   return (
-    <ScreenLayout eyebrow={copy.map.eyebrow} title={copy.map.title}>
+    <ScreenLayout tip="map" eyebrow={copy.map.eyebrow} title={copy.map.title}>
       <WorkDataGate workId={workId}>
         {() =>
           data && data.items.length === 0 ? (

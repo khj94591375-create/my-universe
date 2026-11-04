@@ -18,6 +18,7 @@ import { useSession } from '../../features/auth/SessionProvider';
 import { deriveWorkData, type WorkData } from '../../features/works/workData';
 import { parseGold } from '../../features/eval/gold';
 import { norm, scoreEval, type Candidate, type EvalResult } from '../../features/eval/score';
+import { ScreenTip } from '../../components/ScreenTip';
 import s from './eval.module.css';
 
 /** 작품 데이터에서 채점 후보(항목 + 연결된 항목 id)를 만든다. */
@@ -115,6 +116,7 @@ export default function EvalScreen() {
     <main className={s.page}>
       <h1 className={s.title}>{copy.eval.title}</h1>
       <p className={s.lead}>{copy.eval.lead}</p>
+      <ScreenTip id="eval" />
 
       <Card>
         <div className={s.form}>

@@ -28,7 +28,7 @@ export default function StudioScreen() {
   useEffect(reload, [reload]);
 
   return (
-    <ScreenLayout eyebrow={copy.studio.eyebrow} title={copy.studio.title}>
+    <ScreenLayout tip="studio" eyebrow={copy.studio.eyebrow} title={copy.studio.title}>
       <WorkDataGate workId={workId}>
         {() => (
           <Columns ratio="1fr 1.2fr">

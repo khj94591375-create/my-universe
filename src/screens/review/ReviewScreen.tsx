@@ -17,6 +17,7 @@ export default function ReviewScreen() {
     .filter((n) => Number.isInteger(n) && n > 0);
   return (
     <ScreenLayout
+      tip="review"
       eyebrow={copy.review.eyebrow}
       title={copy.review.title}
       action={<ConfirmAllButton workId={workId} />}

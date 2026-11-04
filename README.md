@@ -58,6 +58,7 @@ Supabase 대시보드 → **SQL Editor** → **New query**에 아래 파일 내�
 | 색·글꼴·간격·모서리 | `src/styles/tokens.css` |
 | 버튼 이름·안내 문구 | `src/config/copy.ts` |
 | 메뉴 순서·이름·아이콘 | `src/config/nav.ts` |
+| 처음 사용 가이드·화면별 도움말 | `src/config/guide.ts` |
 | 화면 안 카드 배치 | `src/screens/<화면>/<화면>Screen.tsx`의 섹션 순서 |
 
 ## AI 서버 함수(Supabase Edge Functions)

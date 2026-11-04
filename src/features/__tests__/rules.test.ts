@@ -230,3 +230,22 @@ describe('7.5 회차 번호와 여러 회차 나누기', () => {
     expect(r[0].no).toBe(4);
   });
 });
+
+import { ALL_TIPS, readGuide, tipSeen, withTip, withTour, withoutTips } from '../guide/guideData';
+
+describe('처음 사용 가이드 기억', () => {
+  it('저장된 값이 없거나 이상해도 빈 상태로 읽는다', () => {
+    expect(readGuide(undefined)).toEqual({});
+    expect(readGuide({ tour: 'weird', tips: [1, 'map'] })).toEqual({ tour: undefined, tips: ['map'] });
+  });
+  it('가이드 본 표시, 도움말 닫기, 모두 끄기, 다시 켜기', () => {
+    let g = withTour({}, 'skipped');
+    expect(g.tour).toBe('skipped');
+    g = withTip(withTip(g, 'map'), 'map');
+    expect(g.tips).toEqual(['map']);
+    expect(tipSeen(g, 'map')).toBe(true);
+    expect(tipSeen(g, 'home')).toBe(false);
+    expect(tipSeen(withTip(g, ALL_TIPS), 'home')).toBe(true);
+    expect(withoutTips(g)).toEqual({ tour: 'skipped', tips: [] });
+  });
+});

@@ -31,7 +31,7 @@ export default function HomeScreen() {
             }
           />
         ) : (
-          <ScreenLayout eyebrow={copy.home.eyebrow} title={copy.home.nextTitle(data.next)} action={<SlumpButton workId={workId} />}>
+          <ScreenLayout tip="home" eyebrow={copy.home.eyebrow} title={copy.home.nextTitle(data.next)} action={<SlumpButton workId={workId} />}>
             <Columns>
               <Column>
                 <ForgottenListSection workId={workId} />
