@@ -60,9 +60,11 @@
   fill: var(--c-star-color);
 }
 .hub text {
-  fill: var(--c-map-text);
-  font-size: 19px;
-  font-weight: 700;
+  /* 종류 이름(캐릭터·설정·복선)은 항목 이름보다 작고 옅게 */
+  fill: var(--c-map-hub-text);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   text-anchor: middle;
   paint-order: stroke;
   stroke: var(--c-map-halo);
@@ -86,10 +88,11 @@
   fill: var(--c-star-color);
   transition: transform 0.15s;
 }
-/* 이름은 밝기와 상관없이 항상 선명하게 */
+/* 이름은 밝기와 상관없이 항상 선명하게(종류 이름보다 진하게) */
 .star text {
   fill: var(--c-map-text);
   font-size: 20px;
+  font-weight: 600;
   text-anchor: middle;
   paint-order: stroke;
   stroke: var(--c-map-halo);

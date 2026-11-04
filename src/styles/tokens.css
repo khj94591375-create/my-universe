@@ -64,6 +64,7 @@
   --c-map-manual: #9a6a17; /* 작가가 이은 선 */
   --c-map-lit: #4a3a8f; /* 고른 별과 이어진 선 */
   --c-map-text: #2c2550; /* 별 이름 */
+  --c-map-hub-text: #6b6488; /* 종류 이름(별 이름보다 옅게) */
   --c-map-halo: #fbf8f2; /* 별 이름 테두리(바탕색) */
   --c-map-hub: #fffdf8;
   --c-map-hub-stroke: #b9acd9;
@@ -169,6 +170,7 @@
   --c-map-manual: #e0b46a;
   --c-map-lit: #e0b46a;
   --c-map-text: #fbecd0;
+  --c-map-hub-text: #a3b2cd;
   --c-map-halo: #0b203b;
   --c-map-hub: #132c4f;
   --c-map-hub-stroke: #c9d5e8;

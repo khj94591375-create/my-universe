@@ -42,7 +42,9 @@ test.describe('우주 지도', () => {
   test('예시 작품 설계 체험: 장면 3개, 저장 요청 없음', async ({ page }) => {
     const { writes } = await prepare(page);
     await page.goto(`#/w/${SAMPLE}/map`);
+    await expect(page.getByRole('button', { name: '설계 체험하기' })).toBeDisabled();
     await star(page, '리안').click();
+    await expect(page.getByRole('button', { name: '설계 체험하기' })).toBeEnabled();
     await page.getByRole('button', { name: '설계 체험하기' }).click();
     await expect(page.locator('ol[class*=scenes] > li')).toHaveCount(3);
     await expect(page.getByText(/AI 결과가 아니에요/)).toBeVisible();

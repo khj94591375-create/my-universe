@@ -78,7 +78,7 @@ export function StarMap({
   // 별들이 차지한 범위에 맞춰 화면 크기를 정한다(라벨이 읽히도록)
   const vb = useMemo(() => {
     const pts = [...pos.values(), { x: 0, y: 0 }];
-    const pad = 90;
+    const pad = 80;
     const xs = pts.map((p) => p.x);
     const ys = pts.map((p) => p.y);
     const half = { w: Math.max(...xs.map(Math.abs)) + pad, h: Math.max(...ys.map(Math.abs)) + pad };
@@ -208,7 +208,7 @@ export function StarMap({
       circleBox(0, 0, 54),
       ...kinds.flatMap((kd) => {
         const h = hubPos(kd);
-        return [circleBox(h.x, h.y, 28), textBox(h.x, h.y + 26 + f * 0.75, copy.labels.kind[kd], f)];
+        return [circleBox(h.x, h.y, 28), textBox(h.x, h.y + 26 + f * 0.65, copy.labels.kind[kd], f * 0.8)];
       }),
     ];
   }, [kinds.join(), ks]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -336,7 +336,7 @@ export function StarMap({
             <g key={kd} className={s.hub} transform={`translate(${h.x} ${h.y})`}>
               <circle r={26} />
               <path d={shapePath(kd, 10)} className={s[kd]} />
-              <text y={26 + fs * 1.1} style={{ fontSize: fs }}>
+              <text y={26 + fs * 0.95} style={{ fontSize: fs * 0.8 }}>
                 {copy.labels.kind[kd]}
               </text>
             </g>
@@ -412,7 +412,7 @@ export function StarMap({
           const right = (vx + vw - view.x) / k;
           const cx = Math.min(Math.max(q.x, left + w / 2 + 4 / ks), right - w / 2 - 4 / ks);
           let top = q.y - r - 8 / ks - h;
-          if (top < (vy - view.y) / k) top = q.y + r + 8 / ks + fs * 1.4; // 위가 막히면 아래로
+          if (top < (vy - view.y) / k) top = q.y + r + 8 / ks + fs * 1.6; // 위가 막히면 별 이름 아래로
           return (
             <g className={s.tip} pointerEvents="none" aria-hidden="true">
               <rect x={cx - w / 2} y={top} width={w} height={h} rx={8 / ks} style={{ strokeWidth: 1 / ks }} />

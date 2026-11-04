@@ -236,7 +236,7 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
         {reason && <p className={s.muted}>{reason}</p>}
         {isSample && (
           <>
-            <Button variant="ghost" block disabled={chosen.length === 0} onClick={() => setDemo(true)}>
+            <Button variant={chosen.length ? 'primary' : 'ghost'} block disabled={chosen.length === 0} onClick={() => setDemo(true)}>
               {copy.map.demo.button}
             </Button>
             <p className={s.muted}>{copy.map.demo.hint}</p>

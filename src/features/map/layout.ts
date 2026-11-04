@@ -10,10 +10,10 @@ import type { ItemKind } from '../../data/types';
 export type Pos = { x: number; y: number };
 export const KIND_ANGLE: Record<ItemKind, number> = { character: -90, setting: 30, foreshadow: 150 };
 const HUB_R = 150;
-const RING_R = 330;
-const RING_GAP = 110;
-const SECTOR = 88; // 종류 하나가 차지하는 각도(종류 사이에 32도 빈칸)
-const STAGGER = 48; // 이웃한 별의 라벨이 겹치지 않게 반지름을 엇갈림
+const RING_R = 390;
+const RING_GAP = 130;
+const SECTOR = 100; // 종류 하나가 차지하는 각도(종류 사이에 20도 빈칸)
+const STAGGER = 56; // 이웃한 별의 라벨이 겹치지 않게 반지름을 엇갈림
 const PER_RING = 7;
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
@@ -68,12 +68,12 @@ function forceLayout(items: { id: string; kind: ItemKind; name: string }[], link
   const nodes: Node[] = items.map((i) => ({ id: i.id, w: labelWidth(i.name), ...start.get(i.id) }));
   const ids = new Set(items.map((i) => i.id));
   const edges = [
-    ...items.map((i) => ({ source: i.id, target: `hub:${i.kind}`, d: 220 })),
-    ...links.filter((l) => ids.has(l.a) && ids.has(l.b)).map((l) => ({ source: l.a, target: l.b, d: 160 })),
+    ...items.map((i) => ({ source: i.id, target: `hub:${i.kind}`, d: 270 })),
+    ...links.filter((l) => ids.has(l.a) && ids.has(l.b)).map((l) => ({ source: l.a, target: l.b, d: 180 })),
   ];
   const sim = forceSimulation<Node>([...hubs, ...nodes])
     .force('link', forceLink<Node, { source: string; target: string; d: number }>(edges).id((n) => n.id).distance((e) => e.d).strength(0.3))
-    .force('charge', forceManyBody().strength(-260))
+    .force('charge', forceManyBody().strength(-340))
     .force('collide', forceCollide<Node>((n) => n.w / 2 + 6))
     .stop();
   for (let i = 0; i < 300; i++) sim.tick();
