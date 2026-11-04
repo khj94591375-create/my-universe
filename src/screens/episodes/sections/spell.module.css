@@ -1,0 +1,242 @@
+/* 맞춤법 검사 패널(색은 tokens.css의 역할 색만) */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-paper);
+  padding: var(--sp-4);
+}
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+.head h3 {
+  font-size: var(--fs-md);
+}
+.muted {
+  color: var(--c-sub);
+  font-size: var(--fs-sm);
+}
+.note {
+  background: var(--c-info-bg);
+  color: var(--c-ink);
+  border-radius: var(--r-sm);
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-sm);
+}
+.warn {
+  color: var(--c-warn);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+}
+.empty {
+  background: var(--c-card);
+  border: 1px dashed var(--c-line);
+  border-radius: var(--r-sm);
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--c-line);
+  flex-wrap: wrap;
+}
+.tab {
+  border: 0;
+  background: transparent;
+  color: var(--c-sub);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  padding: 8px 12px;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  min-height: 40px;
+}
+.tabOn {
+  color: var(--c-strong);
+  border-bottom-color: var(--c-accent);
+}
+.card {
+  background: var(--c-card);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  padding: var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.cardHead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.pos {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.context {
+  font-size: var(--fs-md);
+  line-height: 1.8;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.diff {
+  margin: 0;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 4px var(--sp-3);
+  font-size: var(--fs-sm);
+}
+.diff > div {
+  display: contents;
+}
+.diff dt {
+  color: var(--c-sub);
+}
+.diff dd {
+  margin: 0;
+}
+.del {
+  text-decoration: line-through;
+  text-decoration-color: var(--c-warn);
+  background: var(--c-warn-bg);
+  color: var(--c-ink);
+}
+.ins {
+  text-decoration: none;
+  background: var(--c-ok-bg);
+  color: var(--c-ink);
+  font-weight: 600;
+}
+.text {
+  background: var(--c-card);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  padding: var(--sp-3);
+  white-space: pre-wrap;
+  line-height: 1.9;
+  max-height: 60vh;
+  overflow-y: auto;
+  font-size: var(--fs-md);
+  overflow-wrap: anywhere;
+}
+/* 원고 속 제안 위치 강조 */
+.mark {
+  border: 0;
+  padding: 0 1px;
+  margin: 0;
+  font: inherit;
+  color: var(--c-ink);
+  background: var(--c-warn-bg);
+  border-bottom: 2px solid var(--c-warn);
+  border-radius: 2px;
+  cursor: pointer;
+  white-space: pre-wrap;
+}
+.markCheck {
+  background: var(--c-ai-bg);
+  border-bottom: 2px dashed var(--c-ai);
+}
+.markApplied {
+  background: var(--c-ok-bg);
+  border-bottom-color: var(--c-ok);
+}
+.markKept {
+  background: transparent;
+  border-bottom: 1px dotted var(--c-sub);
+}
+.markCurrent {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 1px;
+  background: var(--c-highlight);
+  color: var(--c-ink);
+}
+.compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+}
+.compare h4 {
+  font-size: var(--fs-sm);
+  margin: 0 0 6px;
+  color: var(--c-sub);
+}
+.confirm {
+  border: 2px solid var(--c-warn);
+  background: var(--c-card);
+  border-radius: var(--r-sm);
+  padding: var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+}
+.check {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-weight: 600;
+}
+.dict {
+  font-size: var(--fs-sm);
+}
+.dict summary {
+  cursor: pointer;
+  color: var(--c-strong);
+  font-weight: 600;
+}
+.dict ul {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.dict li {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--c-highlight);
+  border-radius: var(--r-pill);
+  padding: 2px 4px 2px 10px;
+}
+.remove {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  color: var(--c-ink);
+}
+@media (max-width: 700px) {
+  .panel {
+    padding: var(--sp-3);
+  }
+  .compare {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -68,6 +68,13 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
         return (
           <Card key={ep.id} title={copy.review.epHead(ep.no, ep.title ?? `${ep.no}화`)}>
             <p className={s.muted}>{copy.review.found(new Set(apps.map((a) => a.item_id)).size)}</p>
+            {/* 맞춤법 검사는 선택(하지 않아도 등록·정리는 끝남) */}
+            <p className={s.muted}>
+              <Link to={`/w/${workId}/episodes?open=${ep.no}&check=1`} className={s.link}>
+                {copy.spell.afterUpload} →
+              </Link>{' '}
+              {copy.spell.afterUploadHint}
+            </p>
             {apps.length === 0 ? (
               <p className={s.muted}>{copy.review.noneFound}</p>
             ) : (

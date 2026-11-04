@@ -169,6 +169,13 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - 화면 테스트 `e2e/*.spec.ts`(가짜 Supabase `e2e/fixtures/`), 실행 `npm run e2e`. GitHub Actions `test.yml`이 통과해야 `deploy.yml`이 배포
 - 화면 나눠 받기 `src/screens/loaders.tsx`(우주 지도는 나누지 않음), 사람이 볼 점검표 `docs/CHECKLIST.md`
 
+## 3-15. 맞춤법 검사(작가의 문체 존중)
+- 회차 기록 → 회차 열기 → `맞춤법 검사`(검토 화면의 회차별 "맞춤법 검사하기" 링크 = `?open=N&check=1`). 패널 `screens/episodes/sections/SpellCheckSection.tsx`
+- 브라우저 기본 규칙 `src/features/spell/rules.ts`(외부 전송 없음) + AI 함수 `supabase/functions/spell-check`(Haiku, 3,000자 묶음, DB에 저장 안 함, 서버 거르기 `_shared/spell.ts`). 처리 `features/spell/text.ts`(묶음 나누기, 위치, 겹침, `applyAccepted`)
+- 원고는 "원고에 반영…" 확인창에서만 `updateEpisodeBody`로 본문만 바뀜(선택 시 규칙으로 다시 정리). 설정집·지도·요약은 자동 반영 없음
+- 작품 사전 표 `style_terms`(`supabase/migrations/0005_style_terms.sql`, **사용자 실행 필요**). 실행 전에는 "앞으로도 이 표현 유지"만 꺼짐
+- 테스트: 단위 `features/__tests__/spell.test.ts`, `_shared/shared.test.ts`, 화면 `e2e/spell.spec.ts`
+
 ## 4. 작업 습관
 
 - 단계가 끝나면 `README.md`의 단계 표를 갱신하고, 중요한 판단은 `docs/DECISIONS.md`에 한 줄 추가한다

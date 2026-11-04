@@ -17,10 +17,11 @@ import { splitScenes } from '../../../features/analysis/split';
 import { save } from '../../../features/works/save';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { useWorkData } from '../../../features/works/workData';
+import { SpellCheckSection } from './SpellCheckSection';
 import s from './episodes.module.css';
 
 /** 회차 열기: 원고 전문(장면 구분, 등장 항목 강조), 제목·요약 고치기, 등장 항목 체크, 다시 정리, 삭제. */
-export function EpisodeDetailSection({ workId, no, onClose }: { workId: string; no: number; onClose: () => void }) {
+export function EpisodeDetailSection({ workId, no, onClose, autoCheck = false }: { workId: string; no: number; onClose: () => void; autoCheck?: boolean }) {
   const { data } = useWorkData(workId);
   const { work } = useWork(workId);
   const canWrite = useCanWrite(work);
@@ -30,6 +31,8 @@ export function EpisodeDetailSection({ workId, no, onClose }: { workId: string; 
   const [mode, setMode] = useState<'view' | 'edit' | 'confirmDelete'>('view');
   const [meta, setMeta] = useState({ title: '', summary: '' });
   const [busy, setBusy] = useState(false);
+  // 맞춤법 검사 패널(원고 불러오기에서 ?check=1로 오면 바로 연다)
+  const [checking, setChecking] = useState(autoCheck);
 
   const analyzedAt = episode?.analyzed_at;
   useEffect(() => {
@@ -108,6 +111,16 @@ export function EpisodeDetailSection({ workId, no, onClose }: { workId: string; 
           ))}
         </div>
       </div>
+
+      {checking ? (
+        <SpellCheckSection workId={workId} episode={episode} onClose={() => setChecking(false)} />
+      ) : (
+        <div>
+          <Button variant="ghost" size="sm" onClick={() => setChecking(true)}>
+            {copy.spell.open}
+          </Button>
+        </div>
+      )}
 
       {chunkError && <ErrorState body={chunkError} />}
       {!chunks && !chunkError ? (

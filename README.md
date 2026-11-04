@@ -52,6 +52,7 @@ Supabase 대시보드 → **SQL Editor** → **New query**에 아래 파일 내�
 3. `supabase/migrations/0002_link_direction.sql` — 연결선 방향(화살표). 시드를 다시 실행했다면 이것도 다시 실행
 4. `supabase/migrations/0003_link_per_direction.sql` — 같은 두 항목 사이에 방향마다 선 하나씩
 5. `supabase/migrations/0004_ai_ready.sql` — AI 연결 준비(별칭 출처, 사용량 +1, 비슷한 장면 찾기)
+6. `supabase/migrations/0005_style_terms.sql` — 맞춤법 검사 "앞으로도 이 표현 유지" 작품 사전(새 표 하나, 기존 표는 그대로)
 
 ## 지원 브라우저와 접근성
 

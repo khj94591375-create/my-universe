@@ -9,7 +9,7 @@ export type ExportFile = {
   works: Record<string, unknown>[];
 };
 
-/** 내 작품 전부(작품·회차·항목·별칭·등장·연결)를 하나의 JSON으로 모은다. */
+/** 내 작품 전부(작품·회차·항목·별칭·등장·연결·맞춤법 사전)를 하나의 JSON으로 모은다. */
 export async function exportMyData(userId: string): Promise<ExportFile> {
   const c = db();
   const { data: works, error } = await c.from('works').select('*').eq('owner_id', userId).order('created_at');
@@ -23,6 +23,8 @@ export async function exportMyData(userId: string): Promise<ExportFile> {
       c.from('links').select('*').eq('work_id', w.id),
     ]);
     for (const r of [episodes, items, appearances, links]) if (r.error) throw r.error;
+    // 맞춤법 사전(0005 SQL 전이면 빈 목록)
+    const terms = await c.from('style_terms').select('term, note').eq('work_id', w.id);
     const { data: epIds } = await c.from('episodes').select('id, no').eq('work_id', w.id);
     const epNo = new Map((epIds ?? []).map((e) => [e.id as string, e.no as number]));
     const itemName = new Map((items.data ?? []).map((i) => [i.id as string, i.name as string]));
@@ -43,6 +45,7 @@ export async function exportMyData(userId: string): Promise<ExportFile> {
         role: a.role,
       })),
       links: (links.data ?? []).map((l) => ({ a: itemName.get(l.a), b: itemName.get(l.b), kind: l.kind, label: l.label, weight: l.weight, direction: l.direction ?? 'none' })),
+      style_terms: terms.error ? [] : terms.data,
     });
   }
   return { app: 'My Universe', exported_at: new Date().toISOString(), works: out };

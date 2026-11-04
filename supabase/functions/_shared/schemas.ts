@@ -62,3 +62,17 @@ export const consistencySchema = z.object({
     }),
   ),
 });
+
+/** 맞춤법 검사(작가가 고를 제안만, 원고는 고치지 않음) */
+export const spellSchema = z.object({
+  suggestions: z.array(
+    z.object({
+      original: z.string().describe('원고에 있는 틀린 부분을 글자 그대로(띄어쓰기 포함). 짧게, 고칠 단어·어절 주변만'),
+      suggestion: z.string().describe('바르게 고친 같은 부분'),
+      type: z.enum(['spelling', 'spacing', 'typo', 'punctuation', 'style']).describe('spelling 맞춤법, spacing 띄어쓰기, typo 오탈자, punctuation 문장부호, style 문체 제안(오류 아님)'),
+      reason: z.string().describe('왜 고치는지 한 문장'),
+      certainty: z.enum(['sure', 'check']).describe('확실한 오류면 sure, 의도적일 수 있거나 애매하면 check'),
+      in_dialogue: z.boolean().describe('큰따옴표 대사 안이면 true'),
+    }),
+  ),
+});

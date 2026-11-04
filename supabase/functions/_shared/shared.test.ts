@@ -140,3 +140,31 @@ describe('8.9 삽화 요청 문장', () => {
     expect(DEFAULT_RATIO).toEqual({ sketch: '4:3', illustration: '4:3', cover: '3:4', sheet: '1:1' });
   });
 });
+
+import { filterSpell, type RawSpell } from './spell.ts';
+
+describe('맞춤법 제안 거르기', () => {
+  const s = (o: string, g: string, extra: Partial<RawSpell> = {}): RawSpell => ({ original: o, suggestion: g, type: 'spelling', reason: '이유', certainty: 'sure', in_dialogue: false, ...extra });
+  const text = '리안은 할수 있다고 생각했다. "몰라유, 지가 우째 알아유." 은열쇠가 반짝였다. 그는 그 그 문을 열었다.';
+  it('원고에 글자 그대로 있는 제안만 남긴다', () => {
+    const r = filterSpell(text, [s('할수 있다', '할 수 있다', { type: 'spacing' }), s('없는 문장', '고친 문장')], []);
+    expect(r.kept.map((k) => k.original)).toEqual(['할수 있다']);
+    expect(r.dropped).toBe(1);
+  });
+  it('고유명사·사전 단어를 바꾸는 제안은 버린다', () => {
+    const r = filterSpell(text, [s('은열쇠가', '은 열쇠가', { type: 'spacing' }), s('리안은', '리인은')], ['은열쇠', '리안']);
+    expect(r.kept).toEqual([]);
+  });
+  it('대사 안 제안은 늘 "확인 필요"', () => {
+    const r = filterSpell(text, [s('몰라유', '몰라요', { in_dialogue: true })], []);
+    expect(r.kept[0].certainty).toBe('check');
+  });
+  it('문장을 통째로 다시 쓰는 제안은 버린다', () => {
+    const r = filterSpell(text, [s('리안은 할수 있다고 생각했다.', '리안은 자신이 해낼 수 있으리라 확신하며 고개를 끄덕였다.', { type: 'style' })], []);
+    expect(r.kept).toEqual([]);
+  });
+  it('같은 제안은 한 번만, 바뀌는 게 없으면 버린다', () => {
+    const r = filterSpell(text, [s('그 그', '그'), s('그 그', '그'), s('문을', '문을')], []);
+    expect(r.kept).toHaveLength(1);
+  });
+});

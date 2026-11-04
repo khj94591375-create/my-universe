@@ -9,6 +9,7 @@
 2. 왼쪽 **Table Editor** → `item_aliases` 표 클릭
 3. 칸 이름 중에 **`source`**가 있으면 OK
 4. 없으면: 왼쪽 **SQL Editor** → **New query** → 저장소의 `supabase/migrations/0004_ai_ready.sql` 내용을 붙여 넣고 **Run**
+5. 같은 방법으로 왼쪽 **Table Editor**에 `style_terms` 표가 있는지 확인 → 없으면 `supabase/migrations/0005_style_terms.sql`을 붙여 넣고 **Run**(맞춤법 검사의 작품 사전)
 
 ## 1. 컴퓨터(크롬 또는 엣지)
 | # | 할 일 | 이렇게 되면 정상 |

@@ -29,6 +29,7 @@ const defaults: Record<string, Row> = {
   item_aliases: { source: 'manual' },
   images: {},
   consistency_issues: { status: 'open' },
+  style_terms: { note: null },
 };
 const uniq: Record<string, string[]> = {
   episodes: ['work_id', 'no'],
@@ -36,6 +37,7 @@ const uniq: Record<string, string[]> = {
   item_aliases: ['item_id', 'alias'],
   links: ['a', 'b', 'kind', 'direction'],
   appearances: ['item_id', 'episode_id', 'chunk_id'],
+  style_terms: ['work_id', 'term'],
 };
 
 export type Reply = { status: number; body: unknown; range?: string };
@@ -46,6 +48,7 @@ export function makeDb(userId: string | null) {
   T.images = [];
   T.ai_usage = [];
   T.consistency_issues = [];
+  T.style_terms = [];
   for (const a of T.item_aliases) a.source = a.source ?? 'manual';
 
   const work = (wid: string) => T.works.find((x) => x.id === wid);

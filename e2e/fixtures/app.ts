@@ -20,11 +20,12 @@ const NAMES = ['리안', '세린', '검은 망토의 노인', '반쪽짜리 은�
 export async function prepare(page: Page, opts: Options = {}) {
   const db = makeDb(opts.user ? USER : null);
   if (opts.mine) {
-    // 내 작품: 예시 작품의 인물·물건 4개를 복사(원고는 없음)
+    // 내 작품: 예시 작품의 인물·물건 4개와 별칭을 복사(원고는 없음)
     db.T.works.push({ id: MINE, owner_id: USER, title: '새 작품', genre: '판타지', is_sample: false, art_style: null, created_at: '2026-10-28T00:00:00Z' });
     for (const it of db.T.items.filter((i) => i.work_id === SAMPLE && ['리안', '세린', '반쪽짜리 은열쇠', '책갈피 등불'].includes(i.name))) {
       const id = it.id.replace('8001', '9001');
       db.T.items.push({ ...it, id, work_id: MINE, status: 'open' });
+      for (const a of db.T.item_aliases.filter((x) => x.item_id === it.id)) db.T.item_aliases.push({ item_id: id, alias: a.alias, source: 'manual' });
     }
   }
   if (opts.big) {

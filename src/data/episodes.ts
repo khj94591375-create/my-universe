@@ -24,6 +24,15 @@ export async function updateEpisode(id: string, patch: Partial<Pick<Episode, 'ti
   if (error) throw error;
 }
 
+/**
+ * 회차 본문만 바꾼다(맞춤법 교정본 반영: 작가가 확인한 뒤에만 부른다).
+ * 회차 번호·제목·요약·AI/작가 등장 기록은 그대로 두고, 장면·규칙 등장 기록은 화면에서 "다시 정리"를 고를 때만 새로 만든다.
+ */
+export async function updateEpisodeBody(id: string, body: string) {
+  const { error } = await db().from('episodes').update({ body }).eq('id', id);
+  if (error) throw error;
+}
+
 /** 회차 삭제. 장면·등장 기록은 cascade로 함께 지워진다. */
 export async function deleteEpisode(id: string) {
   const { error } = await db().from('episodes').delete().eq('id', id);

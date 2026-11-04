@@ -15,6 +15,7 @@ export default function EpisodesScreen() {
     setParams((p) => {
       if (no == null) p.delete('open');
       else p.set('open', String(no));
+      p.delete('check');
       return p;
     });
   return (
@@ -22,7 +23,7 @@ export default function EpisodesScreen() {
       <WorkDataGate workId={workId}>
         {() => (
           <>
-            {open && <EpisodeDetailSection workId={workId} no={Number(open)} onClose={() => setOpen(null)} />}
+            {open && <EpisodeDetailSection key={open} workId={workId} no={Number(open)} onClose={() => setOpen(null)} autoCheck={params.get('check') === '1'} />}
             <EpisodeListSection workId={workId} openNo={open ? Number(open) : null} onOpen={setOpen} />
           </>
         )}
