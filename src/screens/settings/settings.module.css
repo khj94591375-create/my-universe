@@ -52,3 +52,9 @@
   height: 100%;
   background: var(--c-gold);
 }
+.footer {
+  display: flex;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  font-size: var(--fs-sm);
+}

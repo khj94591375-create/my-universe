@@ -10,6 +10,7 @@ import { BrandMark } from './BrandMark';
 import { Loading } from './Loading';
 import { ErrorState } from './ErrorState';
 import { WorkTitleContext } from './workTitle';
+import { AccountMenu } from './AccountMenu';
 import s from './AppShell.module.css';
 
 /**
@@ -67,8 +68,8 @@ export function AppShell() {
           ))}
         </nav>
         <div className={s.foot}>
-          <span>{copy.brand.principle}</span>
-          {session ? <Link to="/settings">{copy.settings.title}</Link> : <Link to="/">{copy.start.login}</Link>}
+          <span className={s.principle}>{copy.brand.principle}</span>
+          <AccountMenu />
         </div>
       </aside>
       <main className={s.main} id="main" tabIndex={-1}>

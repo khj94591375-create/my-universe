@@ -16,6 +16,12 @@
   --c-ink: #1b2333;
   --c-sub: #5a6172;
   --c-on-navy: #c9d5e8;
+  --c-on-navy-dim: #9fb0cc; /* 남색 위 보조 글자 */
+  --c-on-navy-faint: #8d9cb8; /* 남색 위 아주 흐린 글자(원칙 문구) */
+  --c-on-navy-link: #afc0da; /* 남색 위 링크 */
+  --c-navy-glow: #173663; /* 시작 화면 배경 빛 */
+  --c-gold-soft: rgba(224, 180, 106, 0.16); /* 선택된 메뉴 배경 */
+  --c-backdrop: rgba(11, 32, 59, 0.55); /* 모달 뒤 어둡게 */
   --c-white: #ffffff;
 
   /* 의미 색(강조색과 별개) */
@@ -31,7 +37,7 @@
 
   /* 글꼴 */
   --f-display: 'Noto Serif KR', 'Apple SD Gothic Neo', serif;
-  --f-body: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  --f-body: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
 
   /* 글자 크기 */
   --fs-xs: 12px;

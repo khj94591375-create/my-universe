@@ -6,6 +6,7 @@ import { ConfirmBar } from '../../../components/ConfirmBar';
 import { WriteButton } from '../../../components/WriteButton';
 import { Tag } from '../../../components/Tag';
 import { copy } from '../../../config/copy';
+import { limits } from '../../../config/limits';
 import { saveEpisodes, type BatchResult, type BatchRow } from '../../../features/analysis/runRules';
 import { parseManuscript } from '../../../features/manuscript/parse';
 import { ACCEPT, ManuscriptError, extractText } from '../../../features/manuscript/readFile';
@@ -19,6 +20,7 @@ import s from './upload.module.css';
 type Row = { key: string; fileName: string; no: string; title: string; body: string; guessed: boolean };
 type FileError = { fileName: string; message: string };
 let seq = 0;
+const MB = Math.round(limits.uploadMaxBytes / 1024 / 1024);
 
 const errorText = (e: unknown) => {
   if (e instanceof ManuscriptError) {
@@ -44,20 +46,31 @@ export function FileUploadSection({ workId }: { workId: string }) {
   const [progress, setProgress] = useState<{ done: number; total: number; no: number } | null>(null);
   const [results, setResults] = useState<BatchResult[] | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  const [limitNote, setLimitNote] = useState<string | null>(null);
   const [aiProgress, setAiProgress] = useState<string | null>(null);
   const [aiFailed, setAiFailed] = useState<AiAnalyzeResult[]>([]);
   const ai = useAiStatus();
 
   const existing = new Set(data?.episodes.map((e) => e.no) ?? []);
 
-  const addFiles = async (files: File[]) => {
+  const addFiles = async (picked: File[]) => {
     setResults(null);
     const added: Row[] = [];
     const errs: FileError[] = [];
+    // 한 번에 올릴 수 있는 파일 수 제한(목록에 이미 있는 파일 포함)
+    const already = new Set(rows.map((r) => r.fileName)).size;
+    const room = Math.max(0, limits.uploadMaxFiles - already);
+    const files = picked.slice(0, room);
+    if (picked.length > room) setLimitNote(copy.upload.errTooMany(limits.uploadMaxFiles, picked.length - room));
+    else setLimitNote(null);
     // 번호를 못 찾은 회차는 이미 있는 회차·목록 다음 번호를 넣는다
     let next = Math.max(0, ...existing, ...rows.map((r) => Number(r.no) || 0)) + 1;
     for (const file of files) {
       setReading(file.name);
+      if (file.size > limits.uploadMaxBytes) {
+        errs.push({ fileName: file.name, message: copy.upload.errTooBig(MB) });
+        continue;
+      }
       try {
         const parsed = parseManuscript(file.name, await extractText(file));
         if (parsed.length === 0) throw new ManuscriptError('empty', 'empty');
@@ -146,6 +159,14 @@ export function FileUploadSection({ workId }: { workId: string }) {
   return (
     <Card>
       <div className={s.fileWrap}>
+        <div className={s.limits} id="upload-limits">
+          <strong>{copy.upload.limitsTitle}</strong>
+          <ul>
+            {copy.upload.limits(MB, limits.uploadMaxFiles).map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
+        </div>
         <div
           className={dragOver ? `${s.drop} ${s.dropOn}` : s.drop}
           onDragOver={(e) => {
@@ -156,7 +177,7 @@ export function FileUploadSection({ workId }: { workId: string }) {
           onDrop={onDrop}
         >
           <p className={s.dropTitle}>{copy.upload.drop}</p>
-          <WriteButton workId={workId} onClick={() => inputRef.current?.click()} disabled={Boolean(reading || progress)}>
+          <WriteButton workId={workId} onClick={() => inputRef.current?.click()} disabled={Boolean(reading || progress)} aria-describedby="upload-limits">
             {copy.upload.pick}
           </WriteButton>
           <input
@@ -177,6 +198,7 @@ export function FileUploadSection({ workId }: { workId: string }) {
         </div>
 
         {reading && <p className={s.muted} role="status">{copy.upload.reading(reading)}</p>}
+        {limitNote && <p className={s.error} role="alert">{limitNote}</p>}
 
         {fileErrors.length > 0 && (
           <ul className={s.errors} role="alert">

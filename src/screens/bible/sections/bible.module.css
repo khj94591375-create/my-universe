@@ -124,3 +124,55 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   gap: var(--sp-2);
 }
+
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--sp-3);
+  background: var(--c-card);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  padding: var(--sp-3);
+}
+.filterBar > label {
+  flex: 1 1 220px;
+}
+.filterBar > p {
+  flex-basis: 100%;
+  margin: 0;
+}
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.filterLabel {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+.filterButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--c-line);
+  background: var(--c-card);
+  color: var(--c-ink);
+  font: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+.chip:hover {
+  border-color: var(--c-navy);
+}
+.chipOn {
+  background: var(--c-navy);
+  border-color: var(--c-navy);
+  color: var(--c-on-navy);
+  font-weight: 700;
+}

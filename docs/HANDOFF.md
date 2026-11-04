@@ -141,6 +141,11 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - `src/config/guide.ts`(내용), `features/guide/{guideData,guideState}.ts`(기억), `components/GuideTour.tsx`(5장 모달: 로그인 사용자는 작품 목록 첫 방문, 비로그인은 예시 작품 첫 방문), `components/ScreenTip.tsx`(화면별 도움말, `ScreenLayout`의 `tip`)
 - 내 설정 "사용 가이드 다시 보기", "화면별 도움말 다시 켜기"
 
+## 3-9. 전자정부 UI·UX 점검표 적용 + Pretendard
+- 개인정보처리방침 `/privacy`(시작 화면·내 설정 아래 링크), 계정 메뉴 `components/AccountMenu.tsx`(좁은 화면에서도 보임)
+- 업로드 제한(10MB·50개) 안내·적용, 설정집 검색·종류 필터, 선택 메뉴 막대, 도움말·문의 메일, 지도 AI 대화칸 안내 글(`TextField`의 `hint`)
+- 본문 글꼴 Pretendard 1.3.9(index.html, 버전 고정). 하드코딩 색은 모두 tokens.css 토큰으로 옮김
+
 ## 4. 작업 습관
 
 - 단계가 끝나면 `README.md`의 단계 표를 갱신하고, 중요한 판단은 `docs/DECISIONS.md`에 한 줄 추가한다

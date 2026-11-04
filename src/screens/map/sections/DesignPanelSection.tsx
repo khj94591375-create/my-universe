@@ -151,7 +151,7 @@ export function DesignPanelSection({ workId, selected, onRemove }: { workId: str
             {chatting && <li className={s.muted}>{copy.map.panel.chatThinking}</li>}
           </ul>
           <form className={s.chatForm} onSubmit={send}>
-            <TextField label={copy.map.panel.chatPlaceholder} hideLabel placeholder={copy.map.panel.chatPlaceholder} value={input} onChange={(e) => setInput(e.target.value)} disabled={chatting} maxLength={2000} />
+            <TextField label={copy.map.panel.chatLabel} hint={copy.map.panel.chatHint} placeholder={copy.map.panel.chatPlaceholder} value={input} onChange={(e) => setInput(e.target.value)} disabled={chatting} maxLength={2000} />
             <Button type="submit" size="sm" disabled={chatting || !input.trim()}>
               {copy.map.panel.chatSend}
             </Button>

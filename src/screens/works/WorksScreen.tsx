@@ -5,6 +5,7 @@ import { EmptyState } from '../../components/EmptyState';
 import { ErrorState } from '../../components/ErrorState';
 import { Loading } from '../../components/Loading';
 import { BrandMark } from '../../components/BrandMark';
+import { AccountMenu } from '../../components/AccountMenu';
 import { copy } from '../../config/copy';
 import { usePageTitle } from '../../lib/usePageTitle';
 import { getSampleWork, listMyWorks } from '../../data/works';
@@ -60,9 +61,7 @@ export default function WorksScreen() {
           <BrandMark size={28} />
           <b>{copy.brand.name}</b>
         </Link>
-        <Link to="/settings" className={s.settings}>
-          {copy.settings.title}
-        </Link>
+        <AccountMenu />
       </header>
       <main className={s.main}>
         <div className={s.head}>

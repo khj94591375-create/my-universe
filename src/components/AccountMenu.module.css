@@ -1,0 +1,52 @@
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--fs-xs);
+  min-width: 0;
+}
+.navy {
+  color: var(--c-on-navy-dim);
+}
+.navy a,
+.navy .logout {
+  color: var(--c-on-navy-link);
+}
+.email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.links {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+}
+.logout {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+@media (max-width: 860px) {
+  .menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+  .email {
+    max-width: 60vw;
+  }
+}

@@ -245,8 +245,12 @@
 }
 .chatForm {
   display: flex;
+  flex-direction: column;
   gap: 6px;
-  align-items: center;
+  align-items: stretch;
+}
+.chatForm > button {
+  align-self: flex-end;
 }
 .panelHead {
   font-size: var(--fs-sm);

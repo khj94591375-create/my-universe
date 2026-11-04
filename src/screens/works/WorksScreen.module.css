@@ -9,6 +9,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
   padding: 12px 24px;
 }
 .brand {
@@ -20,10 +22,6 @@
 .brand b {
   font-family: var(--f-display);
   font-size: var(--fs-lg);
-}
-.settings {
-  color: var(--c-on-navy);
-  font-size: var(--fs-sm);
 }
 .main {
   width: 100%;

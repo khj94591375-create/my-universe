@@ -59,6 +59,8 @@ Supabase 대시보드 → **SQL Editor** → **New query**에 아래 파일 내�
 | 버튼 이름·안내 문구 | `src/config/copy.ts` |
 | 메뉴 순서·이름·아이콘 | `src/config/nav.ts` |
 | 처음 사용 가이드·화면별 도움말 | `src/config/guide.ts` |
+| 문의 메일 주소·개인정보처리방침 시행일 | `src/config/site.ts` |
+| 업로드 제한(파일 크기·개수) 등 숫자 | `src/config/limits.ts` |
 | 화면 안 카드 배치 | `src/screens/<화면>/<화면>Screen.tsx`의 섹션 순서 |
 
 ## AI 서버 함수(Supabase Edge Functions)

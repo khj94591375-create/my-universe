@@ -1,13 +1,19 @@
 import { useId, type InputHTMLAttributes, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 import s from './Feedback.module.css';
 
-/** 이름표가 붙은 한 줄 입력칸. */
-export function TextField({ label, hideLabel, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label: string; hideLabel?: boolean }) {
+/** 이름표가 붙은 한 줄 입력칸. hint: 입력칸 아래에 늘 보이는 안내 글(화면 읽기 프로그램도 읽는다). */
+export function TextField({ label, hideLabel, hint, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label: string; hideLabel?: boolean; hint?: string }) {
   const id = useId();
+  const hintId = `${id}-hint`;
   return (
     <label className={s.field} htmlFor={id}>
       <span className={hideLabel ? s.srOnly : s.fieldLabel}>{label}</span>
-      <input id={id} className={s.input} {...rest} />
+      <input id={id} className={s.input} aria-describedby={hint ? hintId : undefined} {...rest} />
+      {hint && (
+        <span id={hintId} className={s.fieldHint}>
+          {hint}
+        </span>
+      )}
     </label>
   );
 }

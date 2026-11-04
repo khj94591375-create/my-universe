@@ -7,6 +7,7 @@ import { showToast } from '../../components/Toast';
 import { copy } from '../../config/copy';
 import { usePageTitle } from '../../lib/usePageTitle';
 import { isSupabaseConfigured } from '../../lib/supabase';
+import { site } from '../../config/site';
 import { callAi } from '../../data/ai';
 import { deleteAllMyWorks, exportMyData } from '../../data/account';
 import { toMessage } from '../../data/errors';
@@ -149,6 +150,13 @@ export default function SettingsScreen() {
         </div>
       </Card>
 
+      <Card title={copy.help.title}>
+        <p>
+          <a href={`mailto:${site.contactEmail}?subject=${encodeURIComponent(copy.help.mailSubject)}`}>{copy.help.mail}</a>
+        </p>
+        <p className={s.sub}>{copy.help.mailHint(site.contactEmail)}</p>
+      </Card>
+
       <Card title={copy.eval.toolsTitle}>
         <Link to="/eval">{copy.eval.toolLink} →</Link>
       </Card>
@@ -156,7 +164,10 @@ export default function SettingsScreen() {
       <Card title={copy.settings.connection}>
         <p>{isSupabaseConfigured ? copy.settings.connected : copy.settings.notConnected}</p>
       </Card>
-      <Link to="/works">{copy.common.back}</Link>
+      <footer className={s.footer}>
+        <Link to="/works">{copy.common.back}</Link>
+        <Link to="/privacy">{copy.privacy.link}</Link>
+      </footer>
     </main>
   );
 }

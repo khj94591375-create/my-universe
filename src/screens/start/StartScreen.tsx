@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { copy } from '../../config/copy';
 import { usePageTitle } from '../../lib/usePageTitle';
@@ -66,6 +66,9 @@ export default function StartScreen() {
         ))}
       </section>
       <p className={s.notice}>{copy.start.aiNotice}</p>
+      <footer className={s.footer}>
+        <Link to="/privacy">{copy.privacy.link}</Link>
+      </footer>
     </main>
   );
 }

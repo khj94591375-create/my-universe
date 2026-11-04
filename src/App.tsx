@@ -13,6 +13,7 @@ import StudioScreen from './screens/studio/StudioScreen';
 import { NotFoundScreen } from './screens/SimplePages';
 import SettingsScreen from './screens/settings/SettingsScreen';
 import EvalScreen from './screens/eval/EvalScreen';
+import PrivacyScreen from './screens/privacy/PrivacyScreen';
 import { SessionProvider } from './features/auth/SessionProvider';
 import { RequireAuth } from './features/auth/RequireAuth';
 import { ToastHost } from './components/Toast';
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="/works" element={<RequireAuth><WorksScreen /></RequireAuth>} />
           <Route path="/settings" element={<RequireAuth><SettingsScreen /></RequireAuth>} />
           <Route path="/eval" element={<RequireAuth><EvalScreen /></RequireAuth>} />
+          <Route path="/privacy" element={<PrivacyScreen />} />
           <Route path="/w/:workId" element={<AppShell />}>
             <Route index element={<Navigate to="home" replace />} />
             <Route path="home" element={<HomeScreen />} />

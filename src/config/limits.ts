@@ -15,4 +15,8 @@ export const limits = {
   homeForgottenCount: 4,
   /** 우주 지도 별 최소 밝기(BUILD_SPEC 6.7) */
   starMinOpacity: 0.35,
+  /** 원고 파일 한 개 최대 크기(바이트) */
+  uploadMaxBytes: 10 * 1024 * 1024,
+  /** 한 번에 올릴 수 있는 원고 파일 수 */
+  uploadMaxFiles: 50,
 } as const;
