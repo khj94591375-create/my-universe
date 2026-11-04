@@ -9,6 +9,18 @@
   cursor: grab;
   user-select: none;
 }
+/* 우주 지도 화면(StarMap)에만: 성운 그림을 바탕색 덮개 아래 은은하게. 지도 확대·이동과 무관하게 고정(viewBox만 바뀜),
+   그림은 배경이라 누를 수 없음. 그림을 못 받으면 맨 아래 단색 그라데이션이 그대로 보인다. */
+.sky {
+  --map-sky-image: url('../assets/art/map-sky-light.webp');
+  background:
+    radial-gradient(circle at 50% 45%, rgb(var(--c-map-from-rgb) / var(--map-sky-veil-center)), rgb(var(--c-map-to-rgb) / var(--map-sky-veil-edge)) 72%),
+    var(--map-sky-image) center / cover no-repeat,
+    radial-gradient(circle at 50% 45%, var(--c-map-from), var(--c-map-to) 72%);
+}
+:global([data-theme='dark']) .sky {
+  --map-sky-image: url('../assets/art/map-sky-dark.webp');
+}
 .svg:active {
   cursor: grabbing;
 }

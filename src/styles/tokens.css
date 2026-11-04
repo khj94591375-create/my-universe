@@ -58,6 +58,11 @@
   /* 우주 지도: 라이트 = 아이보리 바탕의 은은한 별자리 */
   --c-map-from: #fcf9f3;
   --c-map-to: #ece5f6;
+  /* 우주 지도 배경 그림(성운) 위 덮개: 바탕색과 같은 색(RGB 숫자) + 불투명도. 1 - 불투명도 = 그림이 보이는 정도 */
+  --c-map-from-rgb: 252 249 243;
+  --c-map-to-rgb: 236 229 246;
+  --map-sky-veil-center: 0.86; /* 가운데(별 이름이 많은 곳): 그림 14% */
+  --map-sky-veil-edge: 0.78; /* 가장자리: 그림 22% */
   --c-map-hub-line: #c3b6e0; /* 작품 → 종류 → 별 가는 선 */
   --c-map-co: #6f62a8; /* 같은 장면 선 */
   --c-map-ai: #7a5cc0; /* AI 추정 선·표시 */
@@ -164,6 +169,10 @@
 
   --c-map-from: #132c4f;
   --c-map-to: #0b203b;
+  --c-map-from-rgb: 19 44 79;
+  --c-map-to-rgb: 11 32 59;
+  --map-sky-veil-center: 0.86;
+  --map-sky-veil-edge: 0.78;
   --c-map-hub-line: #2a4670;
   --c-map-co: #c9d5e8;
   --c-map-ai: #d9ccf7;

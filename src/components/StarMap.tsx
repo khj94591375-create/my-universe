@@ -251,7 +251,7 @@ export function StarMap({
   return (
     <svg
       ref={svgRef}
-      className={`${s.svg} ${dense ? s.dense : ''} ${focusMode ? s.focusMode : ''}`}
+      className={`${s.svg} ${s.sky} ${dense ? s.dense : ''} ${focusMode ? s.focusMode : ''}`}
       viewBox={vb}
       preserveAspectRatio="xMidYMid meet"
       role="group"
