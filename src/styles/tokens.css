@@ -61,8 +61,8 @@
   /* 우주 지도 배경 그림(성운) 위 덮개: 바탕색과 같은 색(RGB 숫자) + 불투명도. 1 - 불투명도 = 그림이 보이는 정도 */
   --c-map-from-rgb: 252 249 243;
   --c-map-to-rgb: 236 229 246;
-  --map-sky-veil-center: 0.86; /* 가운데(별 이름이 많은 곳): 그림 14% */
-  --map-sky-veil-edge: 0.78; /* 가장자리: 그림 22% */
+  --map-sky-veil-center: 0.45; /* 가운데(별 이름이 많은 곳): 그림 55%. 라이트 그림은 원래 연해서 덮개를 얇게 */
+  --map-sky-veil-edge: 0.15; /* 가장자리: 그림 85% */
   --c-map-hub-line: #c3b6e0; /* 작품 → 종류 → 별 가는 선 */
   --c-map-co: #6f62a8; /* 같은 장면 선 */
   --c-map-ai: #7a5cc0; /* AI 추정 선·표시 */
@@ -171,8 +171,8 @@
   --c-map-to: #0b203b;
   --c-map-from-rgb: 19 44 79;
   --c-map-to-rgb: 11 32 59;
-  --map-sky-veil-center: 0.86;
-  --map-sky-veil-edge: 0.78;
+  --map-sky-veil-center: 0.86; /* 다크: 가운데 그림 14% */
+  --map-sky-veil-edge: 0.78; /* 다크: 가장자리 그림 22% */
   --c-map-hub-line: #2a4670;
   --c-map-co: #c9d5e8;
   --c-map-ai: #d9ccf7;
