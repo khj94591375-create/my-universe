@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
 import { EmptyState } from '../../../components/EmptyState';
@@ -18,6 +19,23 @@ export function ItemListSection({ workId }: { workId: string }) {
   const { data } = useWorkData(workId);
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState<Filter>('all');
+  // 우주 지도 등에서 ?item=id 로 오면 그 항목으로 이동해 강조한다
+  const [params] = useSearchParams();
+  const target = params.get('item');
+  const ready = Boolean(data);
+  useEffect(() => {
+    if (!target || !ready) return;
+    setQuery('');
+    setKind('all');
+    const t = window.setTimeout(() => {
+      const el = document.getElementById(`item-${target}`);
+      document.querySelectorAll('[data-target]').forEach((x) => x.removeAttribute('data-target'));
+      el?.setAttribute('data-target', '');
+      el?.scrollIntoView({ block: 'center' });
+      el?.focus({ preventScroll: true });
+    }, 50);
+    return () => window.clearTimeout(t);
+  }, [target, ready]);
   if (!data) return null;
   if (data.items.length === 0) return <EmptyState art={art.emptyCollection} title={copy.bible.empty} />;
 

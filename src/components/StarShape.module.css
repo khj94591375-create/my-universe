@@ -1,0 +1,13 @@
+.shape {
+  flex: none;
+  vertical-align: -2px;
+}
+.character path {
+  fill: var(--c-star-character);
+}
+.setting path {
+  fill: var(--c-star-setting);
+}
+.foreshadow path {
+  fill: var(--c-star-foreshadow);
+}

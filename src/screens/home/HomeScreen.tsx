@@ -13,9 +13,10 @@ import { TodaySuggestionSection } from './sections/TodaySuggestionSection';
 import { ResolveProgressSection } from './sections/ResolveProgressSection';
 import { RecentUploadsSection } from './sections/RecentUploadsSection';
 import { ConflictsSection } from './sections/ConflictsSection';
+import { UniverseMapSection } from './sections/UniverseMapSection';
 
 /**
- * 내 우주 홈(BUILD_SPEC 6.3).
+ * 내 우주 홈(BUILD_SPEC 6.3). 배너 → 나의 우주 지도(대표 영역) → 기존 카드들.
  * 배치를 바꾸려면 아래 섹션의 순서·칸만 옮기면 된다. 각 섹션은 workId만 받아 스스로 데이터를 가져온다.
  */
 export default function HomeScreen() {
@@ -23,22 +24,29 @@ export default function HomeScreen() {
   const nav = useNavigate();
   return (
     <WorkDataGate workId={workId}>
-      {(data) =>
-        data.episodes.length === 0 ? (
-          <EmptyState
-            art={art.emptyAnalysis}
-            title={copy.home.emptyTitle}
-            action={
-              <WriteButton workId={workId} variant="accent" onClick={() => nav(`/w/${workId}/upload`)}>
-                {copy.home.emptyAction}
-              </WriteButton>
-            }
-          />
-        ) : (
-          <ScreenLayout tip="home" eyebrow={copy.home.eyebrow} title={copy.home.nextTitle(data.next)} action={<SlumpButton workId={workId} />}>
-            <div className={s.banner}>
-              <ThemedArtImage art={art.dashboard} />
-            </div>
+      {(data) => (
+        <ScreenLayout
+          tip="home"
+          eyebrow={copy.home.eyebrow}
+          title={copy.home.nextTitle(data.next)}
+          action={data.episodes.length > 0 ? <SlumpButton workId={workId} /> : undefined}
+        >
+          <div className={s.banner}>
+            <ThemedArtImage art={art.dashboard} />
+          </div>
+          {/* 서비스의 중심: 나의 우주 지도 */}
+          <UniverseMapSection workId={workId} />
+          {data.episodes.length === 0 ? (
+            <EmptyState
+              art={art.emptyAnalysis}
+              title={copy.home.emptyTitle}
+              action={
+                <WriteButton workId={workId} variant="accent" onClick={() => nav(`/w/${workId}/upload`)}>
+                  {copy.home.emptyAction}
+                </WriteButton>
+              }
+            />
+          ) : (
             <Columns>
               <Column>
                 <ForgottenListSection workId={workId} />
@@ -50,9 +58,9 @@ export default function HomeScreen() {
                 <RecentUploadsSection workId={workId} />
               </Column>
             </Columns>
-          </ScreenLayout>
-        )
-      }
+          )}
+        </ScreenLayout>
+      )}
     </WorkDataGate>
   );
 }

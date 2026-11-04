@@ -23,6 +23,13 @@ h3,
 p {
   margin: 0;
 }
+/* 한국어 제목은 낱말 중간에서 끊지 않는다 */
+h1,
+h2,
+h3 {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
 button,
 input,
 select,

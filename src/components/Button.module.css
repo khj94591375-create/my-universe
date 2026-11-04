@@ -47,3 +47,6 @@
   background: var(--c-danger);
   color: var(--c-on-danger);
 }
+.asLink {
+  text-decoration: none;
+}

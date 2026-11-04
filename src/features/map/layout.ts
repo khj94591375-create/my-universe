@@ -27,7 +27,21 @@ export function labelWidth(name: string) {
   return name.length * 20 + 14;
 }
 
+// 같은 별·관계면 배치를 다시 계산하지 않는다(홈 미리보기와 지도가 같은 결과를 함께 쓴다)
+const cache = new Map<string, Map<string, Pos>>();
+const CACHE_MAX = 6;
+
 export function layoutStars(items: { id: string; kind: ItemKind; name: string }[], links: { a: string; b: string }[]): Map<string, Pos> {
+  const key = items.map((i) => `${i.id}:${i.kind}:${i.name}`).join('|') + '#' + links.map((l) => `${l.a}-${l.b}`).join('|');
+  const hit = cache.get(key);
+  if (hit) return hit;
+  const out = computeLayout(items, links);
+  if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value as string);
+  cache.set(key, out);
+  return out;
+}
+
+function computeLayout(items: { id: string; kind: ItemKind; name: string }[], links: { a: string; b: string }[]): Map<string, Pos> {
   const pos = new Map<string, Pos>();
   const byKind = (k: ItemKind) => items.filter((i) => i.kind === k).sort((x, y) => x.name.localeCompare(y.name));
   for (const k of Object.keys(KIND_ANGLE) as ItemKind[]) {

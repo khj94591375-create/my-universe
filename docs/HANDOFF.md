@@ -155,6 +155,12 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - 모드 상태 `src/features/theme/theme.ts`(useTheme·setTheme), 전환 버튼 `components/ThemeToggle.tsx`, 첫 그리기 전 모드 설정은 index.html
 - 시작 화면 `screens/start`: 2단(소개·버튼 | 그림), 기능 카드 같은 높이
 
+## 3-12. 우주 지도 중심 개편
+- 별 규칙 `src/features/map/stars.ts`(모양·크기·밝기·잊힌 별·회수·AI 회수 추정), 기본 제안 `features/map/storyIdea.ts`, 둘 다 단위 테스트 있음
+- 지도 `components/StarMap.tsx`(선 누르기 onLink, 이웃 강조, 두 손가락 확대), 지도 화면 `screens/map/sections/MapCanvasSection.tsx`(별 정보창: 상태·관련 복선·설정집에서 보기·구상에 담기, 관계 정보창, + − 0 키)
+- 홈 대표 영역 `screens/home/sections/UniverseMapSection.tsx` + 미리보기 `components/StarMapPreview.tsx`
+- 설정집 `?item=id`로 그 항목으로 이동·강조. 시작 화면 대표 카드 `screens/start/ConstellationArt.tsx`(설명용 장식 그림)
+
 ## 4. 작업 습관
 
 - 단계가 끝나면 `README.md`의 단계 표를 갱신하고, 중요한 판단은 `docs/DECISIONS.md`에 한 줄 추가한다

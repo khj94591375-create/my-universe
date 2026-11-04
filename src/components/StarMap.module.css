@@ -1,8 +1,9 @@
+/* 우주 지도: 라이트 = 아이보리 바탕의 은은한 별자리, 다크 = 남색 밤하늘의 빛나는 별자리(색은 tokens.css의 --c-map-*, --c-star-*) */
 .svg {
   display: block;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 50% 45%, var(--c-navy-2), var(--c-navy) 70%);
+  background: radial-gradient(circle at 50% 45%, var(--c-map-from), var(--c-map-to) 72%);
   border-radius: var(--r-md);
   touch-action: none;
   cursor: grab;
@@ -12,122 +13,169 @@
   cursor: grabbing;
 }
 .kindLine {
-  stroke: var(--c-navy-line);
+  stroke: var(--c-map-hub-line);
   stroke-width: 1.4;
 }
 .coLine {
-  stroke: var(--c-on-navy);
-  stroke-opacity: 0.45;
+  stroke: var(--c-map-co);
+  stroke-opacity: 0.55;
 }
 .aiLine {
-  stroke: var(--c-sky-ai);
-  stroke-opacity: 0.8;
+  stroke: var(--c-map-ai);
+  stroke-opacity: 0.85;
   stroke-dasharray: 6 5;
 }
 .manualLine {
-  stroke: var(--c-gold);
+  stroke: var(--c-map-manual);
   stroke-dasharray: 3 5;
   stroke-linecap: round;
 }
 .lineOn {
   stroke-opacity: 1;
-  stroke: var(--c-gold);
+  stroke: var(--c-map-lit);
+}
+/* 선을 누르기 쉽게 하는 투명한 넓은 띠 */
+.lineHit {
+  stroke: transparent;
+  stroke-width: 16;
+  fill: none;
+  cursor: pointer;
 }
 .center circle {
-  fill: var(--c-cream);
+  fill: var(--c-map-center);
 }
 .center text {
-  fill: var(--c-navy);
+  fill: var(--c-map-center-text);
   font-family: var(--f-display);
   font-weight: 700;
   font-size: 17px;
   text-anchor: middle;
 }
 .hub circle {
-  fill: var(--c-navy-2);
-  stroke: var(--c-on-navy);
+  fill: var(--c-map-hub);
+  stroke: var(--c-map-hub-stroke);
   stroke-width: 1.5;
 }
+.hub path {
+  fill: var(--c-star-color);
+}
 .hub text {
-  fill: var(--c-on-navy);
+  fill: var(--c-map-text);
   font-size: 19px;
   font-weight: 700;
   text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--c-map-halo);
+  stroke-width: 5px;
 }
 .star {
   cursor: pointer;
   outline: none;
 }
-.star path {
-  fill: var(--c-white);
+.character {
+  --c-star-color: var(--c-star-character);
+}
+.setting {
+  --c-star-color: var(--c-star-setting);
+}
+.foreshadow {
+  --c-star-color: var(--c-star-foreshadow);
+}
+.shape {
+  fill: var(--c-star-color);
   transition: transform 0.15s;
 }
+/* 이름은 밝기와 상관없이 항상 선명하게 */
 .star text {
-  fill: var(--c-cream);
+  fill: var(--c-map-text);
   font-size: 20px;
   text-anchor: middle;
   paint-order: stroke;
-  stroke: var(--c-navy);
+  stroke: var(--c-map-halo);
   stroke-width: 5px;
-}
-.character path {
-  fill: var(--c-sky-info);
-}
-.setting path {
-  fill: var(--c-sky-ok);
-}
-.foreshadow path {
-  fill: var(--c-cream);
 }
 .hit {
   fill: transparent;
 }
-.star:hover path,
-.star:focus-visible path {
-  transform: scale(1.35);
+.star:hover .shape,
+.star:focus-visible .shape {
+  transform: scale(1.3);
 }
 .star:focus-visible .hit {
-  stroke: var(--c-gold);
-  stroke-width: 2;
+  stroke: var(--c-map-focus);
+  stroke-width: 2.5;
 }
-.selected path {
-  fill: var(--c-gold);
-  stroke: var(--c-white);
+/* 잊힌 별: 점선 고리(색이 아니라 모양으로도 구분) */
+.forgottenRing {
+  fill: none;
+  stroke: var(--c-star-color);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 4;
+  opacity: 0.8;
+}
+/* 작가가 회수 완료·재사용됨으로 정한 복선: 실선 고리 */
+.doneRing {
+  fill: none;
+  stroke: var(--c-star-done);
+  stroke-width: 2.2;
+}
+/* 재사용 예정: 굵은 점선 고리 */
+.plannedRing {
+  fill: none;
+  stroke: var(--c-star-selected);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}
+.selected .shape {
+  fill: var(--c-star-selected);
+  stroke: var(--c-star-selected-stroke);
   stroke-width: 2;
 }
 .selected text {
-  fill: var(--c-gold);
   font-weight: 700;
 }
+.neighbor text {
+  font-weight: 700;
+}
+.neighbor .hit {
+  stroke: var(--c-map-lit);
+  stroke-width: 1.2;
+  stroke-opacity: 0.6;
+}
 .focused .hit {
-  stroke: var(--c-gold);
-  stroke-width: 1.5;
+  stroke: var(--c-map-focus);
+  stroke-width: 2;
   stroke-dasharray: 3 3;
 }
-.aiMark {
-  font-size: 13px !important;
-  fill: var(--c-sky-ai) !important;
+.star .aiMark {
+  font-size: 13px;
+  fill: var(--c-map-ai);
   font-weight: 700;
 }
 .linkLabel {
-  fill: var(--c-sky-ai);
+  fill: var(--c-map-ai);
   font-size: 18px;
   font-weight: 700;
   text-anchor: middle;
   paint-order: stroke;
-  stroke: var(--c-navy);
+  stroke: var(--c-map-halo);
   stroke-width: 6px;
   pointer-events: none;
 }
 .linkLabelManual {
-  fill: var(--c-gold);
+  fill: var(--c-map-manual);
 }
 .arrowManual {
-  fill: var(--c-gold);
+  fill: var(--c-map-manual);
 }
 .arrowAi {
-  fill: var(--c-sky-ai);
+  fill: var(--c-map-ai);
 }
 .curve {
   fill: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .shape {
+    transition: none;
+  }
 }

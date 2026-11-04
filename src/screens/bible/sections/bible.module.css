@@ -176,3 +176,8 @@
   color: var(--c-on-primary);
   font-weight: 700;
 }
+.row[data-target] {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 4px;
+  border-radius: var(--r-sm);
+}

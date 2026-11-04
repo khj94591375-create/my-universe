@@ -64,7 +64,7 @@ export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
 
   if (mode === 'edit') {
     return (
-      <li className={s.row}>
+      <li className={s.row} id={`item-${item.id}`} tabIndex={-1}>
         <form className={s.form} onSubmit={submitEdit}>
           <div className={s.formRow}>
             <TextField label={copy.bible.name} value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} maxLength={60} autoFocus />
@@ -88,7 +88,7 @@ export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
   }
 
   return (
-    <li className={s.row}>
+    <li className={s.row} id={`item-${item.id}`} tabIndex={-1}>
       <div className={s.head}>
         <strong className={s.name}>{item.name}</strong>
         <KindTag kind={item.kind} />

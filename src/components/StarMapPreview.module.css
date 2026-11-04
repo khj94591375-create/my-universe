@@ -1,0 +1,7 @@
+.preview,
+.preview:active {
+  cursor: pointer;
+}
+svg.preview {
+  touch-action: auto;
+}

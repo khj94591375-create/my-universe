@@ -9,6 +9,8 @@ import { copy } from '../../../config/copy';
 import { callAi, type ChatResult, type DesignResult } from '../../../data/ai';
 import { aiErrorMessage, refreshAiStatus, useAiStatus } from '../../../features/ai/aiStatus';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
+import { basicStoryIdea } from '../../../features/map/storyIdea';
+import { Link } from 'react-router-dom';
 import { useWorkData } from '../../../features/works/workData';
 import s from './map.module.css';
 
@@ -35,6 +37,7 @@ export function DesignPanelSection({ workId, selected, onRemove }: { workId: str
   const last = data.episodes[data.episodes.length - 1];
   const chosen = selected.map((id) => data.itemById.get(id)).filter((i) => i != null);
   const usable = canWrite && ai.on;
+  const idea = basicStoryIdea(chosen, data.links, data.appearances, data.episodes);
   const reason = !canWrite ? copy.shell.loginToWrite : ai.reason;
 
   const design = async () => {
@@ -86,6 +89,31 @@ export function DesignPanelSection({ workId, selected, onRemove }: { workId: str
           <p className={s.muted}>{copy.map.panel.selectedEmpty}</p>
         )}
       </div>
+      {idea && (
+        <div className={`${s.panelBlock} ${s.idea}`}>
+          <h2 className={s.panelHead}>
+            {copy.map.idea.title} <Tag>{copy.map.idea.tag}</Tag>
+          </h2>
+          {idea.lines.map((l) => (
+            <p key={l}>{l}</p>
+          ))}
+          <h3 className={s.ideaSub}>{copy.map.idea.evidence}</h3>
+          {idea.evidence.map((ev) => (
+            <EvidenceQuote key={ev.itemId} text={ev.text} ep={ev.ep}>
+              <span>{ev.item}</span>
+            </EvidenceQuote>
+          ))}
+          {idea.missing.length > 0 && (
+            <p className={s.muted}>
+              {idea.missing.map((n) => `「${n}」`).join(', ')} · {copy.map.idea.noEvidence}
+            </p>
+          )}
+          <p className={s.muted}>{copy.map.idea.note}</p>
+          <Link to={`/w/${workId}/forgot?item=${chosen[0].id}`} className={s.ideaLink}>
+            {copy.map.idea.more} →
+          </Link>
+        </div>
+      )}
       <div className={s.panelBlock}>
         <h2 className={s.panelHead}>{copy.map.panel.continueFrom}</h2>
         <p>{last ? copy.map.panel.continueText(last.no, last.title ?? `${last.no}화`) : copy.map.panel.continueFirst}</p>
@@ -101,6 +129,7 @@ export function DesignPanelSection({ workId, selected, onRemove }: { workId: str
         {designing ? copy.map.panel.designing : result ? copy.map.panel.again : copy.map.panel.design}
       </Button>
       {reason && <p className={s.muted}>{reason}</p>}
+      <p className={s.muted}>{copy.map.panel.aiNoSave}</p>
 
       {result && (
         <div className={s.panelBlock}>

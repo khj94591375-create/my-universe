@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { ArtImage, ThemedArtImage } from '../../components/ArtImage';
 import { ThemeToggle } from '../../components/ThemeToggle';
+import { ConstellationArt } from './ConstellationArt';
 import { art, featureOrder } from '../../config/art';
 import { copy } from '../../config/copy';
 import { usePageTitle } from '../../lib/usePageTitle';
@@ -80,12 +81,31 @@ export default function StartScreen() {
         <h2 id="start-features" className={s.featuresTitle}>
           {copy.start.featuresTitle}
         </h2>
+        {/* 대표 기능: 나의 우주 지도 */}
+        <article className={s.mapFeature} aria-labelledby="start-map">
+          <ConstellationArt />
+          <div className={s.mapText}>
+            <p className={s.mapEyebrow}>{copy.start.mapFeature.eyebrow}</p>
+            <h3 id="start-map" className={s.mapTitle}>
+              {copy.start.mapFeature.title}
+            </h3>
+            <p className={s.mapLead}>{copy.start.mapFeature.lead}</p>
+            <p className={s.mapBody}>{copy.start.mapFeature.body}</p>
+            <ul className={s.mapPoints}>
+              {copy.start.mapFeature.points.map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ul>
+          </div>
+        </article>
+        <h3 className={s.toolsTitle}>{copy.start.toolsTitle}</h3>
         <ul className={s.featureList}>
           {featureOrder.map((k) => (
             <li key={k} className={s.feature}>
               <ArtImage art={art.feature[k]} className={s.featureArt} />
               <div className={s.featureText}>
-                <h3>{copy.start.features[k].title}</h3>
+                <p className={s.role}>{copy.start.features[k].role}</p>
+                <h4>{copy.start.features[k].title}</h4>
                 <p>{copy.start.features[k].body}</p>
               </div>
             </li>

@@ -38,5 +38,5 @@ export const art = {
 
 export type FeatureArt = keyof typeof art.feature;
 
-/** 시작 화면 기능 카드 순서(메뉴 순서와 같게) */
-export const featureOrder: FeatureArt[] = ['writing', 'foreshadowing', 'worldbuilding', 'storyGuide', 'image'];
+/** 시작 화면: 우주 지도(대표 카드) 아래의 도구 카드 순서 */
+export const featureOrder: FeatureArt[] = ['writing', 'worldbuilding', 'foreshadowing', 'image'];
