@@ -48,8 +48,9 @@ async function readDocx(file: File): Promise<string> {
 }
 
 async function readPdf(file: File): Promise<string> {
-  const pdfjs = await import('pdfjs-dist');
-  const worker = await import('pdfjs-dist/build/pdf.worker.min.mjs?url');
+  // legacy 판: 최신 기능에 대한 보완 코드가 들어 있어 조금 오래된 Safari·Firefox에서도 읽힌다
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  const worker = await import('pdfjs-dist/legacy/build/pdf.worker.min.mjs?url');
   pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
   const task = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) });
   const doc = await task.promise;

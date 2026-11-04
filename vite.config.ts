@@ -5,5 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   base: '/my-universe/',
+  // 지원 브라우저: Chrome·Edge 107+, Firefox 104+, Safari 16+(iOS 16+). README "지원 브라우저" 참고
+  build: { target: ['chrome107', 'edge107', 'firefox104', 'safari16'] },
   server: { port: 5173 },
 });

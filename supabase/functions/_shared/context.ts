@@ -81,7 +81,8 @@ export function buildContext(items: CtxItem[], summaries: CtxSummary[], scenes: 
 /** 문장 나누기(화면 쪽 features/analysis/split.ts와 같은 규칙). */
 export function splitSentences(text: string): string[] {
   return text
-    .split(/(?<=[.!?…”"」』])\s+|\n+/)
+    .replace(/([.!?…”"」』])\s+/g, '$1\n')
+    .split(/\n+/)
     .map((s) => s.trim())
     .filter(Boolean);
 }

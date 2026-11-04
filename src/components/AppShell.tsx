@@ -9,6 +9,7 @@ import { unreviewedCount } from '../features/ai/review';
 import { BrandMark } from './BrandMark';
 import { Loading } from './Loading';
 import { ErrorState } from './ErrorState';
+import { WorkTitleContext } from './workTitle';
 import s from './AppShell.module.css';
 
 /**
@@ -31,6 +32,16 @@ export function AppShell() {
   return (
     <div className={s.app}>
       <aside className={s.side}>
+        <a
+          href="#"
+          className={s.skip}
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById('main')?.focus();
+          }}
+        >
+          {copy.shell.skip}
+        </a>
         <Link to={session ? '/works' : '/'} className={s.brand} title={session ? copy.common.back : copy.common.toStart}>
           <BrandMark />
           <b>{copy.brand.name}</b>
@@ -60,7 +71,7 @@ export function AppShell() {
           {session ? <Link to="/settings">{copy.settings.title}</Link> : <Link to="/">{copy.start.login}</Link>}
         </div>
       </aside>
-      <main className={s.main}>
+      <main className={s.main} id="main" tabIndex={-1}>
         {error ? (
           <ErrorState body={error} onRetry={() => window.location.reload()} />
         ) : !work ? (
@@ -77,7 +88,9 @@ export function AppShell() {
                 {!session && <span className={s.sampleHint}> · {copy.shell.loginToWrite}</span>}
               </div>
             )}
-            <Outlet />
+            <WorkTitleContext.Provider value={work.title}>
+              <Outlet />
+            </WorkTitleContext.Provider>
           </>
         )}
       </main>

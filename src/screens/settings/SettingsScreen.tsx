@@ -5,6 +5,7 @@ import { Card } from '../../components/Card';
 import { ConfirmBar } from '../../components/ConfirmBar';
 import { showToast } from '../../components/Toast';
 import { copy } from '../../config/copy';
+import { usePageTitle } from '../../lib/usePageTitle';
 import { isSupabaseConfigured } from '../../lib/supabase';
 import { callAi } from '../../data/ai';
 import { deleteAllMyWorks, exportMyData } from '../../data/account';
@@ -17,6 +18,7 @@ import s from './settings.module.css';
 
 /** 내 설정(BUILD_SPEC 6.11): 계정, 오늘 AI 사용량, 데이터 내보내기, 로그아웃, 데이터·계정 삭제. */
 export default function SettingsScreen() {
+  usePageTitle(copy.settings.title);
   const { session } = useSession();
   const userId = session?.user.id ?? '';
   const nav = useNavigate();

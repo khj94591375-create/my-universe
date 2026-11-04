@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react';
+import { useContext, type ReactNode } from 'react';
+import { usePageTitle } from '../lib/usePageTitle';
+import { WorkTitleContext } from './workTitle';
 import s from './ScreenLayout.module.css';
 
 /**
@@ -6,6 +8,7 @@ import s from './ScreenLayout.module.css';
  * 버튼을 "오른쪽 위로" 옮기려면 action에 넣기만 하면 된다. (BUILD_SPEC 4.5)
  */
 export function ScreenLayout({ eyebrow, title, action, children }: { eyebrow?: string; title: ReactNode; action?: ReactNode; children: ReactNode }) {
+  usePageTitle(eyebrow ?? (typeof title === 'string' ? title : null), useContext(WorkTitleContext));
   return (
     <div className={s.screen}>
       <header className={s.top}>

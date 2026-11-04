@@ -140,3 +140,20 @@
   text-align: center;
   line-height: 20px;
 }
+.skip {
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  z-index: 60;
+  background: var(--c-gold);
+  color: var(--c-navy);
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: var(--r-sm);
+}
+.skip:focus {
+  top: 8px;
+}
+.main:focus {
+  outline: none;
+}

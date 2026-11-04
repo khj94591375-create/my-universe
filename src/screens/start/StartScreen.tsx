@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { copy } from '../../config/copy';
+import { usePageTitle } from '../../lib/usePageTitle';
 import { SAMPLE_WORK_ID } from '../../config/sample';
 import { isSupabaseConfigured } from '../../lib/supabase';
 import { signInWithGoogle } from '../../features/auth/auth';
@@ -10,6 +11,7 @@ import s from './StartScreen.module.css';
 
 /** 시작 화면(BUILD_SPEC 6.1). 로그인하면 작품 목록으로, 예시 작품은 로그인 없이 둘러본다. */
 export default function StartScreen() {
+  usePageTitle(copy.start.lead);
   const nav = useNavigate();
   const { session, loading, loginError } = useSession();
   const [redirecting, setRedirecting] = useState(false);

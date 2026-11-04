@@ -21,7 +21,7 @@
   /* 의미 색(강조색과 별개) */
   --c-warn: #a64a14; /* 경고 배경(#fbeadc) 위 글자 대비 4.5 이상 */
   --c-warn-bg: #fbeadc;
-  --c-ok: #2f7a4b;
+  --c-ok: #2a6e43; /* 크림·연녹색 배경 위 글자 대비 5 이상 */
   --c-ok-bg: #e3f2e8;
   --c-info: #3d5a8a;
   --c-info-bg: #e6ecf6;

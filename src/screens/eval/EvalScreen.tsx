@@ -9,6 +9,7 @@ import { Tag } from '../../components/Tag';
 import { SelectField, TextArea } from '../../components/TextField';
 import { showToast } from '../../components/Toast';
 import { copy } from '../../config/copy';
+import { usePageTitle } from '../../lib/usePageTitle';
 import { fetchWorkRaw } from '../../data/workData';
 import { getSampleWork, listMyWorks } from '../../data/works';
 import { toMessage } from '../../data/errors';
@@ -44,6 +45,7 @@ function evidencePass(data: WorkData) {
 
 /** AI 정확도 채점(BUILD_SPEC 12장, 관리자용 /#/eval). */
 export default function EvalScreen() {
+  usePageTitle(copy.eval.title);
   const { session } = useSession();
   const [works, setWorks] = useState<Work[] | null>(null);
   const [error, setError] = useState<string | null>(null);

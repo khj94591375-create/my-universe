@@ -56,12 +56,14 @@ function splitLong(scene: string): string[] {
   return out;
 }
 
-const SENTENCE_END = /(?<=[.!?…”"」』])\s+|\n+/;
+// 뒤쪽 확인(lookbehind) 정규식은 Safari 16.4 미만에서 앱 전체를 멈추게 해서 쓰지 않는다
+const SENTENCE_END = /([.!?…”"」』])\s+/g;
 
 /** 문장 나누기: . ! ? … 또는 닫는 따옴표 뒤 공백·줄바꿈 기준. */
 export function splitSentences(text: string): string[] {
   return text
-    .split(SENTENCE_END)
+    .replace(SENTENCE_END, '$1\n')
+    .split(/\n+/)
     .map((s) => s.trim())
     .filter(Boolean);
 }

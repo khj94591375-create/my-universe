@@ -43,6 +43,14 @@ Supabase 대시보드 → **SQL Editor** → **New query**에 아래 파일 내�
 4. `supabase/migrations/0003_link_per_direction.sql` — 같은 두 항목 사이에 방향마다 선 하나씩
 5. `supabase/migrations/0004_ai_ready.sql` — AI 연결 준비(별칭 출처, 사용량 +1, 비슷한 장면 찾기)
 
+## 지원 브라우저와 접근성
+
+- 지원 브라우저: Chrome·Edge 107 이상, Firefox 104 이상, Safari 16 이상(iOS 16 이상). `vite.config.ts`의 `build.target`에 고정.
+  - PDF 원고 읽기는 pdf.js의 legacy 판(옛 브라우저용 보완 코드 포함)을 쓴다.
+  - 클립보드 "붙여 넣기" 버튼은 브라우저가 허락할 때만 동작하고, 안 되면 Ctrl+V 안내로 바뀐다.
+- 접근성: axe-core 자동 점검(WCAG 2.2 AA + 권장 사항)에서 화면 12개 위반 0개(1280px·320px), 키보드만으로 주요 흐름 사용 가능
+  (본문으로 건너뛰기, 우주 지도 Tab·Enter·Esc, 화면 안 확인 막대), 화면마다 탭 제목, 400px·320px에서 가로 넘침 없음.
+
 ## 디자인·문구를 바꾸는 곳
 
 | 바꿀 것 | 파일 |

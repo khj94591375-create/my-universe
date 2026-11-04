@@ -6,6 +6,7 @@ import { ErrorState } from '../../components/ErrorState';
 import { Loading } from '../../components/Loading';
 import { BrandMark } from '../../components/BrandMark';
 import { copy } from '../../config/copy';
+import { usePageTitle } from '../../lib/usePageTitle';
 import { getSampleWork, listMyWorks } from '../../data/works';
 import { toMessage } from '../../data/errors';
 import type { WorkWithStats } from '../../data/types';
@@ -21,6 +22,7 @@ type ListState =
 
 /** 작품 목록(BUILD_SPEC 6.2). 로그인한 사람만 들어온다(RequireAuth). */
 export default function WorksScreen() {
+  usePageTitle(copy.works.title);
   const { session } = useSession();
   const userId = session?.user.id ?? '';
   const [state, setState] = useState<ListState>({ status: 'loading' });

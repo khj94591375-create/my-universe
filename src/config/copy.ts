@@ -57,6 +57,7 @@ export const copy = {
     notFoundTitle: '작품을 찾을 수 없어요',
     notFoundBody: '지워졌거나 볼 수 없는 작품이에요.',
     loginToWrite: '로그인하면 내 작품에서 쓸 수 있어요.',
+    skip: '본문으로 건너뛰기',
     pending: (n: number) => `확인하지 않은 AI 추정 ${n}개`,
   },
   home: {

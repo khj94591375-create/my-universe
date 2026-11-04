@@ -88,7 +88,15 @@ export function MapCanvasSection({ workId, selected, onToggle }: { workId: strin
   };
 
   return (
-    <div className={s.wrap}>
+    <div
+      className={s.wrap}
+      onKeyDown={(e) => {
+        if (e.key !== 'Escape') return;
+        setLinkFrom(null);
+        setLinkTo(null);
+        setInfoId(null);
+      }}
+    >
       <div className={s.toolbar}>
         <div className={s.kinds} role="group" aria-label={copy.map.show}>
           {KINDS.map((k) => (
