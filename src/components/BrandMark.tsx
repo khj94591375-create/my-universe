@@ -2,9 +2,9 @@
 export function BrandMark({ size = 34 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
-      <path d="M11 9v12a9 9 0 0 0 18 0V12" fill="none" stroke="var(--c-cream)" strokeWidth="4" strokeLinecap="round" />
-      <ellipse cx="20" cy="23" rx="17" ry="4.5" fill="none" stroke="var(--c-gold)" strokeWidth="1.6" />
-      <path d="M31 2c.4 4 2 5.6 6 6-4 .4-5.6 2-6 6-.4-4-2-5.6-6-6 4-.4 5.6-2 6-6z" fill="var(--c-gold)" />
+      <path d="M11 9v12a9 9 0 0 0 18 0V12" fill="none" stroke="var(--c-on-shell-strong)" strokeWidth="4" strokeLinecap="round" />
+      <ellipse cx="20" cy="23" rx="17" ry="4.5" fill="none" stroke="var(--c-accent)" strokeWidth="1.6" />
+      <path d="M31 2c.4 4 2 5.6 6 6-4 .4-5.6 2-6 6-.4-4-2-5.6-6-6 4-.4 5.6-2 6-6z" fill="var(--c-accent)" />
     </svg>
   );
 }

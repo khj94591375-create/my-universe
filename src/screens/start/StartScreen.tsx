@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { ArtImage, ThemedArtImage } from '../../components/ArtImage';
+import { ThemeToggle } from '../../components/ThemeToggle';
 import { art, featureOrder } from '../../config/art';
 import { copy } from '../../config/copy';
 import { usePageTitle } from '../../lib/usePageTitle';
@@ -37,31 +38,36 @@ export default function StartScreen() {
 
   return (
     <main className={s.page}>
-      <section className={s.hero}>
-        <img src={`${import.meta.env.BASE_URL}logo.png`} alt="My Universe 로고" className={s.logo} />
-        <p className={s.lead}>{copy.start.lead}</p>
-        <h1 className={s.name}>{copy.brand.name}</h1>
-        <p className={s.message}>{copy.brand.message}</p>
-        <div className={s.actions}>
-          <Button
-            variant="accent"
-            size="lg"
-            onClick={login}
-            disabled={!isSupabaseConfigured || loading || redirecting}
-          >
-            {redirecting ? copy.start.loggingIn : copy.start.login}
-          </Button>
-          <Button variant="ghost" size="lg" onClick={() => nav(`/w/${SAMPLE_WORK_ID}/home`)}>
-            {copy.start.sample}
-          </Button>
-        </div>
-        <p className={s.note} role={error || loginError ? 'alert' : undefined}>
-          {message}
-        </p>
-      </section>
-      <div className={s.heroArt}>
-        <ThemedArtImage art={art.hero} alt={copy.art.hero} eager />
+      <div className={s.top}>
+        <ThemeToggle />
       </div>
+      <section className={s.hero}>
+        <div className={s.intro}>
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="My Universe 로고" className={s.logo} />
+          <p className={s.lead}>{copy.start.lead}</p>
+          <h1 className={s.name}>{copy.brand.name}</h1>
+          <p className={s.message}>{copy.brand.message}</p>
+          <div className={s.actions}>
+            <Button
+              variant="accent"
+              size="lg"
+              onClick={login}
+              disabled={!isSupabaseConfigured || loading || redirecting}
+            >
+              {redirecting ? copy.start.loggingIn : copy.start.login}
+            </Button>
+            <Button variant="ghost" size="lg" onClick={() => nav(`/w/${SAMPLE_WORK_ID}/home`)}>
+              {copy.start.sample}
+            </Button>
+          </div>
+          <p className={s.note} role={error || loginError ? 'alert' : undefined}>
+            {message}
+          </p>
+        </div>
+        <div className={s.heroArt}>
+          <ThemedArtImage art={art.hero} alt={copy.art.hero} eager />
+        </div>
+      </section>
       <section className={s.values}>
         {copy.start.values.map((v) => (
           <div key={v.title} className={s.value}>
@@ -78,7 +84,7 @@ export default function StartScreen() {
           {featureOrder.map((k) => (
             <li key={k} className={s.feature}>
               <ArtImage art={art.feature[k]} className={s.featureArt} />
-              <div>
+              <div className={s.featureText}>
                 <h3>{copy.start.features[k].title}</h3>
                 <p>{copy.start.features[k].body}</p>
               </div>

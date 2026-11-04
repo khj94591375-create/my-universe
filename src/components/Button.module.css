@@ -30,12 +30,12 @@
   width: 100%;
 }
 .primary {
-  background: var(--c-navy);
-  color: var(--c-white);
+  background: var(--c-primary);
+  color: var(--c-on-primary);
 }
 .accent {
-  background: var(--c-gold);
-  color: var(--c-navy);
+  background: var(--c-accent);
+  color: var(--c-on-accent);
 }
 .ghost {
   background: var(--c-card);
@@ -44,6 +44,6 @@
   font-weight: 500;
 }
 .danger {
-  background: var(--c-warn);
-  color: var(--c-white);
+  background: var(--c-danger);
+  color: var(--c-on-danger);
 }

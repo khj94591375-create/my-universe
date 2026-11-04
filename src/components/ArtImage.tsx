@@ -1,4 +1,5 @@
 import type { Art, ThemedArt } from '../config/art';
+import { useTheme } from '../features/theme/theme';
 import s from './ArtImage.module.css';
 
 type Common = { alt?: string; className?: string; eager?: boolean };
@@ -18,12 +19,8 @@ export function ArtImage({ art, alt = '', className, eager }: Common & { art: Ar
   );
 }
 
-/** 밝은·어두운 화면용 일러스트 한 쌍. 기기의 화면 모드(라이트/다크)에 맞춰 자동으로 바뀐다. */
+/** 밝은·어두운 화면용 일러스트 한 쌍. 지금 화면 모드(라이트/다크 전환 버튼)에 맞춰 바뀐다. */
 export function ThemedArtImage({ art, alt = '', className, eager }: Common & { art: ThemedArt }) {
-  return (
-    <picture className={s.picture}>
-      <source srcSet={art.dark.src} media="(prefers-color-scheme: dark)" width={art.dark.width} height={art.dark.height} />
-      <ArtImage art={art.light} alt={alt} className={className} eager={eager} />
-    </picture>
-  );
+  const theme = useTheme();
+  return <ArtImage key={theme} art={art[theme]} alt={alt} className={className} eager={eager} />;
 }

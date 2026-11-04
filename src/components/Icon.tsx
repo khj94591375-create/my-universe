@@ -2,7 +2,7 @@
  * 기능 아이콘(SVG). 디자인 참고: my-universe-assets/icons-reference.png(둥근 선 아이콘).
  * 글자 색(currentColor)을 따르므로 색은 쓰는 곳의 CSS 토큰으로 정한다.
  */
-export type IconName = 'home' | 'upload' | 'review' | 'sparkles' | 'orbit' | 'people' | 'layers' | 'image' | 'settings' | 'user' | 'logout';
+export type IconName = 'home' | 'upload' | 'review' | 'sparkles' | 'orbit' | 'people' | 'layers' | 'image' | 'settings' | 'user' | 'logout' | 'sun' | 'moon';
 
 const paths: Record<IconName, React.ReactNode> = {
   home: (
@@ -80,6 +80,13 @@ const paths: Record<IconName, React.ReactNode> = {
       <path d="M19 12H9.5" />
     </>
   ),
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" />
+    </>
+  ),
+  moon: <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />,
 };
 
 /** 장식용 아이콘(화면 읽기 프로그램은 옆의 글자를 읽는다). */

@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { ThemeToggle } from '../../components/ThemeToggle';
 import { Card } from '../../components/Card';
 import { copy } from '../../config/copy';
 import { site } from '../../config/site';
@@ -11,6 +12,9 @@ export default function PrivacyScreen() {
   const nav = useNavigate();
   return (
     <main className={s.page}>
+      <div className={s.top}>
+        <ThemeToggle />
+      </div>
       <h1 className={s.title}>{copy.privacy.title}</h1>
       <p className={s.muted}>{copy.privacy.effective(site.privacyEffective)}</p>
       <p>{copy.privacy.lead}</p>

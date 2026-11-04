@@ -13,7 +13,7 @@
   cursor: pointer;
 }
 .tabOn {
-  color: var(--c-navy);
+  color: var(--c-strong);
   border-bottom-color: var(--c-gold);
 }
 .form {
@@ -61,14 +61,14 @@
 }
 .dropOn {
   border-color: var(--c-gold);
-  background: var(--c-cream);
+  background: var(--c-highlight);
 }
 .dropTitle {
   font-weight: 700;
 }
 .sampleLink {
   font-size: var(--fs-xs);
-  color: var(--c-navy);
+  color: var(--c-strong);
 }
 .errors {
   margin: 0;

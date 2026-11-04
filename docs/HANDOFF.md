@@ -150,6 +150,11 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - 그림 `src/assets/art/*.webp`(원본 PNG를 WebP로, 모서리 투명), 연결 `src/config/art.ts`, 부품 `components/ArtImage.tsx`(라이트/다크 자동), SVG 아이콘 `components/Icon.tsx`
 - 쓰는 곳: 시작 화면(큰 그림·기능 카드), 홈 배너, EmptyState의 `art`, 원고 정리 중 그림, 처음 가이드, 화면별 도움말 썸네일
 
+## 3-11. 라이트·다크 모드 + 시작 화면 새 디자인
+- `src/styles/tokens.css`: 고정 색 + 역할 색(라이트 기본, `:root[data-theme='dark']`에서 다크). 새 화면을 만들 때는 역할 색(--c-paper, --c-card, --c-field, --c-ink, --c-sub, --c-strong, --c-primary, --c-accent, --c-highlight, --c-shell…)만 쓴다
+- 모드 상태 `src/features/theme/theme.ts`(useTheme·setTheme), 전환 버튼 `components/ThemeToggle.tsx`, 첫 그리기 전 모드 설정은 index.html
+- 시작 화면 `screens/start`: 2단(소개·버튼 | 그림), 기능 카드 같은 높이
+
 ## 4. 작업 습관
 
 - 단계가 끝나면 `README.md`의 단계 표를 갱신하고, 중요한 판단은 `docs/DECISIONS.md`에 한 줄 추가한다

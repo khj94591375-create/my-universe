@@ -68,7 +68,7 @@
 .rowLink {
   font-size: var(--fs-sm);
   font-weight: 700;
-  color: var(--c-navy);
+  color: var(--c-strong);
   white-space: nowrap;
 }
 .suggestion {

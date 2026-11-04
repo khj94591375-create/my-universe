@@ -49,14 +49,14 @@
   font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
-  background: var(--c-white);
+  background: var(--c-field);
 }
 .fileBtn:focus-within {
-  outline: 2px solid var(--c-gold);
+  outline: 2px solid var(--c-focus);
 }
 .sample {
   font-size: var(--fs-xs);
-  color: var(--c-navy);
+  color: var(--c-strong);
 }
 .errors {
   margin: 0;

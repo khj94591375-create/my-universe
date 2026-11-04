@@ -38,8 +38,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--sp-1);
-  background: var(--c-cream);
-  color: var(--c-navy);
+  background: var(--c-highlight);
+  color: var(--c-ink);
   border-radius: var(--r-pill);
   padding: 3px 4px 3px 11px;
   font-size: var(--fs-sm);
@@ -55,5 +55,5 @@
   line-height: 1;
 }
 .chip button:hover {
-  background: var(--c-white);
+  background: var(--c-field);
 }

@@ -34,7 +34,7 @@
 .link {
   font-size: var(--fs-sm);
   font-weight: 700;
-  color: var(--c-navy);
+  color: var(--c-strong);
 }
 .pairs {
   margin-top: var(--sp-3);

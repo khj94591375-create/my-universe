@@ -6,11 +6,11 @@
   min-width: 0;
 }
 .navy {
-  color: var(--c-on-navy-dim);
+  color: var(--c-on-shell-dim);
 }
 .navy a,
 .navy .logout {
-  color: var(--c-on-navy-link);
+  color: var(--c-on-shell-link);
 }
 .email {
   overflow: hidden;

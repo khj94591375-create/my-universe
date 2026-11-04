@@ -5,6 +5,7 @@ import { EmptyState } from '../../components/EmptyState';
 import { ErrorState } from '../../components/ErrorState';
 import { Loading } from '../../components/Loading';
 import { BrandMark } from '../../components/BrandMark';
+import { ThemeToggle } from '../../components/ThemeToggle';
 import { AccountMenu } from '../../components/AccountMenu';
 import { copy } from '../../config/copy';
 import { art } from '../../config/art';
@@ -62,7 +63,10 @@ export default function WorksScreen() {
           <BrandMark size={28} />
           <b>{copy.brand.name}</b>
         </Link>
-        <AccountMenu />
+        <div className={s.barRight}>
+          <ThemeToggle />
+          <AccountMenu />
+        </div>
       </header>
       <main className={s.main}>
         <div className={s.head}>

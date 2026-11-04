@@ -23,7 +23,7 @@
   color: var(--c-info);
 }
 .gold {
-  background: var(--c-cream);
+  background: var(--c-highlight);
   color: var(--c-gold-ink);
 }
 .ai {

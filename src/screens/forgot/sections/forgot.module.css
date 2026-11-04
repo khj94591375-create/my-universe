@@ -17,9 +17,9 @@
   cursor: pointer;
 }
 .filterOn {
-  background: var(--c-navy);
-  border-color: var(--c-navy);
-  color: var(--c-white);
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: var(--c-on-primary);
   font-weight: 700;
 }
 .cards {
@@ -47,7 +47,7 @@
 }
 .selected {
   border: 2px solid var(--c-gold);
-  background: var(--c-white);
+  background: var(--c-field);
 }
 .cardHead,
 .cardTags {
@@ -116,6 +116,6 @@
 .linkBtn {
   font-size: var(--fs-sm);
   font-weight: 700;
-  color: var(--c-navy);
+  color: var(--c-strong);
   padding: 0 var(--sp-2);
 }

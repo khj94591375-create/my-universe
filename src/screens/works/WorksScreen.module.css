@@ -4,14 +4,21 @@
   flex-direction: column;
 }
 .bar {
-  background: var(--c-navy);
-  color: var(--c-cream);
+  background: var(--c-shell);
+  color: var(--c-on-shell-strong);
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: var(--sp-3);
   flex-wrap: wrap;
   padding: 12px 24px;
+}
+.barRight {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  color: var(--c-on-shell-link);
 }
 .brand {
   display: flex;
@@ -87,7 +94,7 @@
 .openLink {
   font-size: var(--fs-sm);
   font-weight: 700;
-  color: var(--c-navy);
+  color: var(--c-strong);
   margin-right: auto;
 }
 .renameRow {

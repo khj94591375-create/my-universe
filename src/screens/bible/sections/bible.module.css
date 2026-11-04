@@ -102,7 +102,7 @@
 .pasteZone:focus-visible,
 .pasteOver {
   border-color: var(--c-gold);
-  background: var(--c-cream);
+  background: var(--c-highlight);
 }
 .pasteZone .thumb {
   border: 0;
@@ -168,11 +168,11 @@
   cursor: pointer;
 }
 .chip:hover {
-  border-color: var(--c-navy);
+  border-color: var(--c-primary);
 }
 .chipOn {
-  background: var(--c-navy);
-  border-color: var(--c-navy);
-  color: var(--c-on-navy);
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: var(--c-on-primary);
   font-weight: 700;
 }

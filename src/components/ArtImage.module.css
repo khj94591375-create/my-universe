@@ -5,6 +5,3 @@
   /* 내용이 잘리지 않게: 비율을 지킨 채 칸 안에 맞춘다 */
   object-fit: contain;
 }
-.picture {
-  display: contents;
-}

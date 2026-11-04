@@ -29,12 +29,12 @@
   border-radius: var(--r-pill);
   padding: 4px 10px;
   font-size: var(--fs-sm);
-  background: var(--c-white);
+  background: var(--c-field);
   cursor: pointer;
 }
 .pickOn {
   border-color: var(--c-gold);
-  background: var(--c-cream);
+  background: var(--c-highlight);
   font-weight: 700;
 }
 .sheetDot {
@@ -68,7 +68,7 @@
   cursor: pointer;
   font-size: var(--fs-sm);
   font-weight: 700;
-  color: var(--c-navy);
+  color: var(--c-strong);
 }
 .preview pre {
   white-space: pre-wrap;
@@ -95,7 +95,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background: var(--c-white);
+  background: var(--c-field);
 }
 .fresh {
   border: 2px solid var(--c-gold);
@@ -123,7 +123,7 @@
 .link {
   font-size: var(--fs-sm);
   font-weight: 700;
-  color: var(--c-navy);
+  color: var(--c-strong);
 }
 .sheetPick {
   display: flex;

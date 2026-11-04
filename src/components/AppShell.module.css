@@ -4,8 +4,8 @@
   min-height: 100%;
 }
 .side {
-  background: var(--c-navy);
-  color: var(--c-on-navy);
+  background: var(--c-shell);
+  color: var(--c-on-shell);
   padding: 22px 14px;
   display: flex;
   flex-direction: column;
@@ -23,21 +23,21 @@
 }
 .brand b {
   font-family: var(--f-display);
-  color: var(--c-cream);
+  color: var(--c-on-shell-strong);
   font-size: 19px;
 }
 .work {
-  background: var(--c-navy-2);
+  background: var(--c-shell-2);
   border-radius: 10px;
   padding: 10px 12px;
   margin-bottom: var(--sp-3);
   font-size: var(--fs-xs);
-  color: var(--c-on-navy-dim);
+  color: var(--c-on-shell-dim);
   display: flex;
   flex-direction: column;
 }
 .work strong {
-  color: var(--c-white);
+  color: var(--c-on-shell-strong);
   font-size: 14px;
 }
 .nav {
@@ -52,32 +52,36 @@
   padding: 10px 12px;
   border-radius: var(--r-sm);
   font-size: 14px;
-  color: var(--c-on-navy);
+  color: var(--c-on-shell);
   text-decoration: none;
 }
 .icon {
   flex: none;
-  color: var(--c-gold);
+  color: var(--c-shell-icon);
 }
 .link {
   position: relative;
 }
 .active {
-  background: var(--c-gold-soft);
-  color: var(--c-cream);
+  background: var(--c-shell-active);
+  color: var(--c-on-shell-strong);
   font-weight: 700;
 }
 .foot {
   margin-top: auto;
   font-size: 11.5px;
-  color: var(--c-on-navy-faint);
+  color: var(--c-on-shell-faint);
   padding: 0 6px;
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
 }
 .foot a {
-  color: var(--c-on-navy-link);
+  color: var(--c-on-shell-link);
+}
+.theme {
+  align-self: flex-start;
+  color: var(--c-on-shell-link);
 }
 .main {
   padding: 28px 28px 48px;
@@ -89,7 +93,7 @@
 }
 .sampleBar {
   align-self: flex-start;
-  background: var(--c-cream);
+  background: var(--c-highlight);
   color: var(--c-gold-ink);
   font-size: var(--fs-xs);
   font-weight: 700;
@@ -151,8 +155,8 @@
   left: 8px;
   top: -48px;
   z-index: 60;
-  background: var(--c-gold);
-  color: var(--c-navy);
+  background: var(--c-accent);
+  color: var(--c-on-accent);
   font-weight: 700;
   padding: 8px 14px;
   border-radius: var(--r-sm);
@@ -172,7 +176,7 @@
   bottom: 6px;
   width: 4px;
   border-radius: 0 var(--r-pill) var(--r-pill) 0;
-  background: var(--c-gold);
+  background: var(--c-indicator);
 }
 @media (max-width: 860px) {
   /* 가로 메뉴에서는 아래 막대 */

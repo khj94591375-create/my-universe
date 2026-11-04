@@ -8,6 +8,12 @@ export const copy = {
     message: '당신의 이야기는 이미 충분히 넓다. 잊었던 별을 다시 찾으면 된다.',
     principle: 'AI는 제안하고, 선택과 집필은 작가가 합니다.',
   },
+  theme: {
+    toDark: '어둡게 보기',
+    toLight: '밝게 보기',
+    toDarkLabel: '어두운 화면으로 바꾸기',
+    toLightLabel: '밝은 화면으로 바꾸기',
+  },
   art: {
     hero: '펼쳐진 책 위로 성과 인물 그림이 떠오르고, 별빛 궤도가 둘러싼 일러스트',
   },

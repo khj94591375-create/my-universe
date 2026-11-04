@@ -11,6 +11,7 @@ import { Loading } from './Loading';
 import { ErrorState } from './ErrorState';
 import { WorkTitleContext } from './workTitle';
 import { AccountMenu } from './AccountMenu';
+import { ThemeToggle } from './ThemeToggle';
 import { Icon } from './Icon';
 import s from './AppShell.module.css';
 
@@ -71,6 +72,7 @@ export function AppShell() {
         <div className={s.foot}>
           <span className={s.principle}>{copy.brand.principle}</span>
           <AccountMenu />
+          <ThemeToggle className={s.theme} />
         </div>
       </aside>
       <main className={s.main} id="main" tabIndex={-1}>

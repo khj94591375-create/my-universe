@@ -55,7 +55,7 @@ Supabase 대시보드 → **SQL Editor** → **New query**에 아래 파일 내�
 
 | 바꿀 것 | 파일 |
 |---|---|
-| 색·글꼴·간격·모서리 | `src/styles/tokens.css` |
+| 색·글꼴·간격·모서리(라이트·다크 두 벌) | `src/styles/tokens.css` |
 | 버튼 이름·안내 문구 | `src/config/copy.ts` |
 | 메뉴 순서·이름·아이콘 | `src/config/nav.ts`(아이콘 모양은 `src/components/Icon.tsx`) |
 | 일러스트(시작 화면·홈 배너·빈 화면·가이드 그림) | `src/config/art.ts`, 그림 파일 `src/assets/art/` |

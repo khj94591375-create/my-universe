@@ -15,6 +15,7 @@
   justify-content: space-between;
   gap: var(--sp-3);
   background: var(--c-navy);
+  border: 1px solid var(--c-navy-line);
   color: var(--c-cream);
   padding: 10px 10px 10px 16px;
   border-radius: var(--r-sm);
@@ -22,8 +23,8 @@
   font-size: var(--fs-sm);
 }
 .error {
-  background: var(--c-warn);
-  color: var(--c-white);
+  background: var(--c-danger);
+  color: var(--c-on-danger);
 }
 .toast button {
   border: 0;
