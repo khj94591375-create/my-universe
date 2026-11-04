@@ -58,8 +58,8 @@
   /* 우주 지도: 라이트 = 아이보리 바탕의 은은한 별자리 */
   --c-map-from: #fcf9f3;
   --c-map-to: #ece5f6;
-  --c-map-hub-line: #d6cce9; /* 작품 → 종류 → 별 가는 선 */
-  --c-map-co: #8f82bd; /* 같은 장면 선 */
+  --c-map-hub-line: #c3b6e0; /* 작품 → 종류 → 별 가는 선 */
+  --c-map-co: #6f62a8; /* 같은 장면 선 */
   --c-map-ai: #7a5cc0; /* AI 추정 선·표시 */
   --c-map-manual: #9a6a17; /* 작가가 이은 선 */
   --c-map-lit: #4a3a8f; /* 고른 별과 이어진 선 */
@@ -76,6 +76,7 @@
   --c-star-selected-stroke: #2c2550;
   --c-star-done: #2a6e43; /* 회수 완료 고리 */
   --c-map-focus: #6a52b8;
+  --c-star-glow: rgba(106, 82, 184, 0.38); /* 고른 별 광채 */
 
   /* 의미 색 */
   --c-warn: #a64a14; /* 경고 배경 위 글자 대비 4.5 이상 */
@@ -180,6 +181,7 @@
   --c-star-selected-stroke: #ffffff;
   --c-star-done: #8fd3a6;
   --c-map-focus: #e0b46a;
+  --c-star-glow: rgba(224, 180, 106, 0.5);
 
   --c-warn: #f1a878;
   --c-warn-bg: #3a2418;

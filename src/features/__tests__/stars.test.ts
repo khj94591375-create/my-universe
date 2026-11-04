@@ -94,3 +94,16 @@ describe('기본 이야기 방향', () => {
     expect(basicStoryIdea([], [], [], [])).toBeNull();
   });
 });
+
+describe('설계 체험(예시 작품)', () => {
+  it('장면 3개, 근거는 실제 원고 문장만, 저장할 것 없음', async () => {
+    const { demoDesign } = await import('../map/demoDesign');
+    const a = item({ id: 'a', kind: 'character', name: '리안', last_ep: 2 });
+    const r = demoDesign([a], [], [{ item_id: 'a', episode_id: 'e2', evidence: '리안이 웃었다.' }], [{ id: 'e2', no: 2 }], 3);
+    expect(r?.scenes).toHaveLength(3);
+    expect(r?.targetEp).toBe(3);
+    const evid = r!.scenes.flatMap((sc) => sc.uses.map((u) => u.evidence)).filter(Boolean);
+    expect(evid.every((t) => t === '리안이 웃었다.')).toBe(true);
+    expect(r?.draft).toBeNull();
+  });
+});

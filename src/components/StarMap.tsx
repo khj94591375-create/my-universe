@@ -4,6 +4,7 @@ import type { ItemKind, ItemView, Link } from '../data/types';
 import { gapLabel } from '../features/foreshadow/gap';
 import { hubPos, layoutStars, type Pos } from '../features/map/layout';
 import { shapePath, starRadius, starState } from '../features/map/stars';
+import { circleBox, LABEL_FONT, LINK_FONT, placeLinkLabels, placeStarLabels } from '../features/map/labels';
 import { controlPoint, linkEnds, pairOffsets, pointOnCurve } from '../features/map/links';
 import s from './StarMap.module.css';
 
@@ -74,6 +75,23 @@ export function StarMap({
   }, [pos]);
   const maxGap = Math.max(0, ...items.map((i) => i.gap ?? 0));
   const kinds = [...new Set(items.map((i) => i.kind))] as ItemKind[];
+
+  // 지도 1칸이 화면에서 몇 px인지(창 크기에 따라 바뀜). 이름 글자를 화면에서 늘 같은 크기로 그리는 데 쓴다.
+  const [unitPx, setUnitPx] = useState(0.6);
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const [, , vw, vh] = vb.split(' ').map(Number);
+    const measure = () => {
+      const r = svg.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) setUnitPx(Math.min(r.width / vw, r.height / vh));
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(svg);
+    return () => ro.disconnect();
+  }, [vb]);
 
   /** 화면 좌표 → SVG 좌표 */
   const toSvg = (cx: number, cy: number) => {
@@ -150,21 +168,58 @@ export function StarMap({
   };
 
   const center = (p: Pos | undefined) => p ?? { x: 0, y: 0 };
+  const k = view.k;
+  /** 이름 배치에 쓰는 실제 배율(확대 × 화면 맞춤) */
+  const ks = view.k * unitPx;
   const near = hover ?? focusId;
-  // 가까이 본 별(마우스·키보드 초점·정보창)과 이어진 선·별을 강조
+  // 강조할 별: 고른 별·가리킨 별(마우스·키보드·패널)과 그 별에 실제로 이어진 별
+  const anchors = new Set<string>([...selected, ...(near ? [near] : [])].filter((id) => byId.has(id)));
   const lit = new Set<string>();
   const neighbors = new Set<string>();
-  if (near)
-    for (const l of links)
-      if (l.a === near || l.b === near) {
-        lit.add(l.kind === 'co_occur' ? `${l.a}|${l.b}` : l.id);
-        neighbors.add(l.a === near ? l.b : l.a);
-      }
+  for (const l of links)
+    if (anchors.has(l.a) || anchors.has(l.b)) {
+      lit.add(l.id);
+      if (!anchors.has(l.a)) neighbors.add(l.a);
+      if (!anchors.has(l.b)) neighbors.add(l.b);
+    }
+  const focusMode = anchors.size > 0;
+  const isLit = (id: string) => anchors.has(id) || neighbors.has(id);
+  const dense = items.length > 30;
+
+  // 이름표: 확대 배율에 맞춰 겹치지 않는 것만(고른 별·가리킨 별은 항상)
+  const blocked = useMemo(() => [circleBox(0, 0, 54), ...kinds.map((kd) => circleBox(hubPos(kd).x, hubPos(kd).y, 28))], [kinds.join()]); // eslint-disable-line react-hooks/exhaustive-deps
+  const anchorKey = [...anchors].sort().join(',');
+  const starLabels = useMemo(() => {
+    const cands = items
+      .filter((i) => !focusMode || isLit(i.id))
+      .map((i) => {
+        const q = center(pos.get(i.id));
+        return { id: i.id, x: q.x, y: q.y, r: starRadius(i.mention_count), name: i.name, priority: (anchors.has(i.id) ? 1000 : neighbors.has(i.id) ? 500 : 0) + i.mention_count, force: anchors.has(i.id) };
+      });
+    return placeStarLabels(cands, ks, blocked);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, pos, ks, anchorKey, blocked]);
+  const linkLabels = useMemo(() => {
+    const cands = links
+      .filter((l) => l.label && l.kind !== 'co_occur' && (!focusMode || lit.has(l.id)))
+      .map((l) => {
+        const g = geometry(l);
+        return g ? { id: l.id, text: l.label as string, at: (t: number) => pointOnCurve(g.p0, g.c, g.p1, t), force: activeLinkId === l.id } : null;
+      })
+      .filter((x): x is NonNullable<typeof x> => x != null);
+    const taken = [...blocked, ...starLabels.values(), ...items.map((i) => { const q = center(pos.get(i.id)); return circleBox(q.x, q.y, starRadius(i.mention_count)); })];
+    return placeLinkLabels(cands, ks, taken);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [links, starLabels, ks, activeLinkId, anchorKey]);
+
+  const fs = LABEL_FONT / ks;
+  const lfs = LINK_FONT / ks;
+  const tipItem = near ? byId.get(near) : null;
 
   return (
     <svg
       ref={svgRef}
-      className={s.svg}
+      className={`${s.svg} ${dense ? s.dense : ''} ${focusMode ? s.focusMode : ''}`}
       viewBox={vb}
       preserveAspectRatio="xMidYMid meet"
       role="group"
@@ -174,34 +229,40 @@ export function StarMap({
       onPointerUp={onUp}
       onPointerCancel={onUp}
     >
-      <g transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
+      <defs>
+        {/* 고른 별 뒤의 은은한 광채(움직임 없음) */}
+        <radialGradient id="star-glow">
+          <stop offset="0%" className={s.glowIn} />
+          <stop offset="100%" className={s.glowOut} />
+        </radialGradient>
+        {/* 화살촉(방향 있는 선) */}
+        <marker id="arrow-manual" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" className={s.arrowManual} />
+        </marker>
+        <marker id="arrow-ai" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" className={s.arrowAi} />
+        </marker>
+      </defs>
+      <g transform={`translate(${view.x} ${view.y}) scale(${k})`}>
         {/* 종류 연결(가는 실선) */}
-        {kinds.map((k) => {
-          const h = hubPos(k);
-          return <line key={`c-${k}`} x1={0} y1={0} x2={h.x} y2={h.y} className={s.kindLine} />;
+        {kinds.map((kd) => {
+          const h = hubPos(kd);
+          return <line key={`c-${kd}`} x1={0} y1={0} x2={h.x} y2={h.y} className={s.kindLine} />;
         })}
         {items.map((i) => {
           const h = hubPos(i.kind);
-          const p = center(pos.get(i.id));
-          return <line key={`k-${i.id}`} x1={h.x} y1={h.y} x2={p.x} y2={p.y} className={s.kindLine} opacity={0.5} />;
+          const q = center(pos.get(i.id));
+          return <line key={`k-${i.id}`} x1={h.x} y1={h.y} x2={q.x} y2={q.y} className={`${s.kindLine} ${s.spoke}`} />;
         })}
-        {/* 화살촉(방향 있는 선) */}
-        <defs>
-          <marker id="arrow-manual" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
-            <path d="M0,0 L10,5 L0,10 Z" className={s.arrowManual} />
-          </marker>
-          <marker id="arrow-ai" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
-            <path d="M0,0 L10,5 L0,10 Z" className={s.arrowAi} />
-          </marker>
-        </defs>
         {/* 항목 사이 연결선(실제 기록된 관계만) */}
         {links.map((l) => {
           const g = geometry(l);
           if (!g) return null;
-          const on = lit.has(l.kind === 'co_occur' ? `${l.a}|${l.b}` : l.id) || activeLinkId === l.id;
+          const on = lit.has(l.id) || activeLinkId === l.id;
           const name = byId.get(l.a)?.name ?? '';
           const other = byId.get(l.b)?.name ?? '';
           const tip = <title>{`${name} — ${other}: ${l.kind === 'ai' ? `${copy.labels.ai}${l.label ? ` · ${l.label}` : ''}` : l.label ?? copy.map.info.coTimes(l.weight)}`}</title>;
+          const cls = `${on ? s.lineOn : focusMode ? s.lineDim : ''}`;
           const pick = onLink
             ? {
                 'data-link': true,
@@ -214,7 +275,7 @@ export function StarMap({
           if (l.kind === 'co_occur') {
             return (
               <g key={l.id} {...pick}>
-                <line x1={g.p0.x} y1={g.p0.y} x2={g.p1.x} y2={g.p1.y} className={`${s.coLine} ${on ? s.lineOn : ''}`} strokeWidth={Math.min(1 + l.weight * 0.6, 4)} />
+                <line x1={g.p0.x} y1={g.p0.y} x2={g.p1.x} y2={g.p1.y} className={`${s.coLine} ${cls}`} strokeWidth={Math.min(1 + l.weight * 0.6, 4)} />
                 {onLink && <line x1={g.p0.x} y1={g.p0.y} x2={g.p1.x} y2={g.p1.y} className={s.lineHit} />}
                 {tip}
               </g>
@@ -225,12 +286,7 @@ export function StarMap({
           const d = `M${g.p0.x},${g.p0.y} Q${g.c.x},${g.c.y} ${end.x},${end.y}`;
           return (
             <g key={l.id} {...pick}>
-              <path
-                d={d}
-                className={`${s.curve} ${l.kind === 'ai' ? s.aiLine : s.manualLine} ${on ? s.lineOn : ''}`}
-                strokeWidth={on ? 2.6 : 1.8}
-                markerEnd={g.directed ? `url(#arrow-${l.kind})` : undefined}
-              />
+              <path d={d} className={`${s.curve} ${l.kind === 'ai' ? s.aiLine : s.manualLine} ${cls}`} strokeWidth={on ? 2.6 : 1.8} markerEnd={g.directed ? `url(#arrow-${l.kind})` : undefined} />
               {onLink && <path d={d} className={`${s.curve} ${s.lineHit}`} />}
               {tip}
             </g>
@@ -246,40 +302,28 @@ export function StarMap({
             </text>
           ))}
         </g>
-        {kinds.map((k) => {
-          const h = hubPos(k);
+        {kinds.map((kd) => {
+          const h = hubPos(kd);
           return (
-            <g key={k} className={s.hub} transform={`translate(${h.x} ${h.y})`}>
+            <g key={kd} className={s.hub} transform={`translate(${h.x} ${h.y})`}>
               <circle r={26} />
-              <path d={shapePath(k, 10)} className={s[k]} />
-              <text y={50}>{copy.labels.kind[k]}</text>
+              <path d={shapePath(kd, 10)} className={s[kd]} />
+              <text y={26 + fs * 1.1} style={{ fontSize: fs }}>
+                {copy.labels.kind[kd]}
+              </text>
             </g>
-          );
-        })}
-        {/* 관계 이름(AI 추정·작가가 이은 선) */}
-        {links.map((l) => {
-          const g = geometry(l);
-          if (!g || !l.label || l.kind === 'co_occur') return null;
-          return (
-            <text key={`t-${l.id}`} {...labelSpot(g.p0, g.c, g.p1, kinds)} className={`${s.linkLabel} ${l.kind === 'manual' ? s.linkLabelManual : ''}`}>
-              {l.label}
-            </text>
           );
         })}
         {/* 별 */}
         {items.map((i) => {
-          const p = center(pos.get(i.id));
+          const q = center(pos.get(i.id));
           const isSel = selected.has(i.id);
           const r = starRadius(i.mention_count);
           const st = starState(i, maxGap, aiResolve?.get(i.id) ?? null);
-          const details = [
-            i.gap != null && i.gap > 0 ? gapLabel(i.gap).text : '',
-            st.done ? copy.labels.status[i.status] : st.planned ? copy.labels.status.reuse_planned : '',
-            st.forgotten ? copy.map.state.forgotten : '',
-            st.aiResolveEp ? copy.map.state.aiResolve(st.aiResolveEp) : '',
-            i.source === 'ai' || !i.confirmed ? copy.labels.ai : '',
-          ].filter(Boolean);
+          const details = starDetails(i, st);
           const mark = [i.source === 'ai' || !i.confirmed ? 'AI' : '', st.aiResolveEp ? copy.map.state.aiResolveShort : ''].filter(Boolean).join(' · ');
+          const dim = focusMode && !isLit(i.id);
+          const label = starLabels.get(i.id);
           return (
             <g
               key={i.id}
@@ -288,8 +332,8 @@ export function StarMap({
               role="button"
               aria-pressed={isSel}
               aria-label={copy.map.starLabel(i.name, copy.labels.kind[i.kind], details.join(', '))}
-              className={`${s.star} ${s[i.kind]} ${isSel ? s.selected : ''} ${focusId === i.id ? s.focused : ''} ${neighbors.has(i.id) ? s.neighbor : ''}`}
-              transform={`translate(${p.x} ${p.y})`}
+              className={`${s.star} ${s[i.kind]} ${isSel ? s.selected : ''} ${near === i.id ? s.focused : ''} ${neighbors.has(i.id) ? s.neighbor : ''} ${dim ? s.dim : ''}`}
+              transform={`translate(${q.x} ${q.y})`}
               onClick={() => onStar(i.id)}
               onKeyDown={key(i.id)}
               onPointerEnter={() => setHover(i.id)}
@@ -297,22 +341,76 @@ export function StarMap({
               onFocus={() => setHover(i.id)}
               onBlur={() => setHover(null)}
             >
+              {isSel && <circle r={r * 2.8} fill="url(#star-glow)" className={s.glow} />}
               <circle r={r + 12} className={s.hit} />
               {st.forgotten && !isSel && <circle r={r + 7} className={s.forgottenRing} />}
               {(st.done || st.planned) && <circle r={r + 7} className={st.done ? s.doneRing : s.plannedRing} />}
-              <path d={shapePath(i.kind, r)} className={s.shape} opacity={isSel || near === i.id || neighbors.has(i.id) ? 1 : st.brightness} />
-              <text y={r + 24}>{i.name}</text>
-              {mark && (
-                <text y={-r - 10} className={s.aiMark}>
+              <path d={shapePath(i.kind, r)} className={s.shape} opacity={isSel || isLit(i.id) ? 1 : dim ? 0.22 : st.brightness} />
+              {label && near !== i.id && (
+                <text y={label.y1 - q.y - fs * 0.3} style={{ fontSize: fs }}>
+                  {i.name}
+                </text>
+              )}
+              {mark && !dim && (
+                <text y={-r - fs * 0.5} className={s.aiMark} style={{ fontSize: fs * 0.75 }}>
                   {mark}
                 </text>
               )}
             </g>
           );
         })}
+        {/* 관계 이름(자리가 있을 때만, 강조한 선은 항상) */}
+        {links.map((l) => {
+          const spot = linkLabels.get(l.id);
+          if (!spot || !l.label) return null;
+          return (
+            <text key={`t-${l.id}`} x={spot.x} y={spot.y + lfs * 0.35} style={{ fontSize: lfs, strokeWidth: 4 / ks }} className={`${s.linkLabel} ${l.kind === 'manual' ? s.linkLabelManual : ''}`}>
+              {l.label}
+            </text>
+          );
+        })}
+        {/* 가리킨 별의 이름표(맨 위): 이름 · 종류 · 상태 */}
+        {tipItem && (() => {
+          const q = center(pos.get(tipItem.id));
+          const r = starRadius(tipItem.mention_count);
+          const st = starState(tipItem, maxGap, aiResolve?.get(tipItem.id) ?? null);
+          const line2 = [copy.labels.kind[tipItem.kind], ...starDetails(tipItem, st)].join(' · ');
+          const f2 = fs * 0.8;
+          const w = Math.max([...tipItem.name].length * fs, [...line2].length * f2 * 0.95) + fs;
+          const h = fs * 1.4 + f2 * 1.4 + fs * 0.4;
+          // 보이는 영역 안에 머물게(지도 가장자리에서 잘리지 않게)
+          const [vx, vy, vw] = vb.split(' ').map(Number);
+          const left = (vx - view.x) / k;
+          const right = (vx + vw - view.x) / k;
+          const cx = Math.min(Math.max(q.x, left + w / 2 + 4 / ks), right - w / 2 - 4 / ks);
+          let top = q.y - r - 8 / ks - h;
+          if (top < (vy - view.y) / k) top = q.y + r + 8 / ks + fs * 1.4; // 위가 막히면 아래로
+          return (
+            <g className={s.tip} pointerEvents="none" aria-hidden="true">
+              <rect x={cx - w / 2} y={top} width={w} height={h} rx={8 / ks} style={{ strokeWidth: 1 / ks }} />
+              <text x={cx} y={top + fs * 1.15} style={{ fontSize: fs }} className={s.tipName}>
+                {tipItem.name}
+              </text>
+              <text x={cx} y={top + fs * 1.35 + f2 * 1.2} style={{ fontSize: f2 }}>
+                {line2}
+              </text>
+            </g>
+          );
+        })()}
       </g>
     </svg>
   );
+}
+
+/** 별 상태를 사람이 읽는 말로(이름표·화면 읽기 프로그램 공용). */
+function starDetails(i: ItemView, st: ReturnType<typeof starState>): string[] {
+  return [
+    i.gap != null && i.gap > 0 ? gapLabel(i.gap).text : '',
+    st.done ? copy.labels.status[i.status] : st.planned ? copy.labels.status.reuse_planned : '',
+    st.forgotten ? copy.map.state.forgotten : '',
+    st.aiResolveEp ? copy.map.state.aiResolve(st.aiResolveEp) : '',
+    i.source === 'ai' || !i.confirmed ? copy.labels.ai : '',
+  ].filter(Boolean);
 }
 
 /** a → b 선의 끝을 by만큼 a 쪽으로 당긴다. */
@@ -320,17 +418,6 @@ function shorten(a: Pos, b: Pos, by: number): Pos {
   const d = Math.hypot(b.x - a.x, b.y - a.y);
   if (d <= by * 2) return b;
   return { x: b.x - ((b.x - a.x) / d) * by, y: b.y - ((b.y - a.y) / d) * by };
-}
-
-/** 관계 이름 위치: 선(곡선) 가운데에 두되, 가운데 원이나 종류 동그라미와 겹치면 선을 따라 옮긴다. */
-function labelSpot(a: Pos, c: Pos, b: Pos, kinds: ItemKind[]) {
-  const blockers = [{ x: 0, y: 0, r: 95 }, ...kinds.map((k) => ({ ...hubPos(k), r: 60 }))];
-  for (const t of [0.5, 0.35, 0.65, 0.22, 0.78]) {
-    const p = pointOnCurve(a, c, b, t);
-    if (blockers.every((o) => Math.hypot(p.x - o.x, p.y - o.y) > o.r)) return { x: p.x, y: p.y + 6 };
-  }
-  const m = pointOnCurve(a, c, b, 0.5);
-  return { x: m.x, y: m.y + 6 };
 }
 
 /** 작품 제목을 가운데 원 안에 들어가도록 최대 3줄로 나눈다. 넘치면 말줄임(…). */

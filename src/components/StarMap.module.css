@@ -66,7 +66,8 @@
   text-anchor: middle;
   paint-order: stroke;
   stroke: var(--c-map-halo);
-  stroke-width: 5px;
+  stroke-width: 0.26em;
+  stroke-linejoin: round;
 }
 .star {
   cursor: pointer;
@@ -92,7 +93,8 @@
   text-anchor: middle;
   paint-order: stroke;
   stroke: var(--c-map-halo);
-  stroke-width: 5px;
+  stroke-width: 0.26em;
+  stroke-linejoin: round;
 }
 .hit {
   fill: transparent;
@@ -174,8 +176,59 @@
 .curve {
   fill: none;
 }
+/* 가는 선: 종류 → 별 */
+.spoke {
+  opacity: 0.55;
+}
+/* 별이 많을 때(30개 넘게): 바탕 선을 더 옅게, 같은 장면 선은 가리킬 때만 진하게 */
+.dense .spoke {
+  opacity: 0.22;
+}
+.dense .coLine {
+  stroke-opacity: 0.28;
+}
+/* 별을 고르거나 가리키면: 이어진 것만 또렷하게, 나머지는 약하게 */
+.lineDim {
+  stroke-opacity: 0.14;
+}
+.focusMode .spoke {
+  opacity: 0.18;
+}
+.dim .hit {
+  stroke: none;
+}
+/* 고른 별의 은은한 광채(움직임 없음) */
+.glow {
+  pointer-events: none;
+}
+.glowIn {
+  stop-color: var(--c-star-glow);
+  stop-opacity: 1;
+}
+.glowOut {
+  stop-color: var(--c-star-glow);
+  stop-opacity: 0;
+}
+/* 가리킨 별 이름표 */
+.tip rect {
+  fill: var(--c-card);
+  stroke: var(--c-line);
+}
+.tip text {
+  fill: var(--c-sub);
+  text-anchor: middle;
+  stroke: none;
+}
+.tip .tipName {
+  fill: var(--c-ink);
+  font-weight: 700;
+}
 @media (prefers-reduced-motion: reduce) {
   .shape {
     transition: none;
+  }
+  .star:hover .shape,
+  .star:focus-visible .shape {
+    transform: none;
   }
 }

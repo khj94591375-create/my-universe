@@ -1,16 +1,16 @@
-import { useMemo, useState, type FormEvent, type KeyboardEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Button } from '../../../components/Button';
 import { MAP_HOME, StarMap, viewFocusing, type MapView } from '../../../components/StarMap';
 import { StarShape } from '../../../components/StarShape';
 import { SelectField, TextField } from '../../../components/TextField';
 import { ConfirmBar } from '../../../components/ConfirmBar';
-import { AiBadge, EvidenceQuote, GapTag, KindTag, StatusTag } from '../../../components/Badges';
+import { EvidenceQuote } from '../../../components/Badges';
 import { showToast } from '../../../components/Toast';
 import { copy } from '../../../config/copy';
 import { limits } from '../../../config/limits';
-import { addManualLink, deleteLink, setItemStatus } from '../../../data/items';
+import { addManualLink, deleteLink } from '../../../data/items';
 import { directionFor } from '../../../features/map/links';
+import { episodesOf, linkKindText, relationText } from '../../../features/map/relations';
 import { aiResolveEps, FORGOTTEN_GAP } from '../../../features/map/stars';
 import type { ItemKind, Link as LinkRow } from '../../../data/types';
 import { save } from '../../../features/works/save';
@@ -24,16 +24,29 @@ const KINDS: ItemKind[] = ['character', 'setting', 'foreshadow'];
  * 지도 + 도구 막대(종류별 보기, 이름 찾기, 확대·축소) + 별 정보창 + 관계 정보창 + 연결 추가.
  * 지도에는 실제 기록된 항목과 관계만 그린다(임의로 잇지 않는다).
  */
-export function MapCanvasSection({ workId, selected, onToggle }: { workId: string; selected: string[]; onToggle: (id: string) => void }) {
+export type MapFocus = {
+  /** 지금 살펴보는 별(패널에서 펼쳐 보여 줌) */
+  focusId: string | null;
+  setFocusId: (id: string | null) => void;
+  /** 지도에서 강조할 관계선(관계 정보창) */
+  linkId: string | null;
+  setLinkId: (id: string | null) => void;
+  /** 연결 추가를 시작한 별 */
+  linkFrom: string | null;
+  setLinkFrom: (id: string | null) => void;
+  /** 패널에서 별을 고르면 지도를 그 별로 옮긴다(n은 같은 별을 다시 눌러도 움직이게) */
+  center: { id: string; n: number } | null;
+  centerOn: (id: string) => void;
+};
+
+export function MapCanvasSection({ workId, selected, onToggle, focus }: { workId: string; selected: string[]; onToggle: (id: string) => void; focus: MapFocus }) {
+  const { focusId: infoId, setFocusId: setInfoId, linkId, setLinkId, linkFrom, setLinkFrom, center } = focus;
   const { data } = useWorkData(workId);
   const { work } = useWork(workId);
   const canWrite = useCanWrite(work);
   const [view, setView] = useState<MapView>(MAP_HOME);
   const [kinds, setKinds] = useState<Set<ItemKind>>(new Set(KINDS));
   const [query, setQuery] = useState('');
-  const [infoId, setInfoId] = useState<string | null>(null);
-  const [linkId, setLinkId] = useState<string | null>(null);
-  const [linkFrom, setLinkFrom] = useState<string | null>(null);
   const [linkTo, setLinkTo] = useState<string | null>(null);
   const [label, setLabel] = useState('');
   const [dir, setDir] = useState<'both' | 'forward' | 'backward'>('both');
@@ -45,12 +58,12 @@ export function MapCanvasSection({ workId, selected, onToggle }: { workId: strin
     const ids = new Set(items.map((i) => i.id));
     return data.links.filter((l) => ids.has(l.a) && ids.has(l.b) && (l.kind !== 'co_occur' || l.weight >= limits.mapCoOccurMin));
   }, [data, items]);
+  useEffect(() => {
+    if (center) setView(viewFocusing(items, links, center.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [center]);
   const aiResolve = useMemo(() => (data ? aiResolveEps(data.appearances, data.episodes) : new Map<string, number>()), [data]);
   if (!data) return null;
-
-  const epNo = (id: string) => data.episodes.find((e) => e.id === id)?.no;
-  const episodesOf = (itemId: string) =>
-    [...new Set(data.appearances.filter((a) => a.item_id === itemId).map((a) => epNo(a.episode_id)))].filter((n): n is number => n != null).sort((a, b) => a - b);
 
   const openStar = (id: string) => {
     setLinkId(null);
@@ -79,21 +92,9 @@ export function MapCanvasSection({ workId, selected, onToggle }: { workId: strin
   };
 
   const zoom = (f: number) => setView((v) => ({ k: Math.min(4, Math.max(0.35, v.k * f)), x: v.x * f, y: v.y * f }));
-  const info = infoId ? data.itemById.get(infoId) : null;
   const relation = linkId ? data.links.find((l) => l.id === linkId) : null;
-  // 연결된 항목과 관계 이름(같은 장면 연결선은 이름이 없어 "같은 장면 N번")
-  const linkedOf = (id: string) =>
-    data.links
-      .filter((l) => l.a === id || l.b === id)
-      .map((l) => ({ link: l, other: data.itemById.get(l.a === id ? l.b : l.a) }))
-      .filter((x): x is { link: LinkRow; other: NonNullable<typeof x.other> } => Boolean(x.other));
-  const linked = info ? linkedOf(info.id) : [];
-  const relatedForeshadow = info ? [...new Map(linked.filter((x) => x.other.kind === 'foreshadow').map((x) => [x.other.id, x.other])).values()] : [];
-  const epNos = info ? episodesOf(info.id) : [];
-  const aiEp = info && info.kind === 'foreshadow' && info.status === 'open' ? aiResolve.get(info.id) ?? null : null;
   const from = linkFrom ? data.itemById.get(linkFrom) : null;
   const to = linkTo ? data.itemById.get(linkTo) : null;
-  const linkKindText = (l: LinkRow) => (l.kind === 'ai' ? copy.labels.ai : l.kind === 'manual' ? copy.map.legendManual : copy.map.info.autoLink);
 
   const saveLink = async (e: FormEvent) => {
     e.preventDefault();
@@ -243,101 +244,12 @@ export function MapCanvasSection({ workId, selected, onToggle }: { workId: strin
           </div>
         )}
 
-        {/* 별 정보창 */}
-        {info && !from && (
-          <div className={s.info} role="dialog" aria-label={info.name}>
-            <div className={s.infoHead}>
-              <StarShape kind={info.kind} size={16} />
-              <strong>{info.name}</strong>
-              <KindTag kind={info.kind} />
-              <button type="button" className={s.close} onClick={() => setInfoId(null)} aria-label={copy.map.info.close}>
-                ×
-              </button>
-            </div>
-            {info.note && <p>{info.note}</p>}
-            <div className={s.stateRow}>
-              {(info.kind === 'foreshadow' || info.status === 'reuse_planned') && <StatusTag status={info.status} />}
-              {info.gap != null && <GapTag gap={info.gap} />}
-              {(info.source === 'ai' || !info.confirmed) && <AiBadge />}
-            </div>
-            {info.kind === 'foreshadow' && <p className={s.muted}>{copy.map.info.byAuthor}</p>}
-            {(info.source === 'ai' || !info.confirmed) && <p className={s.note}>{copy.map.info.aiItem}</p>}
-            {aiEp != null && (
-              <div className={s.note}>
-                <p>{copy.map.info.aiResolveNote(aiEp)}</p>
-                <div className={s.infoActions}>
-                  {canWrite && (
-                    <Button size="sm" onClick={() => save(workId, () => setItemStatus(info.id, 'resolved'))}>
-                      {copy.map.info.markResolved}
-                    </Button>
-                  )}
-                  <Link to={`/w/${workId}/review`}>{copy.map.info.toReview}</Link>
-                </div>
-              </div>
-            )}
-            <p className={s.muted}>
-              {copy.map.info.appears}: {epNos.length ? epNos.map((n) => `${n}화`).join(', ') : copy.map.info.none}
-            </p>
-            {info.kind !== 'foreshadow' && (
-              <div className={s.muted}>
-                {copy.map.info.relatedForeshadow}: {relatedForeshadow.length === 0 && copy.map.info.none}
-                {relatedForeshadow.length > 0 && (
-                  <span className={s.chips}>
-                    {relatedForeshadow.map((f) => (
-                      <button key={f.id} type="button" className={s.textBtn} onClick={() => focusStar(f.id)}>
-                        <StarShape kind="foreshadow" size={12} /> {f.name}
-                      </button>
-                    ))}
-                  </span>
-                )}
-              </div>
-            )}
-            <div className={s.muted}>
-              {copy.map.info.linked}: {linked.length === 0 && copy.map.info.none}
-              {linked.length > 0 && (
-                <ul className={s.linkedList}>
-                  {linked.map(({ link, other }) => {
-                    const d = directionFor(link, info.id);
-                    return (
-                      <li key={link.id} className={s.linkedItem}>
-                        <button type="button" className={s.textBtn} onClick={() => setLinkId(link.id)} aria-label={copy.map.info.openRelation(other.name)}>
-                          <span className={s.dir} aria-hidden="true">{d === 'out' ? '→' : d === 'in' ? '←' : '—'}</span>
-                          <strong>{other.name}</strong> · {link.label ?? (link.kind === 'co_occur' ? copy.map.info.coTimes(link.weight) : copy.map.info.noLabel)}
-                          <span className={s.linkKind}> ({linkKindText(link)})</span>
-                        </button>
-                        {canWrite && link.kind !== 'co_occur' && (
-                          <button type="button" className={s.removeLink} onClick={() => setRemoving(link.id)} aria-label={`${other.name} ${copy.map.info.removeLink}`}>
-                            ×
-                          </button>
-                        )}
-                        {removeConfirm(link, info.name, other.name)}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-            <div className={s.infoActions}>
-              <Button variant={selected.includes(info.id) ? 'ghost' : 'primary'} size="sm" onClick={() => onToggle(info.id)}>
-                {selected.includes(info.id) ? copy.map.info.removeFromPlan : copy.map.info.addToPlan}
-              </Button>
-              <Link to={`/w/${workId}/bible?item=${info.id}`}>{copy.map.info.toBible}</Link>
-              <Link to={`/w/${workId}/forgot?item=${info.id}`}>{copy.map.info.guide}</Link>
-              {canWrite && (
-                <Button variant="ghost" size="sm" onClick={() => setLinkFrom(info.id)}>
-                  {copy.map.info.addLink}
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* 관계 정보창(선을 눌렀을 때) */}
-        {relation && !info && !from && (() => {
+        {relation && !from && (() => {
           const a = data.itemById.get(relation.a);
           const b = data.itemById.get(relation.b);
           if (!a || !b) return null;
-          const both = episodesOf(a.id).filter((n) => episodesOf(b.id).includes(n));
+          const both = episodesOf(data, a.id).filter((n) => episodesOf(data, b.id).includes(n));
           const d = directionFor(relation, a.id);
           return (
             <div className={s.info} role="dialog" aria-label={copy.map.relation.title}>
@@ -348,15 +260,15 @@ export function MapCanvasSection({ workId, selected, onToggle }: { workId: strin
                 </button>
               </div>
               <p className={s.relationPair}>
-                <button type="button" className={s.textBtn} onClick={() => openStar(a.id)} aria-label={copy.map.relation.open(a.name)}>
+                <button type="button" className={s.textBtn} onClick={() => focusStar(a.id)} aria-label={copy.map.relation.open(a.name)}>
                   <StarShape kind={a.kind} /> {a.name}
                 </button>
                 <span aria-hidden="true">{d === 'out' ? '→' : d === 'in' ? '←' : '—'}</span>
-                <button type="button" className={s.textBtn} onClick={() => openStar(b.id)} aria-label={copy.map.relation.open(b.name)}>
+                <button type="button" className={s.textBtn} onClick={() => focusStar(b.id)} aria-label={copy.map.relation.open(b.name)}>
                   <StarShape kind={b.kind} /> {b.name}
                 </button>
               </p>
-              <p>{relation.label ?? (relation.kind === 'co_occur' ? copy.map.info.coTimes(relation.weight) : copy.map.info.noLabel)}</p>
+              <p>{relationText(relation)}</p>
               <p className={s.muted}>
                 {copy.map.relation.kind}: {linkKindText(relation)}
               </p>

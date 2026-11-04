@@ -161,6 +161,10 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - 홈 대표 영역 `screens/home/sections/UniverseMapSection.tsx` + 미리보기 `components/StarMapPreview.tsx`
 - 설정집 `?item=id`로 그 항목으로 이동·강조. 시작 화면 대표 카드 `screens/start/ConstellationArt.tsx`(설명용 장식 그림)
 
+## 3-13. 우주 지도 가독성·사용성
+- 이름 배치 `src/features/map/labels.ts`(겹침 없는 배치, 단위 테스트), 관계 계산 `features/map/relations.ts`, 체험 설계 `features/map/demoDesign.ts`
+- 지도 상태(가리킨 별·관계선·연결 추가·지도 이동 요청)는 `screens/map/MapScreen.tsx`가 갖고 지도와 패널이 함께 씀. 별 상세는 `sections/StarDetailCard.tsx`
+
 ## 4. 작업 습관
 
 - 단계가 끝나면 `README.md`의 단계 표를 갱신하고, 중요한 판단은 `docs/DECISIONS.md`에 한 줄 추가한다

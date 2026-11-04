@@ -95,6 +95,7 @@
 }
 .infoActions {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--sp-2);
   align-items: center;
   font-weight: 700;
@@ -350,4 +351,86 @@
   color: var(--c-strong);
   font-weight: 600;
   font-size: var(--fs-sm);
+}
+/* 오른쪽 패널: ① 별 고르기 → ② 관계 확인 → ③ 이야기 설계 */
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--c-line);
+}
+.step:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.stepHead {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-md);
+}
+.stepNo {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--c-primary);
+  color: var(--c-on-primary);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.howTo {
+  margin: 0;
+  padding-left: 1.3em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--fs-sm);
+  color: var(--c-sub);
+}
+.among {
+  background: var(--c-paper);
+  border-radius: var(--r-sm);
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-sm);
+}
+.starCard {
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  background: var(--c-card);
+}
+.starCard[open] {
+  border-color: var(--c-strong);
+}
+.starSummary {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  cursor: pointer;
+  list-style-position: inside;
+}
+.starBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: 0 var(--sp-3) var(--sp-3);
+  font-size: var(--fs-sm);
+}
+.textBtnOn {
+  text-decoration: underline;
+  font-weight: 700;
+  color: var(--c-strong);
+}
+.pending {
+  background: var(--c-ai-bg);
+  color: var(--c-ink);
+  border-radius: var(--r-sm);
+  padding: var(--sp-2);
+  font-size: var(--fs-xs);
+  line-height: 1.55;
 }
