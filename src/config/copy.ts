@@ -318,6 +318,8 @@ export const copy = {
       aiNoSave: 'AI 제안은 어디에도 자동으로 저장되지 않아요. 마음에 드는 내용만 직접 원고나 설정집에 옮겨 주세요.',
       step1: '별 고르기',
       clearAll: '모두 빼기',
+      connectTwo: (a: string, b: string) => `「${a}」과(와) 「${b}」 잇기`,
+      connectHint: '두 별을 이으려면 별을 두 개만 고르거나, 아래 카드의 "연결 추가"를 누르세요.',
       cleared: (n: number) => `고른 별 ${n}개를 비웠어요.`,
       undo: '되돌리기',
       jump: (name: string) => `「${name}」 자세히 보기 ↓`,

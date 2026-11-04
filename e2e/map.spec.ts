@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { labelOverlaps, prepare, SAMPLE } from './fixtures/app';
+import { labelOverlaps, MINE, prepare, SAMPLE } from './fixtures/app';
 
 const star = (page: import('@playwright/test').Page, name: string) => page.locator(`[data-star][aria-label^="${name}"]`);
 
@@ -56,4 +56,16 @@ test.describe('우주 지도', () => {
     await expect(page.locator('#step2')).toBeFocused();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   });
+});
+
+test('내 작품: 별 두 개를 고르면 ②에서 바로 잇기', async ({ page }) => {
+  const { db } = await prepare(page, { user: true, mine: true });
+  await page.goto(`#/w/${MINE}/map`);
+  await star(page, '리안').click();
+  await star(page, '세린').click();
+  await page.getByRole('button', { name: '「리안」과(와) 「세린」 잇기' }).click();
+  await page.getByPlaceholder('관계 이름(예: 편지를 쓴 사람)').fill('스승과 제자');
+  await page.getByRole('button', { name: '연결하기' }).click();
+  await expect(page.getByText('연결선을 추가했어요.')).toBeVisible();
+  expect(db.T.links.filter((l) => l.work_id === MINE && l.kind === 'manual').map((l) => l.label)).toEqual(['스승과 제자']);
 });

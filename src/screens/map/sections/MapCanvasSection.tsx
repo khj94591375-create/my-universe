@@ -34,20 +34,22 @@ export type MapFocus = {
   /** 연결 추가를 시작한 별 */
   linkFrom: string | null;
   setLinkFrom: (id: string | null) => void;
+  /** 연결 추가의 두 번째 별(둘 다 정해지면 지도 위에 관계 입력 칸) */
+  linkTo: string | null;
+  setLinkTo: (id: string | null) => void;
   /** 패널에서 별을 고르면 지도를 그 별로 옮긴다(n은 같은 별을 다시 눌러도 움직이게) */
   center: { id: string; n: number } | null;
   centerOn: (id: string) => void;
 };
 
 export function MapCanvasSection({ workId, selected, onToggle, onClear, focus }: { workId: string; selected: string[]; onToggle: (id: string) => void; onClear: () => void; focus: MapFocus }) {
-  const { focusId: infoId, setFocusId: setInfoId, linkId, setLinkId, linkFrom, setLinkFrom, center } = focus;
+  const { focusId: infoId, setFocusId: setInfoId, linkId, setLinkId, linkFrom, setLinkFrom, linkTo, setLinkTo, center } = focus;
   const { data } = useWorkData(workId);
   const { work } = useWork(workId);
   const canWrite = useCanWrite(work);
   const [view, setView] = useState<MapView>(MAP_HOME);
   const [kinds, setKinds] = useState<Set<ItemKind>>(new Set(KINDS));
   const [query, setQuery] = useState('');
-  const [linkTo, setLinkTo] = useState<string | null>(null);
   const [label, setLabel] = useState('');
   const [dir, setDir] = useState<'both' | 'forward' | 'backward'>('both');
   const [removing, setRemoving] = useState<string | null>(null);

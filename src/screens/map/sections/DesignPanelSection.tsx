@@ -140,6 +140,18 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
           <p className={s.muted}>{copy.map.panel.step2Empty}</p>
         ) : (
           <>
+            {canWrite && chosen.length === 2 && (
+              <Button
+                block
+                onClick={() => {
+                  focus.setLinkFrom(chosen[0].id);
+                  focus.setLinkTo(chosen[1].id);
+                }}
+              >
+                {copy.map.panel.connectTwo(chosen[0].name, chosen[1].name)}
+              </Button>
+            )}
+            {canWrite && chosen.length > 2 && <p className={s.muted}>{copy.map.panel.connectHint}</p>}
             {chosen.length > 1 && (
               <div className={s.among}>
                 <h3 className={s.ideaSub}>{copy.map.panel.among}</h3>

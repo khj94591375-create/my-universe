@@ -4,6 +4,7 @@ import { Column, Columns, ScreenLayout } from '../../components/ScreenLayout';
 import { EmptyState } from '../../components/EmptyState';
 import { copy } from '../../config/copy';
 import { showToast } from '../../components/Toast';
+import s from './MapScreen.module.css';
 import { art } from '../../config/art';
 import { useWorkData } from '../../features/works/workData';
 import { WorkDataGate } from '../shared/WorkDataGate';
@@ -46,6 +47,7 @@ export default function MapScreen() {
   const [focusId, setFocusId] = useState<string | null>(null);
   const [linkId, setLinkId] = useState<string | null>(null);
   const [linkFrom, setLinkFrom] = useState<string | null>(null);
+  const [linkTo, setLinkTo] = useState<string | null>(null);
   const [center, setCenter] = useState<{ id: string; n: number } | null>(null);
   const focus: MapFocus = {
     focusId,
@@ -54,6 +56,8 @@ export default function MapScreen() {
     setLinkId,
     linkFrom,
     setLinkFrom,
+    linkTo,
+    setLinkTo,
     center,
     centerOn: (id) => setCenter((c) => ({ id, n: (c?.n ?? 0) + 1 })),
   };
@@ -70,7 +74,9 @@ export default function MapScreen() {
                 <MapCanvasSection workId={workId} selected={selected} onToggle={toggle} onClear={clearAll} focus={focus} />
               </Column>
               <Column>
+                <div className={s.sticky}>
                 <DesignPanelSection workId={workId} selected={selected} onRemove={toggle} onClear={clearAll} focus={focus} />
+                </div>
               </Column>
             </Columns>
           )

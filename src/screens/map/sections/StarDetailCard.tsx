@@ -55,6 +55,18 @@ export function StarDetailCard({
         <KindTag kind={item.kind} />
       </summary>
       <div className={s.starBody}>
+        <div className={s.infoActions}>
+          <Link to={`/w/${workId}/bible?item=${item.id}`}>{copy.map.info.toBible}</Link>
+          <Link to={`/w/${workId}/forgot?item=${item.id}`}>{copy.map.info.guide}</Link>
+          {canWrite && (
+            <Button variant="ghost" size="sm" onClick={() => focus.setLinkFrom(item.id)}>
+              {copy.map.info.addLink}
+            </Button>
+          )}
+          <Button variant="ghost" size="sm" onClick={() => onRemove(item.id)}>
+            {copy.map.info.removeFromPlan}
+          </Button>
+        </div>
         {item.note ? <p>{item.note}</p> : <p className={s.muted}>{copy.map.panel.noNote}</p>}
         <div className={s.stateRow}>
           {(item.kind === 'foreshadow' || item.status === 'reuse_planned') && <StatusTag status={item.status} />}
@@ -134,18 +146,6 @@ export function StarDetailCard({
               })}
             </ul>
           )}
-        </div>
-        <div className={s.infoActions}>
-          <Link to={`/w/${workId}/bible?item=${item.id}`}>{copy.map.info.toBible}</Link>
-          <Link to={`/w/${workId}/forgot?item=${item.id}`}>{copy.map.info.guide}</Link>
-          {canWrite && (
-            <Button variant="ghost" size="sm" onClick={() => focus.setLinkFrom(item.id)}>
-              {copy.map.info.addLink}
-            </Button>
-          )}
-          <Button variant="ghost" size="sm" onClick={() => onRemove(item.id)}>
-            {copy.map.info.removeFromPlan}
-          </Button>
         </div>
       </div>
     </details>
