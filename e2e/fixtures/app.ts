@@ -13,7 +13,9 @@ const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
 const supabaseUrl = /VITE_SUPABASE_URL=(\S+)/.exec(readFileSync('.env.example', 'utf8'))?.[1] ?? '';
 const storageKey = `sb-${new URL(supabaseUrl).hostname.split('.')[0]}-auth-token`;
 
-export type Options = { user?: boolean; theme?: 'light' | 'dark'; mine?: boolean };
+export type Options = { user?: boolean; theme?: 'light' | 'dark'; mine?: boolean; /** 별 n개짜리 큰 예시 작품(BIG)을 만든다 */ big?: number };
+export const BIG = 'bbbbbbbb-0000-4000-8000-000000000100';
+const NAMES = ['리안', '세린', '검은 망토의 노인', '반쪽짜리 은열쇠', '달빛 서고의 규칙', '금서 구역', '사라진 13번째 서가', '푸른 잉크의 편지', '등불', '왕립 천문대 지하 보관실'];
 
 export async function prepare(page: Page, opts: Options = {}) {
   const db = makeDb(opts.user ? USER : null);
@@ -24,6 +26,19 @@ export async function prepare(page: Page, opts: Options = {}) {
       const id = it.id.replace('8001', '9001');
       db.T.items.push({ ...it, id, work_id: MINE, status: 'open' });
     }
+  }
+  if (opts.big) {
+    // 이름 길이가 섞이고 관계가 많은 가짜 작품(읽기 전용 예시로)
+    const n = opts.big;
+    db.T.works.push({ id: BIG, owner_id: null, title: `큰 작품 ${n}`, genre: '판타지', is_sample: true, art_style: null, created_at: '2026-10-28T00:00:00Z' });
+    const kinds = ['character', 'setting', 'foreshadow'];
+    const ids = Array.from({ length: n }, (_, i) => `bbbbbbbb-0000-4000-9000-${String(i).padStart(12, '0')}`);
+    ids.forEach((id, i) => db.T.items.push({ id, work_id: BIG, kind: kinds[i % 3], name: `${NAMES[i % NAMES.length]}${i >= NAMES.length ? ` ${i}` : ''}`, note: null, look: null, status: 'open', source: 'manual', confirmed: true, reference_image_path: null, created_at: '' }));
+    for (let i = 0; i < n; i++)
+      for (const j of [1, 2]) {
+        const [a, b] = [ids[i], ids[(i * 7 + j * 13) % n]].sort();
+        if (a !== b && !db.T.links.some((l) => l.a === a && l.b === b)) db.T.links.push({ id: `${a}-${b}`, work_id: BIG, a, b, kind: j === 1 ? 'manual' : 'co_occur', label: j === 1 ? '관계' : null, weight: 2, evidence: null, direction: 'none' });
+      }
   }
   const writes: string[] = [];
   page.on('request', (r) => {

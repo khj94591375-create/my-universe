@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { Column, Columns, ScreenLayout } from '../../components/ScreenLayout';
 import { EmptyState } from '../../components/EmptyState';
@@ -62,6 +62,38 @@ export default function MapScreen() {
     centerOn: (id) => setCenter((c) => ({ id, n: (c?.n ?? 0) + 1 })),
   };
 
+  // 지도 크게 보기: 같은 지도를 화면 전체로 키운다(다시 만들지 않아 고른 별·확대·위치 유지)
+  const [expanded, setExpanded] = useState(false);
+  const mapArea = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!expanded) return;
+    // Esc는 먼저 크게 보기를 끈다(고른 별은 그대로)
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      e.stopPropagation();
+      setExpanded(false);
+    };
+    window.addEventListener('keydown', onKey, true);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    // 뒤에 가려진 화면(메뉴·패널)은 Tab으로 가지 않게 잠시 비활성(알림은 제외)
+    const inerted: Element[] = [];
+    for (let el: HTMLElement | null = mapArea.current; el && el.parentElement && el !== document.body; el = el.parentElement)
+      for (const sib of el.parentElement.children)
+        if (sib !== el && !sib.hasAttribute('inert') && !sib.hasAttribute('aria-live')) {
+          sib.setAttribute('inert', '');
+          inerted.push(sib);
+        }
+    mapArea.current?.focus();
+    return () => {
+      window.removeEventListener('keydown', onKey, true);
+      document.body.style.overflow = overflow;
+      inerted.forEach((x) => x.removeAttribute('inert'));
+      document.getElementById('map-expand')?.focus();
+    };
+  }, [expanded]);
+
   return (
     <ScreenLayout tip="map" eyebrow={copy.map.eyebrow} title={copy.map.title}>
       <WorkDataGate workId={workId}>
@@ -71,10 +103,18 @@ export default function MapScreen() {
           ) : (
             <Columns ratio="1.75fr 1fr">
               <Column>
-                <MapCanvasSection workId={workId} selected={selected} onToggle={toggle} onClear={clearAll} focus={focus} />
+                <div
+                  ref={mapArea}
+                  className={expanded ? s.expanded : undefined}
+                  tabIndex={-1}
+                  role={expanded ? 'region' : undefined}
+                  aria-label={expanded ? copy.map.expand.region : undefined}
+                >
+                  <MapCanvasSection workId={workId} selected={selected} onToggle={toggle} onClear={clearAll} focus={focus} expanded={expanded} onExpand={setExpanded} />
+                </div>
               </Column>
               <Column>
-                <div className={s.sticky}>
+                <div className={s.sticky} hidden={expanded}>
                 <DesignPanelSection workId={workId} selected={selected} onRemove={toggle} onClear={clearAll} focus={focus} />
                 </div>
               </Column>

@@ -9,3 +9,20 @@
     overscroll-behavior: contain;
   }
 }
+/* 지도 크게 보기: 화면 전체(휴대폰 포함). 알림(Toast)보다 아래 */
+.expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: var(--c-paper);
+  padding: var(--sp-3);
+  display: flex;
+  flex-direction: column;
+}
+.expanded:focus {
+  outline: none;
+}
+.expanded > * {
+  flex: 1;
+  min-height: 0;
+}

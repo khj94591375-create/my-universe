@@ -13,6 +13,9 @@ import s from './StarMap.module.css';
  * 색은 StarMap.module.css의 토큰만 쓴다.
  */
 
+/** 아무것도 고르지 않았을 때 한 번에 보여 줄 관계 이름 수 */
+const MAX_LINK_LABELS = 15;
+
 export type MapView = { k: number; x: number; y: number };
 export const MAP_HOME: MapView = { k: 1, x: 0, y: 0 };
 
@@ -225,20 +228,25 @@ export function StarMap({
   }, [items, pos, ks, anchorKey, blocked]);
   const linkLabels = useMemo(() => {
     const cands = links
-      .filter((l) => l.label && l.kind !== 'co_occur' && (!focusMode || lit.has(l.id)))
+      // 고른 별이 있으면 그 별의 관계만. 없으면 두 별 이름이 모두 보이는 관계만(별이 많을 때 관계 이름이 지도를 덮지 않게)
+      .filter((l) => l.label && l.kind !== 'co_occur' && (focusMode ? lit.has(l.id) : starLabels.has(l.a) && starLabels.has(l.b)))
       .map((l) => {
         const g = geometry(l);
         return g ? { id: l.id, text: l.label as string, at: (t: number) => pointOnCurve(g.p0, g.c, g.p1, t), force: activeLinkId === l.id } : null;
       })
       .filter((x): x is NonNullable<typeof x> => x != null);
     const taken = [...blocked, ...starLabels.values(), ...items.map((i) => { const q = center(pos.get(i.id)); return circleBox(q.x, q.y, starRadius(i.mention_count)); })];
-    return placeLinkLabels(cands, ks, taken);
+    const placed = placeLinkLabels(cands, ks, taken);
+    if (focusMode) return placed;
+    // 아무것도 고르지 않았을 때는 관계 이름을 최대 15개까지만
+    return new Map([...placed].slice(0, MAX_LINK_LABELS));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [links, starLabels, ks, activeLinkId, anchorKey]);
 
   const fs = LABEL_FONT / ks;
   const lfs = LINK_FONT / ks;
-  const tipItem = near ? byId.get(near) : null;
+  // 이름표는 마우스·키보드로 가리킬 때만(고른 별은 오른쪽 창·간단 정보 카드에서 본다)
+  const tipItem = hover ? byId.get(hover) : null;
 
   return (
     <svg
@@ -356,6 +364,7 @@ export function StarMap({
             <g
               key={i.id}
               data-star
+              data-id={i.id}
               tabIndex={0}
               role="button"
               aria-pressed={isSel}

@@ -119,14 +119,9 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
                 {copy.map.panel.clearAll}
               </Button>
             </div>
-            <p className={s.muted}>{copy.map.panel.resetHint}</p>
           </>
         ) : (
-          <ol className={s.howTo}>
-            {copy.map.panel.howTo.map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ol>
+          <p className={s.muted}>{copy.map.panel.intro}</p>
         )}
       </section>
 
@@ -233,16 +228,20 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
         <Button variant="accent" block disabled={!usable || chosen.length === 0} loading={designing} title={reason ?? undefined} onClick={design}>
           {designing ? copy.map.panel.designing : result ? copy.map.panel.again : copy.map.panel.design}
         </Button>
-        {reason && <p className={s.muted}>{reason}</p>}
-        {isSample && (
+        {isSample ? (
           <>
             <Button variant={chosen.length ? 'primary' : 'ghost'} block disabled={chosen.length === 0} onClick={() => setDemo(true)}>
               {copy.map.demo.button}
             </Button>
-            <p className={s.muted}>{copy.map.demo.hint}</p>
+            {/* 예시 작품: 읽기 전용·체험·저장 안 됨을 한 줄로(로그인 안내와 겹치지 않게) */}
+            <p className={s.muted}>{copy.map.panel.sampleNote}</p>
+          </>
+        ) : (
+          <>
+            {reason && <p className={s.muted}>{reason}</p>}
+            <p className={s.muted}>{copy.map.panel.aiNoSave}</p>
           </>
         )}
-        <p className={s.muted}>{copy.map.panel.aiNoSave}</p>
 
         {shown && (
           <div className={s.panelBlock}>
@@ -306,7 +305,7 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
             </form>
           </div>
         ) : (
-          !isDemo && <p className={s.chatNote}>{copy.map.panel.chat}</p>
+          usable && <p className={s.chatNote}>{copy.map.panel.chat}</p>
         )}
       </section>
     </Card>

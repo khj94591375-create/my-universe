@@ -1,16 +1,16 @@
-import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Button } from '../../../components/Button';
 import { MAP_HOME, StarMap, viewFocusing, type MapView } from '../../../components/StarMap';
 import { StarShape } from '../../../components/StarShape';
 import { SelectField, TextField } from '../../../components/TextField';
 import { ConfirmBar } from '../../../components/ConfirmBar';
-import { EvidenceQuote } from '../../../components/Badges';
+import { AiBadge, EvidenceQuote, GapTag, KindTag, StatusTag } from '../../../components/Badges';
 import { showToast } from '../../../components/Toast';
 import { copy } from '../../../config/copy';
 import { limits } from '../../../config/limits';
 import { addManualLink, deleteLink } from '../../../data/items';
 import { directionFor } from '../../../features/map/links';
-import { episodesOf, linkKindText, relationText } from '../../../features/map/relations';
+import { episodesOf, linkedOf, linkKindText, relationText } from '../../../features/map/relations';
 import { aiResolveEps, FORGOTTEN_GAP } from '../../../features/map/stars';
 import type { ItemKind, Link as LinkRow } from '../../../data/types';
 import { save } from '../../../features/works/save';
@@ -42,7 +42,24 @@ export type MapFocus = {
   centerOn: (id: string) => void;
 };
 
-export function MapCanvasSection({ workId, selected, onToggle, onClear, focus }: { workId: string; selected: string[]; onToggle: (id: string) => void; onClear: () => void; focus: MapFocus }) {
+export function MapCanvasSection({
+  workId,
+  selected,
+  onToggle,
+  onClear,
+  focus,
+  expanded = false,
+  onExpand,
+}: {
+  workId: string;
+  selected: string[];
+  onToggle: (id: string) => void;
+  onClear: () => void;
+  focus: MapFocus;
+  /** 지도 크게 보기 중인지 */
+  expanded?: boolean;
+  onExpand?: (on: boolean) => void;
+}) {
   const { focusId: infoId, setFocusId: setInfoId, linkId, setLinkId, linkFrom, setLinkFrom, linkTo, setLinkTo, center } = focus;
   const { data } = useWorkData(workId);
   const { work } = useWork(workId);
@@ -60,6 +77,16 @@ export function MapCanvasSection({ workId, selected, onToggle, onClear, focus }:
     const ids = new Set(items.map((i) => i.id));
     return data.links.filter((l) => ids.has(l.a) && ids.has(l.b) && (l.kind !== 'co_occur' || l.weight >= limits.mapCoOccurMin));
   }, [data, items]);
+  // 크게 보기 간단 정보 카드는 고른 별의 반대쪽(별을 가리지 않게)
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [cardRight, setCardRight] = useState(false);
+  const quickKey = expanded ? (infoId ?? selected[selected.length - 1] ?? '') : '';
+  useEffect(() => {
+    if (!quickKey) return;
+    const box = canvasRef.current?.getBoundingClientRect();
+    const st = canvasRef.current?.querySelector(`[data-id="${quickKey}"]`)?.getBoundingClientRect();
+    if (box && st) setCardRight(st.left + st.width / 2 - box.left < box.width / 2);
+  }, [quickKey, view]);
   useEffect(() => {
     if (center) setView(viewFocusing(items, links, center.id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -110,6 +137,10 @@ export function MapCanvasSection({ workId, selected, onToggle, onClear, focus }:
   const relation = linkId ? data.links.find((l) => l.id === linkId) : null;
   const jumpId = infoId && selected.includes(infoId) ? infoId : selected[selected.length - 1];
   const jumpItem = jumpId ? data.itemById.get(jumpId) : null;
+  // 크게 보기 간단 정보: 지금 살펴보는 별(검색으로 찾은 별 포함), 없으면 마지막으로 고른 별
+  const quick = (infoId ? data.itemById.get(infoId) : null) ?? jumpItem;
+  const quickLinks = quick ? linkedOf(data, quick.id) : [];
+  const quickRelated = [...new Map(quickLinks.filter((x) => x.other.kind === 'foreshadow').map((x) => [x.other.id, x.other])).values()].slice(0, 3);
   const from = linkFrom ? data.itemById.get(linkFrom) : null;
   const to = linkTo ? data.itemById.get(linkTo) : null;
 
@@ -162,7 +193,7 @@ export function MapCanvasSection({ workId, selected, onToggle, onClear, focus }:
   };
 
   return (
-    <div className={s.wrap} onKeyDown={onKeyDown}>
+    <div className={expanded ? `${s.wrap} ${s.wrapExpanded}` : s.wrap} onKeyDown={onKeyDown}>
       <div className={s.toolbar}>
         <div className={s.kinds} role="group" aria-label={copy.map.show}>
           {KINDS.map((k) => (
@@ -194,6 +225,11 @@ export function MapCanvasSection({ workId, selected, onToggle, onClear, focus }:
           </Button>
         </form>
         <div className={s.zoom}>
+          {onExpand && (
+            <Button id="map-expand" variant={expanded ? 'primary' : 'ghost'} size="sm" onClick={() => onExpand(!expanded)} aria-pressed={expanded}>
+              {expanded ? copy.map.expand.exit : copy.map.expand.enter}
+            </Button>
+          )}
           <Button variant="ghost" size="sm" onClick={() => zoom(1.25)} aria-label={copy.map.zoomIn}>
             ＋
           </Button>
@@ -206,7 +242,7 @@ export function MapCanvasSection({ workId, selected, onToggle, onClear, focus }:
         </div>
       </div>
 
-      <div className={s.canvas}>
+      <div className={s.canvas} ref={canvasRef}>
         <StarMap
           title={work?.title ?? ''}
           items={items}
@@ -306,10 +342,45 @@ export function MapCanvasSection({ workId, selected, onToggle, onClear, focus }:
             </div>
           );
         })()}
+
+        {/* 크게 보기: 고른 별의 간단 정보(자세한 내용은 기본 화면 ② 관계 확인) */}
+        {expanded && quick && !relation && !from && (
+          <div className={cardRight ? `${s.quick} ${s.quickRight}` : s.quick} role="status" aria-live="polite">
+            <div className={s.infoHead}>
+              <StarShape kind={quick.kind} size={16} />
+              <strong>{quick.name}</strong>
+              <KindTag kind={quick.kind} />
+            </div>
+            <div className={s.stateRow}>
+              {(quick.kind === 'foreshadow' || quick.status === 'reuse_planned') && <StatusTag status={quick.status} />}
+              {quick.gap != null && <GapTag gap={quick.gap} />}
+              {(quick.source === 'ai' || !quick.confirmed) && <AiBadge />}
+            </div>
+            {quick.note && <p className={s.quickNote}>{quick.note}</p>}
+            <p className={s.muted}>
+              {copy.map.expand.links(quickLinks.length)}
+              {quickRelated.length > 0 && ` · ${copy.map.info.relatedForeshadow}: ${quickRelated.map((f) => f.name).join(', ')}`}
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                onExpand?.(false);
+                window.setTimeout(() => {
+                  const el = document.getElementById('step2');
+                  el?.scrollIntoView({ block: 'start' });
+                  el?.focus({ preventScroll: true });
+                }, 50);
+              }}
+            >
+              {copy.map.expand.more}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* 휴대폰·좁은 화면: 별을 고르면 아래 설명(② 관계 확인)으로 바로 가는 띠 */}
-      {jumpItem && (
+      {jumpItem && !expanded && (
         <button
           type="button"
           className={s.jumpBar}
@@ -340,7 +411,7 @@ export function MapCanvasSection({ workId, selected, onToggle, onClear, focus }:
           <i className={s.lManual} /> {copy.map.legendManual}
         </span>
       </div>
-      <details className={s.legendMore}>
+      <details className={s.legendMore} hidden={expanded}>
         <summary>{copy.map.legend.shapes}</summary>
         <ul>
           <li>{copy.map.legend.size}</li>
@@ -350,6 +421,9 @@ export function MapCanvasSection({ workId, selected, onToggle, onClear, focus }:
           <li>{copy.map.legend.aiResolve}</li>
           <li>{copy.map.legend.lines}</li>
           <li>{copy.map.weakLinks(limits.mapCoOccurMin)}</li>
+          <li>{copy.map.legend.zoom}</li>
+          <li>{copy.map.legend.reset}</li>
+          <li>{copy.map.legend.expand}</li>
           <li>{copy.map.legend.keys}</li>
         </ul>
       </details>
