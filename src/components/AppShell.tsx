@@ -45,10 +45,13 @@ export function AppShell() {
         >
           {copy.shell.skip}
         </a>
-        <Link to={session ? '/works' : '/'} className={s.brand} title={session ? copy.common.back : copy.common.toStart}>
-          <BrandMark />
-          <b>{copy.brand.name}</b>
-        </Link>
+        <div className={s.brandRow}>
+          <Link to={session ? '/works' : '/'} className={s.brand} title={session ? copy.common.back : copy.common.toStart}>
+            <BrandMark />
+            <b>{copy.brand.name}</b>
+          </Link>
+          <ThemeToggle compact className={s.theme} />
+        </div>
         {work && (
           <div className={s.work}>
             {copy.shell.current}
@@ -72,7 +75,6 @@ export function AppShell() {
         <div className={s.foot}>
           <span className={s.principle}>{copy.brand.principle}</span>
           <AccountMenu />
-          <ThemeToggle className={s.theme} />
         </div>
       </aside>
       <main className={s.main} id="main" tabIndex={-1}>

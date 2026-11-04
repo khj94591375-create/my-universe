@@ -17,3 +17,11 @@
 .toggle:hover {
   background: var(--c-shell-active);
 }
+.compact {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  justify-content: center;
+  flex: none;
+}
