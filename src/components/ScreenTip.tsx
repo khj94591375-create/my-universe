@@ -1,5 +1,7 @@
 import { copy } from '../config/copy';
-import { screenTips, type TipId } from '../config/guide';
+import { screenTips, tipArt, type TipId } from '../config/guide';
+import { art } from '../config/art';
+import { ArtImage } from './ArtImage';
 import { ALL_TIPS } from '../features/guide/guideData';
 import { useGuideState, useTourOpen } from '../features/guide/guideState';
 import s from './ScreenTip.module.css';
@@ -11,9 +13,13 @@ export function ScreenTip({ id }: { id: TipId }) {
   if (tourOpen || guide.tipSeen(id)) return null;
   return (
     <aside className={s.tip} aria-label={copy.guide.tipLabel}>
-      <span className={s.mark} aria-hidden="true">
-        ?
-      </span>
+      {tipArt[id] ? (
+        <ArtImage art={art.feature[tipArt[id]]} className={s.thumb} />
+      ) : (
+        <span className={s.mark} aria-hidden="true">
+          ?
+        </span>
+      )}
       <p className={s.text}>{screenTips[id]}</p>
       <div className={s.actions}>
         <button type="button" className={s.btn} onClick={() => guide.dismissTip(ALL_TIPS)}>

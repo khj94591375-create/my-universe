@@ -7,6 +7,7 @@ import { Loading } from '../../components/Loading';
 import { BrandMark } from '../../components/BrandMark';
 import { AccountMenu } from '../../components/AccountMenu';
 import { copy } from '../../config/copy';
+import { art } from '../../config/art';
 import { usePageTitle } from '../../lib/usePageTitle';
 import { getSampleWork, listMyWorks } from '../../data/works';
 import { toMessage } from '../../data/errors';
@@ -84,6 +85,7 @@ export default function WorksScreen() {
           <>
             {state.mine.length === 0 && !creating ? (
               <EmptyState
+                art={art.emptyCollection}
                 title={copy.works.emptyTitle}
                 body={copy.works.emptyBody}
                 action={<Button variant="accent" onClick={() => setCreating(true)}>{copy.works.newWork}</Button>}

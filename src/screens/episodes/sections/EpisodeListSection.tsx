@@ -2,6 +2,7 @@ import { Card } from '../../../components/Card';
 import { EmptyState } from '../../../components/EmptyState';
 import { Tag } from '../../../components/Tag';
 import { copy } from '../../../config/copy';
+import { art } from '../../../config/art';
 import { useWorkData } from '../../../features/works/workData';
 import s from './episodes.module.css';
 
@@ -9,7 +10,7 @@ import s from './episodes.module.css';
 export function EpisodeListSection({ workId, openNo, onOpen }: { workId: string; openNo: number | null; onOpen: (no: number) => void }) {
   const { data } = useWorkData(workId);
   if (!data) return null;
-  if (data.episodes.length === 0) return <EmptyState title={copy.episodes.empty} />;
+  if (data.episodes.length === 0) return <EmptyState art={art.emptyAnalysis} title={copy.episodes.empty} />;
   return (
     <Card>
       <ul className={s.list}>

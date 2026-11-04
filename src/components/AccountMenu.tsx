@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { copy } from '../config/copy';
 import { signOut } from '../features/auth/auth';
 import { useSession } from '../features/auth/SessionProvider';
+import { Icon } from './Icon';
 import s from './AccountMenu.module.css';
 
 /**
@@ -24,11 +25,15 @@ export function AccountMenu({ tone = 'navy' }: { tone?: 'navy' }) {
   return (
     <div className={`${s.menu} ${s[tone]}`} role="group" aria-label={copy.shell.account}>
       <span className={s.email} title={email}>
+        <Icon name="user" size={14} className={s.icon} />
         <span className={s.srOnly}>{copy.shell.signedIn}: </span>
         {email}
       </span>
       <span className={s.links}>
-        <Link to="/settings">{copy.settings.title}</Link>
+        <Link to="/settings">
+          <Icon name="settings" size={14} className={s.icon} />
+          {copy.settings.title}
+        </Link>
         <button
           type="button"
           className={s.logout}
@@ -42,6 +47,7 @@ export function AccountMenu({ tone = 'navy' }: { tone?: 'navy' }) {
             }
           }}
         >
+          <Icon name="logout" size={14} className={s.icon} />
           {copy.settings.logout}
         </button>
       </span>

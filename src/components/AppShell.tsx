@@ -11,6 +11,7 @@ import { Loading } from './Loading';
 import { ErrorState } from './ErrorState';
 import { WorkTitleContext } from './workTitle';
 import { AccountMenu } from './AccountMenu';
+import { Icon } from './Icon';
 import s from './AppShell.module.css';
 
 /**
@@ -57,7 +58,7 @@ export function AppShell() {
         <nav className={s.nav} aria-label="작품 메뉴">
           {workNav.map((n) => (
             <NavLink key={n.path} to={`/w/${workId}/${n.path}`} className={({ isActive }) => (isActive ? `${s.link} ${s.active}` : s.link)}>
-              <i aria-hidden="true">{n.icon}</i>
+              <Icon name={n.icon} className={s.icon} />
               {n.label}
               {n.path === 'review' && pending > 0 && (
                 <span className={s.badge} aria-label={copy.shell.pending(pending)}>

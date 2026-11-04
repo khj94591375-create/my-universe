@@ -202,3 +202,21 @@
   margin: 4px 0 0;
   padding-left: 1.2em;
 }
+.waiting {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+}
+.waiting > :last-child {
+  flex: 1;
+  min-width: 0;
+}
+.waitingArt {
+  width: 200px;
+  flex: none;
+}
+@media (max-width: 600px) {
+  .waitingArt {
+    width: 96px;
+  }
+}

@@ -7,6 +7,8 @@ import { WriteButton } from '../../../components/WriteButton';
 import { Tag } from '../../../components/Tag';
 import { copy } from '../../../config/copy';
 import { limits } from '../../../config/limits';
+import { art } from '../../../config/art';
+import { ArtImage } from '../../../components/ArtImage';
 import { saveEpisodes, type BatchResult, type BatchRow } from '../../../features/analysis/runRules';
 import { parseManuscript } from '../../../features/manuscript/parse';
 import { ACCEPT, ManuscriptError, extractText } from '../../../features/manuscript/readFile';
@@ -271,9 +273,12 @@ export function FileUploadSection({ workId }: { workId: string }) {
         )}
 
         {aiProgress && (
-          <p className={s.progress} role="status" aria-live="polite">
-            {aiProgress}
-          </p>
+          <div className={s.waiting}>
+            <ArtImage art={art.loading} className={s.waitingArt} />
+            <p className={s.progress} role="status" aria-live="polite">
+              {aiProgress}
+            </p>
+          </div>
         )}
 
         {aiFailed.length > 0 && !aiProgress && (
@@ -296,10 +301,13 @@ export function FileUploadSection({ workId }: { workId: string }) {
         )}
 
         {progress && (
-          <div className={s.progress} role="status" aria-live="polite">
-            <p>{copy.upload.progress(progress.done, progress.total, progress.no)}</p>
-            <div className={s.bar}>
-              <span style={{ width: `${Math.round((progress.done / progress.total) * 100)}%` }} />
+          <div className={s.waiting}>
+            <ArtImage art={art.loading} className={s.waitingArt} />
+            <div className={s.progress} role="status" aria-live="polite">
+              <p>{copy.upload.progress(progress.done, progress.total, progress.no)}</p>
+              <div className={s.bar}>
+                <span style={{ width: `${Math.round((progress.done / progress.total) * 100)}%` }} />
+              </div>
             </div>
           </div>
         )}

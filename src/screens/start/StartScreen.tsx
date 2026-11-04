@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/Button';
+import { ArtImage, ThemedArtImage } from '../../components/ArtImage';
+import { art, featureOrder } from '../../config/art';
 import { copy } from '../../config/copy';
 import { usePageTitle } from '../../lib/usePageTitle';
 import { SAMPLE_WORK_ID } from '../../config/sample';
@@ -57,6 +59,9 @@ export default function StartScreen() {
           {message}
         </p>
       </section>
+      <div className={s.heroArt}>
+        <ThemedArtImage art={art.hero} alt={copy.art.hero} eager />
+      </div>
       <section className={s.values}>
         {copy.start.values.map((v) => (
           <div key={v.title} className={s.value}>
@@ -64,6 +69,22 @@ export default function StartScreen() {
             <p>{v.body}</p>
           </div>
         ))}
+      </section>
+      <section className={s.features} aria-labelledby="start-features">
+        <h2 id="start-features" className={s.featuresTitle}>
+          {copy.start.featuresTitle}
+        </h2>
+        <ul className={s.featureList}>
+          {featureOrder.map((k) => (
+            <li key={k} className={s.feature}>
+              <ArtImage art={art.feature[k]} className={s.featureArt} />
+              <div>
+                <h3>{copy.start.features[k].title}</h3>
+                <p>{copy.start.features[k].body}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
       </section>
       <p className={s.notice}>{copy.start.aiNotice}</p>
       <footer className={s.footer}>

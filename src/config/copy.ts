@@ -8,6 +8,9 @@ export const copy = {
     message: '당신의 이야기는 이미 충분히 넓다. 잊었던 별을 다시 찾으면 된다.',
     principle: 'AI는 제안하고, 선택과 집필은 작가가 합니다.',
   },
+  art: {
+    hero: '펼쳐진 책 위로 성과 인물 그림이 떠오르고, 별빛 궤도가 둘러싼 일러스트',
+  },
   start: {
     title: '잊었던 별을 다시 찾는 곳',
     lead: '웹소설 작가의 세계관을 기억하는 AI 작업 공간',
@@ -22,6 +25,14 @@ export const copy = {
     loginHint: '구글 계정 하나로 바로 시작해요. 원고는 나만 볼 수 있어요.',
     loginError: '로그인하지 못했어요. 잠시 후 다시 시도해 주세요.',
     notConfigured: '서버 설정(.env)이 없어 로그인할 수 없어요.',
+    featuresTitle: '메뉴마다 이렇게 도와요',
+    features: {
+      writing: { title: '원고 불러오기', body: '워드·PDF·텍스트 원고를 올리면 인물·설정·복선을 자동으로 정리해요.' },
+      foreshadowing: { title: '잊힌 복선 찾기', body: '오래 잊힌 복선을 찾아 이어 쓸 방향과 원고 속 근거 문장을 보여 줘요.' },
+      worldbuilding: { title: '설정집', body: '캐릭터·설정·복선을 이름, 별칭, 외모까지 한곳에 모아 둬요.' },
+      storyGuide: { title: '우주 지도', body: '관계를 별과 선으로 보고, 별을 골라 다음 회차 장면을 설계해요.' },
+      image: { title: '삽화 스튜디오', body: '설정집에 적은 외모를 그대로 담아 장면 삽화와 표지 시안을 그려요.' },
+    },
     aiNotice: 'AI 분석을 쓰면 원고가 AI 회사(Anthropic·OpenAI) 서버로 전송돼요.',
   },
   works: {

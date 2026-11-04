@@ -4,6 +4,7 @@ import { Card } from '../../../components/Card';
 import { EmptyState } from '../../../components/EmptyState';
 import { TextField } from '../../../components/TextField';
 import { copy } from '../../../config/copy';
+import { art } from '../../../config/art';
 import type { ItemKind } from '../../../data/types';
 import { useWorkData } from '../../../features/works/workData';
 import { ItemRow } from './ItemRow';
@@ -18,7 +19,7 @@ export function ItemListSection({ workId }: { workId: string }) {
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState<Filter>('all');
   if (!data) return null;
-  if (data.items.length === 0) return <EmptyState title={copy.bible.empty} />;
+  if (data.items.length === 0) return <EmptyState art={art.emptyCollection} title={copy.bible.empty} />;
 
   const q = query.trim().toLowerCase();
   const matches = data.items.filter(

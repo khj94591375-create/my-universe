@@ -6,6 +6,8 @@ import { SAMPLE_WORK_ID } from '../config/sample';
 import { useSession } from '../features/auth/SessionProvider';
 import { closeTour, openTour, useGuideState, useTourOpen } from '../features/guide/guideState';
 import { Button } from './Button';
+import { ArtImage, ThemedArtImage } from './ArtImage';
+import { art } from '../config/art';
 import s from './GuideTour.module.css';
 
 /**
@@ -87,8 +89,8 @@ export function GuideTour() {
             {copy.guide.skip}
           </Button>
         </div>
-        <div className={s.icon} aria-hidden="true">
-          {cur.icon}
+        <div className={s.art}>
+          {cur.art === 'hero' ? <ThemedArtImage art={art.hero} eager /> : <ArtImage art={art.feature[cur.art]} eager />}
         </div>
         <h2 id="guide-title" className={s.title}>
           {cur.title}

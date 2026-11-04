@@ -57,7 +57,8 @@ Supabase 대시보드 → **SQL Editor** → **New query**에 아래 파일 내�
 |---|---|
 | 색·글꼴·간격·모서리 | `src/styles/tokens.css` |
 | 버튼 이름·안내 문구 | `src/config/copy.ts` |
-| 메뉴 순서·이름·아이콘 | `src/config/nav.ts` |
+| 메뉴 순서·이름·아이콘 | `src/config/nav.ts`(아이콘 모양은 `src/components/Icon.tsx`) |
+| 일러스트(시작 화면·홈 배너·빈 화면·가이드 그림) | `src/config/art.ts`, 그림 파일 `src/assets/art/` |
 | 처음 사용 가이드·화면별 도움말 | `src/config/guide.ts` |
 | 문의 메일 주소·개인정보처리방침 시행일 | `src/config/site.ts` |
 | 업로드 제한(파일 크기·개수) 등 숫자 | `src/config/limits.ts` |

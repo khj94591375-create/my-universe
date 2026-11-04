@@ -1,5 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '../../components/EmptyState';
+import { ThemedArtImage } from '../../components/ArtImage';
+import { art } from '../../config/art';
+import s from './HomeScreen.module.css';
 import { WriteButton } from '../../components/WriteButton';
 import { Column, Columns, ScreenLayout } from '../../components/ScreenLayout';
 import { copy } from '../../config/copy';
@@ -23,6 +26,7 @@ export default function HomeScreen() {
       {(data) =>
         data.episodes.length === 0 ? (
           <EmptyState
+            art={art.emptyAnalysis}
             title={copy.home.emptyTitle}
             action={
               <WriteButton workId={workId} variant="accent" onClick={() => nav(`/w/${workId}/upload`)}>
@@ -32,6 +36,9 @@ export default function HomeScreen() {
           />
         ) : (
           <ScreenLayout tip="home" eyebrow={copy.home.eyebrow} title={copy.home.nextTitle(data.next)} action={<SlumpButton workId={workId} />}>
+            <div className={s.banner}>
+              <ThemedArtImage art={art.dashboard} />
+            </div>
             <Columns>
               <Column>
                 <ForgottenListSection workId={workId} />

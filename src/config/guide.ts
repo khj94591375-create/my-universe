@@ -5,11 +5,14 @@
 
 export type TipId = 'home' | 'upload' | 'review' | 'forgot' | 'map' | 'bible' | 'episodes' | 'studio' | 'eval';
 
-export type TourStep = { icon: string; title: string; lines: string[] };
+import type { FeatureArt } from './art';
+
+/** art: 장마다 보여 줄 그림(src/config/art.ts). 'hero'는 시작 화면 큰 그림 */
+export type TourStep = { art: FeatureArt | 'hero'; title: string; lines: string[] };
 
 export const tourSteps: TourStep[] = [
   {
-    icon: '✦',
+    art: 'hero',
     title: 'My Universe에 오신 걸 환영해요',
     lines: [
       '연재하면서 늘어나는 인물·설정·복선을 대신 기억해 드려요.',
@@ -18,7 +21,7 @@ export const tourSteps: TourStep[] = [
     ],
   },
   {
-    icon: '▤',
+    art: 'worldbuilding',
     title: '작품을 만들고 설정집에 이름을 넣어요',
     lines: [
       '작품 목록에서 "새 작품 만들기"를 눌러요.',
@@ -26,7 +29,7 @@ export const tourSteps: TourStep[] = [
     ],
   },
   {
-    icon: '⇪',
+    art: 'writing',
     title: '원고를 올리면 자동으로 정리돼요',
     lines: [
       '워드·PDF·텍스트 파일을 여러 개 한 번에 올리거나, 본문을 붙여 넣어요. 한글(HWP) 파일은 PDF로 저장해서 올려요.',
@@ -34,7 +37,7 @@ export const tourSteps: TourStep[] = [
     ],
   },
   {
-    icon: '⌂',
+    art: 'foreshadowing',
     title: '막혔을 땐 "막혔어요!"를 눌러요',
     lines: [
       '홈에서 다음 회차 번호와 오래 잊힌 복선을 보여 줘요.',
@@ -42,7 +45,7 @@ export const tourSteps: TourStep[] = [
     ],
   },
   {
-    icon: '✧',
+    art: 'storyGuide',
     title: '우주 지도에서 다음 회차를 설계해요',
     lines: [
       '항목은 별, 관계는 선이에요. 오래 잊힐수록 별이 희미해져요.',
@@ -50,6 +53,15 @@ export const tourSteps: TourStep[] = [
     ],
   },
 ];
+
+/** 화면별 도움말 옆 작은 그림(그 메뉴의 기능 그림). 없으면 ? 표시 */
+export const tipArt: Partial<Record<TipId, FeatureArt>> = {
+  upload: 'writing',
+  forgot: 'foreshadowing',
+  map: 'storyGuide',
+  bible: 'worldbuilding',
+  studio: 'image',
+};
 
 export const screenTips: Record<TipId, string> = {
   home: '다음 회차 번호와 오래 잊힌 항목을 보여 줘요. 막히면 오른쪽 위 "막혔어요!"를 눌러 보세요.',

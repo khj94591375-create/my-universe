@@ -48,3 +48,7 @@
   text-decoration: none;
   background: var(--c-white);
 }
+.thumb {
+  flex: none;
+  width: 72px;
+}

@@ -2,6 +2,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { Column, Columns, ScreenLayout } from '../../components/ScreenLayout';
 import { EmptyState } from '../../components/EmptyState';
 import { copy } from '../../config/copy';
+import { art } from '../../config/art';
 import { useWorkData } from '../../features/works/workData';
 import { WorkDataGate } from '../shared/WorkDataGate';
 import { MapCanvasSection } from './sections/MapCanvasSection';
@@ -29,7 +30,7 @@ export default function MapScreen() {
       <WorkDataGate workId={workId}>
         {() =>
           data && data.items.length === 0 ? (
-            <EmptyState title={copy.map.empty} />
+            <EmptyState art={art.emptyCollection} title={copy.map.empty} />
           ) : (
             <Columns ratio="1.75fr 1fr">
               <Column>

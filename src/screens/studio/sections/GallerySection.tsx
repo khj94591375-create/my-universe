@@ -8,6 +8,7 @@ import { Loading } from '../../../components/Loading';
 import { Tag } from '../../../components/Tag';
 import { SelectField } from '../../../components/TextField';
 import { copy } from '../../../config/copy';
+import { art } from '../../../config/art';
 import { deleteStudioImage, setSheetFromImage, signedImageUrls, type StoredImage } from '../../../data/images';
 import { save } from '../../../features/works/save';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
@@ -51,7 +52,7 @@ export function GallerySection({
   return (
     <Card title={copy.studio.galleryTitle}>
       {images.length === 0 ? (
-        <EmptyState title={copy.studio.galleryEmpty} />
+        <EmptyState art={art.emptyCollection} title={copy.studio.galleryEmpty} />
       ) : (
         <ul className={s.gallery}>
           {images.map((img, n) => {

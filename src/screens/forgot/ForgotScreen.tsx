@@ -2,6 +2,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { Column, Columns, ScreenLayout } from '../../components/ScreenLayout';
 import { EmptyState } from '../../components/EmptyState';
 import { copy } from '../../config/copy';
+import { art } from '../../config/art';
 import { useWorkData } from '../../features/works/workData';
 import { SlumpButton } from '../shared/SlumpButton';
 import { WorkDataGate } from '../shared/WorkDataGate';
@@ -24,7 +25,7 @@ export default function ForgotScreen() {
       <WorkDataGate workId={workId}>
         {() =>
           data && data.items.length === 0 ? (
-            <EmptyState title={copy.forgot.empty} />
+            <EmptyState art={art.emptyAnalysis} title={copy.forgot.empty} />
           ) : (
             <Columns ratio="1.2fr 1fr">
               <Column>

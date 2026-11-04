@@ -64,3 +64,7 @@
 | 2026-11-04 | 설정집 종류 필터의 이름은 "캐릭터/설정/복선" | 요청은 "인물"이었지만 BUILD_SPEC 고정 용어(캐릭터)와 화면 전체를 맞춤 |
 | 2026-11-04 | 업로드 제한 값은 `src/config/limits.ts`(uploadMaxBytes·uploadMaxFiles), 문의 메일·방침 시행일은 `src/config/site.ts` | 한 곳에서 바꾸기 |
 | 2026-11-04 | 본문 글꼴을 Noto Sans KR → Pretendard 1.3.9(jsDelivr npm `pretendard@1.3.9` static dynamic-subset CSS, 버전 고정). `--f-body`만 바꾸고 제목 `--f-display`(Noto Serif KR)는 유지. BUILD_SPEC 7장의 `--f-body` 예시는 이 결정으로 대체 | 사용자 요청. 화면에 쓰인 글자 조각만 내려받아 가볍고, 버전 고정으로 갑자기 모양이 바뀌지 않음 |
+| 2026-11-04 | 일러스트(my-universe-assets) 적용: 시작 화면 큰 그림·기능 카드 5개, 홈 위 배너, 빈 화면(작품·설정집·지도·갤러리=책 위 고양이, 홈·검토·회차·잊힌 복선=날리는 원고), 원고 정리 중 모래시계, 처음 가이드 장마다 그림, 화면별 도움말 썸네일 | 사용자 요청. 그림 속에 글자가 없어 제목·버튼은 실제 글자로 유지, 장식 그림은 alt="" |
+| 2026-11-04 | 원본 PNG(2.2MB)는 저장소에 넣지 않고 WebP(약 250KB)로 바꿔 `src/assets/art/`에 둠. 둥근 모서리 밖 흰 배경은 투명하게 처리 | 첫 화면 로딩 속도, 남색 배경 위 흰 모서리 방지 |
+| 2026-11-04 | 라이트/다크 그림은 기기의 화면 모드(prefers-color-scheme)를 따라 자동 교체 | 앱에 따로 테마 전환이 없음 |
+| 2026-11-04 | 메뉴·계정 아이콘을 글자 기호에서 SVG(`src/components/Icon.tsx`)로 교체. icons-reference.png는 참고만. 장식 그림(decoration-*)은 흰 배경이 붙어 있어 쓰지 않음 | 사용자 요청(“아이콘은 SVG로”, “장식은 필요한 곳에만”) |

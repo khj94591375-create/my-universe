@@ -146,6 +146,10 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - 업로드 제한(10MB·50개) 안내·적용, 설정집 검색·종류 필터, 선택 메뉴 막대, 도움말·문의 메일, 지도 AI 대화칸 안내 글(`TextField`의 `hint`)
 - 본문 글꼴 Pretendard 1.3.9(index.html, 버전 고정). 하드코딩 색은 모두 tokens.css 토큰으로 옮김
 
+## 3-10. 일러스트 적용
+- 그림 `src/assets/art/*.webp`(원본 PNG를 WebP로, 모서리 투명), 연결 `src/config/art.ts`, 부품 `components/ArtImage.tsx`(라이트/다크 자동), SVG 아이콘 `components/Icon.tsx`
+- 쓰는 곳: 시작 화면(큰 그림·기능 카드), 홈 배너, EmptyState의 `art`, 원고 정리 중 그림, 처음 가이드, 화면별 도움말 썸네일
+
 ## 4. 작업 습관
 
 - 단계가 끝나면 `README.md`의 단계 표를 갱신하고, 중요한 판단은 `docs/DECISIONS.md`에 한 줄 추가한다

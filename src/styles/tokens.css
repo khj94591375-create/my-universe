@@ -66,4 +66,5 @@
 
   /* 그림자 */
   --shadow-float: 0 8px 24px rgba(11, 32, 59, 0.25);
+  --shadow-art: 0 10px 28px rgba(5, 14, 30, 0.45); /* 일러스트 아래 그림자(filter: drop-shadow용) */
 }

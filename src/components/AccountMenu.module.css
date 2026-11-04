@@ -50,3 +50,13 @@
     max-width: 60vw;
   }
 }
+.icon {
+  flex: none;
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+.links a,
+.logout {
+  display: inline-flex;
+  align-items: center;
+}

@@ -55,10 +55,8 @@
   color: var(--c-on-navy);
   text-decoration: none;
 }
-.link i {
-  font-style: normal;
-  width: 18px;
-  text-align: center;
+.icon {
+  flex: none;
   color: var(--c-gold);
 }
 .link {

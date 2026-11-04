@@ -7,6 +7,7 @@ import { AiBadge, EvidenceQuote, KindTag } from '../../../components/Badges';
 import { EmptyState } from '../../../components/EmptyState';
 import { Tag } from '../../../components/Tag';
 import { copy } from '../../../config/copy';
+import { art } from '../../../config/art';
 import { deleteAppearance, fetchChunkSeqs } from '../../../data/episodes';
 import { acceptResolution, updateItem } from '../../../data/items';
 import { StatusTag } from '../../../components/Badges';
@@ -38,7 +39,7 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
   }, [epKey]);
 
   if (!data) return null;
-  if (episodes.length === 0) return <EmptyState title={copy.review.noEps} />;
+  if (episodes.length === 0) return <EmptyState art={art.emptyAnalysis} title={copy.review.noEps} />;
 
   return (
     <>
