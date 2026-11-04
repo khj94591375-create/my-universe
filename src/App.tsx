@@ -12,6 +12,7 @@ import ReviewScreen from './screens/review/ReviewScreen';
 import { StudioScreen } from './screens/PlaceholderScreens';
 import { NotFoundScreen } from './screens/SimplePages';
 import SettingsScreen from './screens/settings/SettingsScreen';
+import EvalScreen from './screens/eval/EvalScreen';
 import { SessionProvider } from './features/auth/SessionProvider';
 import { RequireAuth } from './features/auth/RequireAuth';
 import { ToastHost } from './components/Toast';
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/" element={<StartScreen />} />
           <Route path="/works" element={<RequireAuth><WorksScreen /></RequireAuth>} />
           <Route path="/settings" element={<RequireAuth><SettingsScreen /></RequireAuth>} />
+          <Route path="/eval" element={<RequireAuth><EvalScreen /></RequireAuth>} />
           <Route path="/w/:workId" element={<AppShell />}>
             <Route index element={<Navigate to="home" replace />} />
             <Route path="home" element={<HomeScreen />} />

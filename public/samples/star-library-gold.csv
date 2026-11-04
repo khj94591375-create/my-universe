@@ -1,0 +1,10 @@
+kind,name,aliases,first_ep,last_ep,status,related,resolved_ep
+character,리안,견습생|사서님,1,6,,세린|검은 망토의 노인|책갈피 등불,
+character,검은 망토의 노인,노인,1,5,,푸른 잉크의 편지|세린,
+character,세린,수석 사서,1,6,,달빛 서고의 규칙,
+setting,책갈피 등불,등불,1,6,,,
+setting,금서 구역,,3,6,,반쪽짜리 은열쇠,
+foreshadow,반쪽짜리 은열쇠,은열쇠,1,3,open,금서 구역,
+foreshadow,달빛 서고의 규칙,,1,4,resolved,세린,4
+foreshadow,사라진 13번째 서가,열세 번째 서가,2,2,open,,
+foreshadow,푸른 잉크의 편지,푸른 편지,1,5,reuse_planned,검은 망토의 노인,5

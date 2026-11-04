@@ -130,6 +130,10 @@ export default function SettingsScreen() {
         </div>
       </Card>
 
+      <Card title={copy.eval.toolsTitle}>
+        <Link to="/eval">{copy.eval.toolLink} →</Link>
+      </Card>
+
       <Card title={copy.settings.connection}>
         <p>{isSupabaseConfigured ? copy.settings.connected : copy.settings.notConnected}</p>
       </Card>
