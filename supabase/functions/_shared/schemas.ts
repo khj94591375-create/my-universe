@@ -51,3 +51,14 @@ export const chatSchema = z.object({
   reply: z.string(),
   evidence: z.array(z.object({ text: z.string(), tag: z.string() })),
 });
+
+export const consistencySchema = z.object({
+  issues: z.array(
+    z.object({
+      item_name: z.string(),
+      description: z.string().describe('무엇이 어떻게 어긋나는지 한 문장'),
+      a: z.object({ evidence: z.string(), tag: z.string() }),
+      b: z.object({ evidence: z.string(), tag: z.string() }),
+    }),
+  ),
+});

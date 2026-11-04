@@ -111,3 +111,16 @@
   font-size: 26px;
   color: var(--c-sub);
 }
+.conflictHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-2);
+}
+.conflictPair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: var(--sp-2);
+}

@@ -9,6 +9,7 @@ import { ForgottenListSection } from './sections/ForgottenListSection';
 import { TodaySuggestionSection } from './sections/TodaySuggestionSection';
 import { ResolveProgressSection } from './sections/ResolveProgressSection';
 import { RecentUploadsSection } from './sections/RecentUploadsSection';
+import { ConflictsSection } from './sections/ConflictsSection';
 
 /**
  * 내 우주 홈(BUILD_SPEC 6.3).
@@ -38,6 +39,7 @@ export default function HomeScreen() {
               </Column>
               <Column>
                 <ResolveProgressSection workId={workId} />
+                <ConflictsSection workId={workId} />
                 <RecentUploadsSection workId={workId} />
               </Column>
             </Columns>

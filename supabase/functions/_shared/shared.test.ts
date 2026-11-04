@@ -79,3 +79,38 @@ describe('AI 결과 거르기', () => {
     expect(markEvidence([ok, bad], scenes).map((x) => x.evidence)).toEqual([ok.evidence, null]);
   });
 });
+
+import { buildConsistencyContext, splitSentences } from './context.ts';
+import { filterIssues } from './rules.ts';
+
+describe('7.9 설정 충돌', () => {
+  const scenes = [
+    { ep: 3, seq: 1, text: '리안의 파란 눈이 반짝였다. 세린이 웃었다.' },
+    { ep: 7, seq: 2, text: '갈색 눈의 리안이 고개를 들었다.' },
+  ];
+  it('항목이 나온 문장만 꼬리표와 함께 모은다', () => {
+    const c = buildConsistencyContext([{ name: '리안', aliases: [], look: '파란 눈', note: null }], scenes);
+    expect(c.text).toContain('[E3-S1] 리안의 파란 눈이 반짝였다.');
+    expect(c.text).toContain('[E7-S2] 갈색 눈의 리안이 고개를 들었다.');
+    expect(c.text).not.toContain('세린이 웃었다');
+    expect(c.text).toContain('설정집 외모: 파란 눈');
+    expect(splitSentences('가. 나!\n다')).toEqual(['가.', '나!', '다']);
+  });
+  it('두 근거가 모두 검증되고 서로 달라야 남긴다', () => {
+    const map = buildConsistencyContext([{ name: '리안', aliases: [], look: null, note: null }], scenes).scenes;
+    const a = { evidence: '리안의 파란 눈이 반짝였다.', tag: 'E3-S1' };
+    const b = { evidence: '갈색 눈의 리안이 고개를 들었다.', tag: 'E7-S2' };
+    const fake = { evidence: '리안의 눈은 초록색이었다.', tag: 'E7-S2' };
+    const r = filterIssues(
+      [
+        { item_name: '리안', description: '눈 색이 다르다', a, b },
+        { item_name: '리안', description: '지어낸 근거', a, b: fake },
+        { item_name: '리안', description: '같은 문장', a, b: a },
+        { item_name: '없는 사람', description: 'x', a, b },
+      ],
+      map,
+      new Set(['리안']),
+    );
+    expect(r.map((x) => x.description)).toEqual(['눈 색이 다르다']);
+  });
+});

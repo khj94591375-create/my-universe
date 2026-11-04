@@ -8,7 +8,7 @@
 
 | 항목 | 상태 |
 |---|---|
-| 현재 단계 | **M4 뼈대 완료(API 키 대기) → 키를 넣으면 M4 마무리, 그다음 M5** |
+| 현재 단계 | **M4 뼈대·M5 완료(API 키 대기) → 다음 M6(삽화 스튜디오, OpenAI 키 비워 둠)** |
 | 저장소 | https://github.com/khj94591375-create/my-universe (Public, 기본 브랜치 `main`) |
 | 배포 주소 | https://khj94591375-create.github.io/my-universe/ (`main`에 push하면 GitHub Actions가 자동 배포) |
 | GitHub Pages | 켜짐(Source: GitHub Actions). 첫 배포 성공 |
@@ -112,6 +112,12 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 3. 함수 배포: Supabase → Account → Access Tokens에서 토큰 발급 → GitHub 저장소 Settings → Secrets and variables → Actions → `SUPABASE_ACCESS_TOKEN` → Actions 탭에서 "Deploy Supabase Edge Functions" 실행
 4. 확인할 것: 서버 키 이름(`SUPABASE_SERVICE_ROLE_KEY` 또는 `SUPABASE_SECRET_KEYS`)이 함수에서 읽히는지, 실제 원고로 analyze-episode 결과 품질과 근거 검증 통과율, 60초 안에 끝나는지
 5. 그다음 M5(채점 도구, 설정 충돌)
+
+## 3-5. M5 (채점과 설정 충돌)
+
+- 채점 도구 `/#/eval`(`screens/eval`, `features/eval/{csv,gold,score}.ts`): 정답 CSV(파일·붙여 넣기), 찾은 비율·맞은 비율(전체·종류별), 회차·회수 판단·관계 정확도, AI 근거 통과율, 맞음/놓침/엉뚱하게 찾음, 표 복사. 예시 정답 `eval/gold/star-library.csv`(화면에서도 내려받기). 내 설정 → 도구에서 이동
+- 설정 충돌: 함수 `check-consistency`(7.9·8.8, 두 근거 모두 검증), 설정집 맨 아래 "설정 충돌"(검사 버튼, 무시·수정함·다시 열기), 홈 "설정 충돌" 카드(열린 충돌이 있을 때)
+- DB 변경 없음(consistency_issues는 0001에 있음)
 
 ## 4. 작업 습관
 

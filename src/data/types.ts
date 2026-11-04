@@ -86,3 +86,16 @@ export type ItemView = Item & {
   mention_count: number;
   gap: number | null;
 };
+
+export type ConsistencyIssue = {
+  id: string;
+  work_id: string;
+  item_id: string | null;
+  description: string;
+  evidence_a: string;
+  episode_a: number;
+  evidence_b: string;
+  episode_b: number;
+  status: 'open' | 'ignored' | 'fixed';
+  created_at: string;
+};

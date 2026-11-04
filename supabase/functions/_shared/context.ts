@@ -77,3 +77,41 @@ export function buildContext(items: CtxItem[], summaries: CtxSummary[], scenes: 
   }
   return { text: lines.join('\n'), scenes: map };
 }
+
+/** 문장 나누기(화면 쪽 features/analysis/split.ts와 같은 규칙). */
+export function splitSentences(text: string): string[] {
+  return text
+    .split(/(?<=[.!?…”"」』])\s+|\n+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+export type ConsistencyItem = { name: string; aliases: string[]; look: string | null; note: string | null };
+
+/**
+ * 설정 충돌 검사용 글(BUILD_SPEC 8.8): 항목마다 그 항목이 나온 문장(외모·나이·능력·관계 묘사가 담긴 문장)을 꼬리표와 함께.
+ * scenes는 그 항목들이 나온 장면들. 근거 검증을 위해 장면 본문 지도도 돌려준다.
+ */
+export function buildConsistencyContext(items: ConsistencyItem[], scenes: CtxScene[], maxChars: number = LIMITS.maxChars): BuiltContext {
+  const map = new Map<string, string>();
+  for (const s of scenes) map.set(makeTag(s.ep, s.seq), s.text);
+  const perItem = Math.max(400, Math.floor(maxChars / Math.max(1, items.length)));
+  const lines: string[] = [];
+  for (const it of items) {
+    const names = [it.name, ...it.aliases].filter((n) => n.length >= 2);
+    lines.push('', `### ${it.name}${it.aliases.length ? ` (별칭: ${it.aliases.join(', ')})` : ''}`);
+    if (it.look) lines.push(`설정집 외모: ${it.look}`);
+    if (it.note) lines.push(`설정집 설명: ${it.note}`);
+    let used = 0;
+    for (const s of [...scenes].sort((a, b) => a.ep - b.ep || a.seq - b.seq)) {
+      for (const sentence of splitSentences(s.text)) {
+        if (!names.some((n) => sentence.includes(n))) continue;
+        const line = `[${makeTag(s.ep, s.seq)}] ${sentence}`;
+        if (used + line.length > perItem) break;
+        lines.push(line);
+        used += line.length;
+      }
+    }
+  }
+  return { text: `## 항목별 원고 문장${lines.join('\n')}`, scenes: map };
+}

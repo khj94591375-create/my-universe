@@ -1,4 +1,4 @@
-import type { Appearance, Episode, Item, Link } from './types';
+import type { Appearance, ConsistencyIssue, Episode, Item, Link } from './types';
 import { db } from './client';
 
 /*
@@ -11,11 +11,12 @@ export type WorkRaw = {
   episodes: Episode[];
   appearances: Appearance[];
   links: Link[];
+  issues: ConsistencyIssue[];
 };
 
 export async function fetchWorkRaw(workId: string): Promise<WorkRaw> {
   const c = db();
-  const [items, episodes, appearances, links] = await Promise.all([
+  const [items, episodes, appearances, links, issues] = await Promise.all([
     c.from('items').select('*, item_aliases(*)').eq('work_id', workId).order('created_at'),
     c.from('episodes').select('*').eq('work_id', workId).order('no'),
     c
@@ -23,8 +24,9 @@ export async function fetchWorkRaw(workId: string): Promise<WorkRaw> {
       .select('id, item_id, episode_id, chunk_id, evidence, source, role, items!inner(work_id)')
       .eq('items.work_id', workId),
     c.from('links').select('*').eq('work_id', workId),
+    c.from('consistency_issues').select('*').eq('work_id', workId).order('created_at', { ascending: false }),
   ]);
-  for (const r of [items, episodes, appearances, links]) if (r.error) throw r.error;
+  for (const r of [items, episodes, appearances, links, issues]) if (r.error) throw r.error;
   return {
     items: (items.data ?? []).map(({ item_aliases, ...i }) => {
       // source 칸은 0004 SQL 뒤에 생긴다. 없으면 모두 작가 입력으로 본다
@@ -34,6 +36,7 @@ export async function fetchWorkRaw(workId: string): Promise<WorkRaw> {
     episodes: (episodes.data ?? []) as Episode[],
     appearances: (appearances.data ?? []).map(({ items: _w, ...a }) => a as Appearance),
     links: (links.data ?? []) as Link[],
+    issues: (issues.data ?? []) as ConsistencyIssue[],
   };
 }
 

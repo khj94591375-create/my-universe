@@ -52,3 +52,17 @@ export function finishDesign<T extends { scenes: { no: number; text: string; use
 export function markEvidence<T extends Ev>(list: T[], scenes: Map<string, string>): (Omit<T, 'evidence'> & { evidence: string | null })[] {
   return list.map((x) => ({ ...x, evidence: verifyEvidence(x.evidence, x.tag, scenes) ? x.evidence : null }));
 }
+
+export type IssueOut = { item_name: string; description: string; a: Ev; b: Ev };
+
+/** 7.9 [고정]: 두 근거가 모두 원고에 글자 그대로 있고, 서로 다른 문장이어야 저장한다. */
+export function filterIssues(issues: IssueOut[], scenes: Map<string, string>, itemNames: Set<string>): IssueOut[] {
+  return issues.filter(
+    (i) =>
+      itemNames.has(i.item_name) &&
+      i.description.trim() &&
+      verifyEvidence(i.a.evidence, i.a.tag, scenes) &&
+      verifyEvidence(i.b.evidence, i.b.tag, scenes) &&
+      i.a.evidence.trim() !== i.b.evidence.trim(),
+  );
+}

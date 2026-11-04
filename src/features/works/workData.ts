@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { fetchWorkRaw, type WorkRaw } from '../../data/workData';
-import type { Appearance, Episode, ItemView, Link } from '../../data/types';
+import type { Appearance, ConsistencyIssue, Episode, ItemView, Link } from '../../data/types';
 import { toMessage } from '../../data/errors';
 import { gapOf, nextEp } from '../foreshadow/gap';
 
@@ -49,6 +49,8 @@ export type WorkData = {
   episodes: Episode[];
   appearances: Appearance[];
   links: Link[];
+  /** 설정 충돌(BUILD_SPEC 7.9) */
+  issues: ConsistencyIssue[];
   /** 다음 회차 번호 */
   next: number;
   /** 가장 최근 회차 번호(없으면 0) */
@@ -79,6 +81,7 @@ export function deriveWorkData(raw: WorkRaw): WorkData {
     episodes: raw.episodes,
     appearances: raw.appearances,
     links: raw.links,
+    issues: raw.issues,
     next,
     latest: next - 1,
   };

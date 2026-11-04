@@ -95,7 +95,7 @@ export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
         {item.kind === 'foreshadow' && <StatusTag status={item.status} />}
         {(item.source === 'ai' || !item.confirmed) && <AiBadge />}
         <span className={s.muted}>
-          {copy.bible.appears} {item.first_ep != null && item.last_ep != null ? copy.labels.epRange(item.first_ep, item.last_ep) : copy.labels.noAppearance}
+          {item.first_ep != null && item.last_ep != null ? `${copy.bible.appears} ${copy.labels.epRange(item.first_ep, item.last_ep)}` : copy.labels.noAppearance}
           {' · '}
           {copy.bible.source} {copy.labels.source[item.source]}
         </span>

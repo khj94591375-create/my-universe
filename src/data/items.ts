@@ -158,3 +158,9 @@ export async function confirmAllAi(workId: string, itemIds: string[]) {
   const r3 = await c.from('links').update({ kind: 'manual' }).eq('work_id', workId).eq('kind', 'ai');
   if (r3.error) throw r3.error;
 }
+
+/** 설정 충돌을 닫는다: 무시(ignored) 또는 수정함(fixed). */
+export async function setIssueStatus(id: string, status: 'open' | 'ignored' | 'fixed') {
+  const { error } = await db().from('consistency_issues').update({ status }).eq('id', id);
+  if (error) throw error;
+}
