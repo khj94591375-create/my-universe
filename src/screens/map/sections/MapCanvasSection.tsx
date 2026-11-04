@@ -39,7 +39,7 @@ export type MapFocus = {
   centerOn: (id: string) => void;
 };
 
-export function MapCanvasSection({ workId, selected, onToggle, focus }: { workId: string; selected: string[]; onToggle: (id: string) => void; focus: MapFocus }) {
+export function MapCanvasSection({ workId, selected, onToggle, onClear, focus }: { workId: string; selected: string[]; onToggle: (id: string) => void; onClear: () => void; focus: MapFocus }) {
   const { focusId: infoId, setFocusId: setInfoId, linkId, setLinkId, linkFrom, setLinkFrom, center } = focus;
   const { data } = useWorkData(workId);
   const { work } = useWork(workId);
@@ -74,8 +74,21 @@ export function MapCanvasSection({ workId, selected, onToggle, focus }: { workId
       setLinkTo(id);
       return;
     }
+    const deselecting = selected.includes(id);
     onToggle(id);
-    openStar(id);
+    // 다시 눌러 빼면 그 별 강조도 끈다
+    if (deselecting) {
+      setLinkId(null);
+      setInfoId(null);
+    } else openStar(id);
+  };
+  /** 처음 상태로: 강조·관계 정보창·연결 추가·고른 별 모두 비우기(빈 곳 누르기, Esc) */
+  const reset = () => {
+    setLinkFrom(null);
+    setLinkTo(null);
+    setInfoId(null);
+    setLinkId(null);
+    onClear();
   };
   const focusStar = (id: string) => {
     setView(viewFocusing(items, links, id));
@@ -129,10 +142,11 @@ export function MapCanvasSection({ workId, selected, onToggle, focus }: { workId
   const onKeyDown = (e: KeyboardEvent) => {
     const typing = (e.target as HTMLElement).closest('input, textarea, select');
     if (e.key === 'Escape') {
-      setLinkFrom(null);
-      setLinkTo(null);
-      setInfoId(null);
-      setLinkId(null);
+      // 연결 추가 중이면 그것만 취소, 아니면 처음 상태로
+      if (linkFrom) {
+        setLinkFrom(null);
+        setLinkTo(null);
+      } else reset();
       return;
     }
     if (typing) return;
@@ -200,6 +214,7 @@ export function MapCanvasSection({ workId, selected, onToggle, focus }: { workId
             setInfoId(null);
             setLinkId(id);
           }}
+          onBackground={() => (linkFrom ? undefined : reset())}
           activeLinkId={linkId}
           aiResolve={aiResolve}
           view={view}

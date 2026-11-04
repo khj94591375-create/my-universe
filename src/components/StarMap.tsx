@@ -24,6 +24,7 @@ export function StarMap({
   focusId,
   onStar,
   onLink,
+  onBackground,
   activeLinkId = null,
   aiResolve,
   view,
@@ -37,6 +38,8 @@ export function StarMap({
   onStar: (id: string) => void;
   /** 선을 누르면 두 별의 관계를 보여 준다 */
   onLink?: (id: string) => void;
+  /** 빈 곳을 눌렀을 때(끌어서 옮긴 경우는 제외) */
+  onBackground?: () => void;
   activeLinkId?: string | null;
   /** AI가 회수 장면이라고 추정한 회차(작가 확인 전) */
   aiResolve?: Map<string, number>;
@@ -48,7 +51,15 @@ export function StarMap({
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const pinch = useRef<number | null>(null);
   const justDragged = useRef(false);
-  const [hover, setHover] = useState<string | null>(null);
+  const [hover, setHoverNow] = useState<string | null>(null);
+  // 마우스가 별 가장자리에서 잠깐 벗어나도 이름표가 깜빡이지 않게 조금 기다렸다 끈다
+  const leaveTimer = useRef<number | undefined>(undefined);
+  const setHover = (id: string | null) => {
+    window.clearTimeout(leaveTimer.current);
+    if (id) setHoverNow(id);
+    else leaveTimer.current = window.setTimeout(() => setHoverNow(null), 120);
+  };
+  useEffect(() => () => window.clearTimeout(leaveTimer.current), []);
 
   const pos = useMemo(() => layoutStars(items, links), [items, links]);
   const byId = useMemo(() => new Map(items.map((i) => [i.id, i])), [items]);
@@ -172,16 +183,19 @@ export function StarMap({
   /** 이름 배치에 쓰는 실제 배율(확대 × 화면 맞춤) */
   const ks = view.k * unitPx;
   const near = hover ?? focusId;
-  // 강조할 별: 고른 별·가리킨 별(마우스·키보드·패널)과 그 별에 실제로 이어진 별
-  const anchors = new Set<string>([...selected, ...(near ? [near] : [])].filter((id) => byId.has(id)));
+  // 강조(나머지 흐림)는 누른 별(고른 별·살펴보는 별)과 그 별에 실제로 이어진 별만.
+  // 마우스를 올리기만 하면 이름표와 이어진 선만 보여 준다(화면이 크게 바뀌지 않게).
+  const anchors = new Set<string>([...selected, ...(focusId ? [focusId] : [])].filter((id) => byId.has(id)));
   const lit = new Set<string>();
   const neighbors = new Set<string>();
-  for (const l of links)
+  for (const l of links) {
     if (anchors.has(l.a) || anchors.has(l.b)) {
       lit.add(l.id);
       if (!anchors.has(l.a)) neighbors.add(l.a);
       if (!anchors.has(l.b)) neighbors.add(l.b);
     }
+    if (hover && (l.a === hover || l.b === hover)) lit.add(l.id);
+  }
   const focusMode = anchors.size > 0;
   const isLit = (id: string) => anchors.has(id) || neighbors.has(id);
   const dense = items.length > 30;
@@ -228,6 +242,10 @@ export function StarMap({
       onPointerMove={onMove}
       onPointerUp={onUp}
       onPointerCancel={onUp}
+      onClick={(e) => {
+        if (justDragged.current || (e.target as Element).closest('[data-star], [data-link]')) return;
+        onBackground?.();
+      }}
     >
       <defs>
         {/* 고른 별 뒤의 은은한 광채(움직임 없음) */}
@@ -346,7 +364,7 @@ export function StarMap({
               {st.forgotten && !isSel && <circle r={r + 7} className={s.forgottenRing} />}
               {(st.done || st.planned) && <circle r={r + 7} className={st.done ? s.doneRing : s.plannedRing} />}
               <path d={shapePath(i.kind, r)} className={s.shape} opacity={isSel || isLit(i.id) ? 1 : dim ? 0.22 : st.brightness} />
-              {label && near !== i.id && (
+              {label && (
                 <text y={label.y1 - q.y - fs * 0.3} style={{ fontSize: fs }}>
                   {i.name}
                 </text>

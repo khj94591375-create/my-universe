@@ -27,7 +27,7 @@ const epOf = (tag: string) => Number(/E(\d+)/.exec(tag)?.[1]) || null;
  * AI가 꺼져 있으면 설계·대화는 이유와 함께 비활성. 지도는 그대로 동작한다.
  * AI 설계 결과·기본 제안·체험 결과는 어디에도 자동 저장하지 않는다(작가가 검토 후 직접 옮김).
  */
-export function DesignPanelSection({ workId, selected, onRemove, focus }: { workId: string; selected: string[]; onRemove: (id: string) => void; focus: MapFocus }) {
+export function DesignPanelSection({ workId, selected, onRemove, onClear, focus }: { workId: string; selected: string[]; onRemove: (id: string) => void; onClear: () => void; focus: MapFocus }) {
   const { data } = useWorkData(workId);
   const { work } = useWork(workId);
   const canWrite = useCanWrite(work);
@@ -106,13 +106,21 @@ export function DesignPanelSection({ workId, selected, onRemove, focus }: { work
           {copy.map.panel.step1}
         </h2>
         {chosen.length ? (
-          <div className={s.chips}>
-            {chosen.map((i) => (
-              <Chip key={i.id} onRemove={() => onRemove(i.id)}>
-                {i.name}
-              </Chip>
-            ))}
-          </div>
+          <>
+            <div className={s.chips}>
+              {chosen.map((i) => (
+                <Chip key={i.id} onRemove={() => onRemove(i.id)}>
+                  {i.name}
+                </Chip>
+              ))}
+            </div>
+            <div>
+              <Button variant="ghost" size="sm" onClick={onClear}>
+                {copy.map.panel.clearAll}
+              </Button>
+            </div>
+            <p className={s.muted}>{copy.map.panel.resetHint}</p>
+          </>
         ) : (
           <ol className={s.howTo}>
             {copy.map.panel.howTo.map((t) => (

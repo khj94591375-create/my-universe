@@ -58,10 +58,10 @@ export default function MapScreen() {
           ) : (
             <Columns ratio="1.75fr 1fr">
               <Column>
-                <MapCanvasSection workId={workId} selected={selected} onToggle={toggle} focus={focus} />
+                <MapCanvasSection workId={workId} selected={selected} onToggle={toggle} onClear={() => setSelected([])} focus={focus} />
               </Column>
               <Column>
-                <DesignPanelSection workId={workId} selected={selected} onRemove={toggle} focus={focus} />
+                <DesignPanelSection workId={workId} selected={selected} onRemove={toggle} onClear={() => { setSelected([]); setFocusId(null); setLinkId(null); }} focus={focus} />
               </Column>
             </Columns>
           )
