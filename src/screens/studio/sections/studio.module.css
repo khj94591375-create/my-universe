@@ -41,7 +41,8 @@
   color: var(--c-gold-ink);
   font-size: 12px;
 }
-.looks h3 {
+.looks h3,
+.lookHead {
   font-size: var(--fs-sm);
   color: var(--c-sub);
   margin-bottom: 4px;

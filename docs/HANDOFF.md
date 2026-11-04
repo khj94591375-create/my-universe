@@ -8,7 +8,7 @@
 
 | 항목 | 상태 |
 |---|---|
-| 현재 단계 | **M4 뼈대·M5·M6 완료(Claude·OpenAI 키 대기) → M7 마무리** |
+| 현재 단계 | **M4 뼈대·M5·M6 완료(Claude·OpenAI 키 대기), M7 점검 완료 → 남은 것: 키 넣고 실제 확인, 작가 3명 테스트** |
 | 저장소 | https://github.com/khj94591375-create/my-universe (Public, 기본 브랜치 `main`) |
 | 배포 주소 | https://khj94591375-create.github.io/my-universe/ (`main`에 push하면 GitHub Actions가 자동 배포) |
 | GitHub Pages | 켜짐(Source: GitHub Actions). 첫 배포 성공 |
@@ -125,6 +125,14 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - 화면 `screens/studio`: 용도·등장인물·장소·자동 묘사·장면·화풍·비율·보낼 문장 미리보기·남은 횟수(한도 초과 시 비활성 + 남은 시간), 갤러리(크게 보기·보낸 요청 문장·다시 그리기·이미지 시트로 등록·지우기), 저작권 안내
 - `ai-status`에 `imageEnabled` 추가
 - 키를 넣을 때: Supabase → Edge Functions → Secrets에 `OPENAI_API_KEY`, 필요하면 `OPENAI_IMAGE_MODEL`(기본 gpt-image-2), `DAILY_IMAGE_LIMIT`(기본 8)
+
+## 3-7. M7 점검 (키 없이 한 것)
+
+- 성능: 회차 50개·항목 100개·등장 2,100여 개 가짜 작품에서 홈 첫 표시 0.8초(개발 서버 기준), 다시 들어가면 0.08초, 우주 지도 100개 별 0.7초, 확대 5번 0.36초
+- 접근성: axe-core로 13개 화면 위반 0개(진행 막대 이름, 로고 링크 이름, main 영역, 제목 순서, 경고색 대비 수정)
+- 반응형: 400px 폭 가로 넘침 없음(채점 화면의 긴 형식 안내 줄바꿈 수정)
+- 시연 시나리오 `docs/DEMO.md`
+- 남은 것(BUILD_SPEC 13장 M7): 신인 작가 3명 이상 테스트("막혔어요" 뒤 3번 이내 클릭으로 가이드·설계를 받는가), 키를 넣은 뒤 실제 AI 품질 확인
 
 ## 4. 작업 습관
 

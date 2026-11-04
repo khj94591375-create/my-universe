@@ -60,7 +60,8 @@
   align-items: center;
   flex-wrap: wrap;
 }
-.cardTop h3 {
+.cardTop h3,
+.cardTitle {
   font-size: var(--fs-lg);
 }
 .grid {

@@ -20,7 +20,7 @@ export function ResolveProgressSection({ workId }: { workId: string }) {
       <p className={s.big}>
         {big} <span>{rest}</span>
       </p>
-      <div className={s.bar} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}>
+      <div className={s.bar} role="progressbar" aria-label={copy.home.progressTitle} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}>
         <span style={{ width: `${pct}%` }} />
       </div>
       <div className={s.tags}>

@@ -71,11 +71,11 @@ export function WorkCard({ work, onChanged, onDeleted }: { work: WorkWithStats; 
         </form>
       ) : (
         <div className={s.cardTop}>
-          <h3>
+          <h2 className={s.cardTitle}>
             <Link to={`/w/${work.id}/home`} className={s.titleLink}>
               {work.title}
             </Link>
-          </h3>
+          </h2>
           {work.is_sample && <Tag tone="gold">{copy.works.sampleLabel}</Tag>}
         </div>
       )}

@@ -73,7 +73,7 @@ export function DesignPanelSection({ workId, selected, onRemove }: { workId: str
   return (
     <Card className={s.panel}>
       <div className={s.panelBlock}>
-        <h3>{copy.map.panel.selected}</h3>
+        <h2 className={s.panelHead}>{copy.map.panel.selected}</h2>
         {chosen.length ? (
           <div className={s.chips}>
             {chosen.map((i) => (
@@ -87,7 +87,7 @@ export function DesignPanelSection({ workId, selected, onRemove }: { workId: str
         )}
       </div>
       <div className={s.panelBlock}>
-        <h3>{copy.map.panel.continueFrom}</h3>
+        <h2 className={s.panelHead}>{copy.map.panel.continueFrom}</h2>
         <p>{last ? copy.map.panel.continueText(last.no, last.title ?? `${last.no}화`) : copy.map.panel.continueFirst}</p>
       </div>
       <label className={s.switch}>
@@ -104,9 +104,9 @@ export function DesignPanelSection({ workId, selected, onRemove }: { workId: str
 
       {result && (
         <div className={s.panelBlock}>
-          <h3>
+          <h2 className={s.panelHead}>
             {copy.map.panel.resultTitle(result.targetEp)} <Tag tone="ai">{copy.ai.suggestion}</Tag>
-          </h3>
+          </h2>
           <ol className={s.scenes}>
             {result.scenes.map((sc) => (
               <li key={sc.no}>
@@ -129,7 +129,7 @@ export function DesignPanelSection({ workId, selected, onRemove }: { workId: str
           {result.missing.length > 0 && <p className={s.muted}>{copy.map.panel.missing(result.missing)}</p>}
           {result.draft && (
             <div className={s.draft}>
-              <h3>{copy.map.panel.draftTitle}</h3>
+              <h2 className={s.panelHead}>{copy.map.panel.draftTitle}</h2>
               <p>{result.draft}</p>
             </div>
           )}

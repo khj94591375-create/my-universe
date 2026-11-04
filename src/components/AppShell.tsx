@@ -31,7 +31,7 @@ export function AppShell() {
   return (
     <div className={s.app}>
       <aside className={s.side}>
-        <Link to={session ? '/works' : '/'} className={s.brand} aria-label={session ? copy.common.back : copy.common.toStart}>
+        <Link to={session ? '/works' : '/'} className={s.brand} title={session ? copy.common.back : copy.common.toStart}>
           <BrandMark />
           <b>{copy.brand.name}</b>
         </Link>

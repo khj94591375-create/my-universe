@@ -32,7 +32,7 @@ export default function StartScreen() {
   const message = !isSupabaseConfigured ? copy.start.notConfigured : error ?? (loginError ? copy.start.loginError : copy.start.loginHint);
 
   return (
-    <div className={s.page}>
+    <main className={s.page}>
       <section className={s.hero}>
         <img src={`${import.meta.env.BASE_URL}logo.png`} alt="My Universe 로고" className={s.logo} />
         <p className={s.lead}>{copy.start.lead}</p>
@@ -64,6 +64,6 @@ export default function StartScreen() {
         ))}
       </section>
       <p className={s.notice}>{copy.start.aiNotice}</p>
-    </div>
+    </main>
   );
 }

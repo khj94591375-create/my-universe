@@ -110,7 +110,7 @@ export default function EvalScreen() {
   const ev = data ? evidencePass(data) : { n: 0, ok: 0 };
 
   return (
-    <div className={s.page}>
+    <main className={s.page}>
       <h1 className={s.title}>{copy.eval.title}</h1>
       <p className={s.lead}>{copy.eval.lead}</p>
 
@@ -239,6 +239,6 @@ export default function EvalScreen() {
         </>
       )}
       <Link to="/settings">{copy.settings.title}</Link>
-    </div>
+    </main>
   );
 }

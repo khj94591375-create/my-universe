@@ -248,3 +248,8 @@
   gap: 6px;
   align-items: center;
 }
+.panelHead {
+  font-size: var(--fs-sm);
+  color: var(--c-sub);
+  margin-bottom: 4px;
+}

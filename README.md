@@ -7,6 +7,7 @@
 - 제작 기준 문서: [`docs/BUILD_SPEC.md`](docs/BUILD_SPEC.md) (모든 구현은 이 문서를 따른다)
 - 결정 기록: [`docs/DECISIONS.md`](docs/DECISIONS.md)
 - 현재 상태와 다음 작업: [`docs/HANDOFF.md`](docs/HANDOFF.md)
+- 발표 시연 순서: [`docs/DEMO.md`](docs/DEMO.md)
 
 ## 진행 단계
 
@@ -19,7 +20,7 @@
 | M4 | Claude 연결(RAG v1) | 뼈대 완료 · API 키 대기 |
 | M5 | 채점, 설정 충돌 | 완료 · 충돌 검사는 API 키 대기 |
 | M6 | 삽화 스튜디오 | 완료 · OpenAI 키 대기 |
-| M7 | 사용자 테스트, 마무리 | 예정 |
+| M7 | 사용자 테스트, 마무리 | 진행 중 · 성능·접근성 점검과 시연 시나리오 완료, 작가 테스트 남음 |
 
 ## 로컬에서 실행
 

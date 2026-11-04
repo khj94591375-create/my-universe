@@ -119,7 +119,7 @@ export function StudioFormSection({ workId, prefill, onCreated }: { workId: stri
       {group(data.items.filter((i) => i.kind !== 'character'), copy.studio.places)}
 
       <div className={s.looks}>
-        <h3>{copy.studio.lookTitle}</h3>
+        <h2 className={s.lookHead}>{copy.studio.lookTitle}</h2>
         {chosen.length === 0 ? (
           <p className={s.muted}>{copy.studio.lookEmpty}</p>
         ) : (

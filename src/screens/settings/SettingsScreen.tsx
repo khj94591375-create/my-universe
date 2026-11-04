@@ -81,7 +81,7 @@ export default function SettingsScreen() {
   const st = ai.status;
 
   return (
-    <div className={s.page}>
+    <main className={s.page}>
       <h1 className={s.title}>{copy.settings.title}</h1>
       <Card title={copy.settings.account}>
         <p className={s.sub}>{copy.settings.email}</p>
@@ -138,7 +138,7 @@ export default function SettingsScreen() {
         <p>{isSupabaseConfigured ? copy.settings.connected : copy.settings.notConnected}</p>
       </Card>
       <Link to="/works">{copy.common.back}</Link>
-    </div>
+    </main>
   );
 }
 
