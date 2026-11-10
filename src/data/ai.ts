@@ -51,6 +51,8 @@ export type ProfileResult = { look: ProfileField; personality: ProfileField; spe
 
 export type UnstickResult = { options: { title: string; plan: string; uses: { item: string; evidence: string | null; ep: number | null }[]; caution: string }[] };
 
+export type StyleResult = { traits: { name: string; description: string; examples: string[] }[]; dropped: number; episodes: number; sampleChars: number };
+
 export type SummaryResult = { summary: string };
 
 export type AnalyzeResult = { summary: string; counts: { new_items: number; aliases: number; relations: number; resolutions: number } };

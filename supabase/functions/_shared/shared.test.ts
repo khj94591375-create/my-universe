@@ -243,3 +243,28 @@ describe('막힌 장면 대안 전개', () => {
     ]);
   });
 });
+
+import { keepTraits, sampleBodies } from './style.ts';
+
+describe('문체 분석', () => {
+  it('원고에 있는 예시만 남기고, 예시 없는 특징은 뺀다', () => {
+    const src = '리안은 멈췄다. 숨을 골랐다. "괜찮아요…" 그녀가 속삭였다.';
+    const r = keepTraits(
+      [
+        { name: '짧은 문장', description: '짧게 끊는다.', examples: ['리안은 멈췄다.', '숨을 골랐다.', '리안은 달렸다.'] },
+        { name: '지어낸 예시', description: '설명', examples: ['원고에 없는 문장이다.'] },
+        { name: '말줄임표', description: '대사를 흐린다.', examples: ['"괜찮아요..."'] },
+      ],
+      src,
+    );
+    expect(r.traits.map((t) => t.name)).toEqual(['짧은 문장', '말줄임표']);
+    expect(r.traits[0].examples).toEqual(['리안은 멈췄다.', '숨을 골랐다.']);
+    expect(r.dropped).toBe(2);
+  });
+  it('표본은 회차마다 고르게, 최대 글자 수 이하', () => {
+    const long = '가'.repeat(5000);
+    const s = sampleBodies([long, long, long], 3000);
+    expect([...s].length).toBeLessThanOrEqual(3000);
+    expect(sampleBodies(['', '  '])).toBe('');
+  });
+});

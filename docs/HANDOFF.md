@@ -181,6 +181,7 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - ② 세계관 질문하기 `supabase/functions/ask-world` + `_shared/ask.ts`(항목 찾기·근거 거르기, 단위 테스트), 화면 `screens/bible/sections/AskWorldSection.tsx`, 테스트 `e2e/ask.spec.ts`
 - ③ 인물 소개 카드 `supabase/functions/profile-item` + `_shared/profile.ts`, 화면 `screens/bible/sections/ProfileDraft.tsx`(ItemRow의 profile 모드), 테스트 `e2e/profile.spec.ts`
 - ④ 막힌 장면 풀기 `supabase/functions/unstick-scene` + `_shared/unstick.ts`, 화면 `screens/home/sections/StuckSceneSection.tsx`, 테스트 `e2e/unstick.spec.ts`
+- ⑤ 문체 분석 통계 `src/features/style/stats.ts`(단위 테스트) + AI `supabase/functions/analyze-style` + `_shared/style.ts`, 화면 `screens/episodes/sections/StyleSection.tsx`, 테스트 `e2e/style.spec.ts`
 
 ## 4. 작업 습관
 

@@ -113,3 +113,16 @@ export const unstickSchema = z.object({
     )
     .describe('서로 방향이 다른 대안 3개'),
 });
+
+/** 문체 분석(저장하지 않음, 평가 없이 특징만) */
+export const styleSchema = z.object({
+  traits: z
+    .array(
+      z.object({
+        name: z.string().describe('특징 이름 짧게(예: "짧은 문장으로 긴장을 끊는다")'),
+        description: z.string().describe('1~2문장 설명. 좋다/나쁘다 평가 없이'),
+        examples: z.array(z.string()).describe('원고 문장 그대로 1~2개'),
+      }),
+    )
+    .describe('이 작가 문체의 두드러진 특징 3~5개'),
+});

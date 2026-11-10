@@ -146,3 +146,43 @@
   color: var(--c-warn);
   margin: 0;
 }
+.styleGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--sp-3);
+  margin: 0;
+}
+.styleGrid dt {
+  color: var(--c-sub);
+  font-size: 0.9em;
+}
+.styleGrid dd {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.styleWide {
+  grid-column: 1 / -1;
+}
+.styleSub {
+  margin: var(--sp-3) 0 0;
+  font-size: 1em;
+}
+.styleTraits {
+  display: grid;
+  gap: var(--sp-2);
+}
+.styleTraitList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-3);
+}
+.styleTraitList li {
+  display: grid;
+  gap: var(--sp-1);
+}
+.styleTraitList p {
+  margin: 0;
+}
