@@ -8,7 +8,7 @@
 
 | 항목 | 상태 |
 |---|---|
-| 현재 단계 | **M4 뼈대·M5·M6 완료(Claude·OpenAI 키 대기), M7 점검 완료 → 남은 것: 키 넣고 실제 확인, 작가 3명 테스트** |
+| 현재 단계 | **M4·M5 완료(Claude 연결됨 2026-11-10), M6 완료(OpenAI 키 대기), M7 점검 완료 → 남은 것: 실제 원고로 AI 품질 확인, 작가 3명 테스트** |
 | 저장소 | https://github.com/khj94591375-create/my-universe (Public, 기본 브랜치 `main`) |
 | 배포 주소 | https://khj94591375-create.github.io/my-universe/ (`main`에 push하면 GitHub Actions가 자동 배포) |
 | GitHub Pages | 켜짐(Source: GitHub Actions). 첫 배포 성공 |
