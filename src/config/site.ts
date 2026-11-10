@@ -3,5 +3,5 @@ export const site = {
   /** 도움말·문의 메일(내 설정, 개인정보처리방침) */
   contactEmail: 'khj94591375@gmail.com',
   /** 개인정보처리방침 시행일 */
-  privacyEffective: '2026-11-04',
+  privacyEffective: '2026-11-10',
 };

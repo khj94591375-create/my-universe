@@ -231,7 +231,7 @@ describe('7.5 회차 번호와 여러 회차 나누기', () => {
   });
 });
 
-import { ALL_TIPS, readGuide, tipSeen, withTip, withTour, withoutTips } from '../guide/guideData';
+import { ALL_TIPS, readGuide, tipKey, tipSeen, withTip, withTour, withoutTips } from '../guide/guideData';
 
 describe('처음 사용 가이드 기억', () => {
   it('저장된 값이 없거나 이상해도 빈 상태로 읽는다', () => {
@@ -247,5 +247,17 @@ describe('처음 사용 가이드 기억', () => {
     expect(tipSeen(g, 'home')).toBe(false);
     expect(tipSeen(withTip(g, ALL_TIPS), 'home')).toBe(true);
     expect(withoutTips(g)).toEqual({ tour: 'skipped', tips: [] });
+  });
+});
+
+describe('바뀐 도움말 다시 보여 주기', () => {
+  it('버전 1은 예전 키 그대로, 버전이 오르면 예전에 닫았어도 다시 보이고, 모두 끄기는 그대로', () => {
+    expect(tipKey('map')).toBe('map');
+    expect(tipKey('home', 2)).toBe('home@2');
+    const closedOld = withTip({}, 'home');
+    expect(tipSeen(closedOld, tipKey('home', 1))).toBe(true);
+    expect(tipSeen(closedOld, tipKey('home', 2))).toBe(false);
+    expect(tipSeen(withTip(closedOld, 'home@2'), tipKey('home', 2))).toBe(true);
+    expect(tipSeen(withTip({}, ALL_TIPS), tipKey('home', 2))).toBe(true);
   });
 });

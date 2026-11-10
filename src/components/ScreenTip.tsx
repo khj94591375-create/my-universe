@@ -1,8 +1,8 @@
 import { copy } from '../config/copy';
-import { screenTips, tipArt, type TipId } from '../config/guide';
+import { screenTips, tipArt, tipVersion, type TipId } from '../config/guide';
 import { art } from '../config/art';
 import { ArtImage } from './ArtImage';
-import { ALL_TIPS } from '../features/guide/guideData';
+import { ALL_TIPS, tipKey } from '../features/guide/guideData';
 import { useGuideState, useTourOpen } from '../features/guide/guideState';
 import s from './ScreenTip.module.css';
 
@@ -10,7 +10,8 @@ import s from './ScreenTip.module.css';
 export function ScreenTip({ id }: { id: TipId }) {
   const guide = useGuideState();
   const tourOpen = useTourOpen();
-  if (tourOpen || guide.tipSeen(id)) return null;
+  const key = tipKey(id, tipVersion[id]);
+  if (tourOpen || guide.tipSeen(key)) return null;
   return (
     <aside className={s.tip} aria-label={copy.guide.tipLabel}>
       {tipArt[id] ? (
@@ -25,7 +26,7 @@ export function ScreenTip({ id }: { id: TipId }) {
         <button type="button" className={s.btn} onClick={() => guide.dismissTip(ALL_TIPS)}>
           {copy.guide.tipAllOff}
         </button>
-        <button type="button" className={`${s.btn} ${s.close}`} onClick={() => guide.dismissTip(id)}>
+        <button type="button" className={`${s.btn} ${s.close}`} onClick={() => guide.dismissTip(key)}>
           {copy.guide.tipClose}
         </button>
       </div>

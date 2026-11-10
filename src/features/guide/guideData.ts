@@ -20,3 +20,6 @@ export const tipSeen = (g: GuideData, id: string) => Boolean(g.tips?.includes(AL
 export const withTour = (g: GuideData, how: 'done' | 'skipped'): GuideData => ({ ...g, tour: how });
 export const withTip = (g: GuideData, id: string): GuideData => ({ ...g, tips: [...new Set([...(g.tips ?? []), id])] });
 export const withoutTips = (g: GuideData): GuideData => ({ ...g, tips: [] });
+
+/** 도움말 "봤음" 저장 키: 버전 1은 화면 이름 그대로(예전 기록과 호환), 2부터 "화면@버전" */
+export const tipKey = (id: string, version = 1) => (version > 1 ? `${id}@${version}` : id);
