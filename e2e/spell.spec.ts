@@ -83,7 +83,7 @@ test('AI 검사: 고유명사는 빼고, 대사는 "확인 필요", 앞으로도
     ],
   }));
   await page.goto(`#/w/${MINE}/episodes?open=1&check=1`);
-  await expect(page.getByText(/AI 회사\(Anthropic\) 서버로 전송돼요/)).toBeVisible();
+  await expect(page.getByText(/AI 검사를 쓰면 이 회차 원고가 AI 회사\(Anthropic\) 서버로 전송돼요/)).toBeVisible();
   await page.getByRole('button', { name: '검사 시작' }).click();
   await page.getByRole('tab', { name: '원고에서 보기' }).click();
   await expect(page.locator('button[class*=mark]', { hasText: '은열쇠가' })).toHaveCount(0); // 설정집 이름 보호

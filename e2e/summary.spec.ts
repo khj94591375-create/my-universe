@@ -27,7 +27,7 @@ test('AI 요약 초안은 칸에만, 저장해야 반영, 되돌리기', async (
   const { db, writes, calls } = await setup(page, true);
   await page.goto(`#/w/${MINE}/episodes?open=1`);
   await page.getByRole('button', { name: '제목·요약 고치기' }).click();
-  await expect(page.getByText(/AI 회사\(Anthropic\) 서버로 전송돼요/)).toBeVisible();
+  await expect(page.getByText(/누르면 이 회차 원고가 AI 회사\(Anthropic\) 서버로 전송돼요/)).toBeVisible();
   await page.getByRole('button', { name: 'AI로 요약 초안 쓰기' }).click();
   const box = page.getByLabel('요약(2~3문장)');
   await expect(box).toHaveValue('리안이 서고 문을 연다.');
