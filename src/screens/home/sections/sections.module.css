@@ -83,3 +83,24 @@
   font-size: var(--fs-sm);
   font-variant-numeric: tabular-nums;
 }
+.stuckForm {
+  display: grid;
+  gap: var(--sp-2);
+}
+.stuckForm button {
+  justify-self: start;
+}
+.stuckOption {
+  display: grid;
+  gap: var(--sp-2);
+  padding: var(--sp-3) 0;
+  border-top: 1px solid var(--c-line);
+}
+.stuckUses {
+  display: grid;
+  gap: var(--sp-1);
+}
+.error {
+  color: var(--c-warn);
+  margin: 0;
+}

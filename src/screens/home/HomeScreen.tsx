@@ -14,6 +14,7 @@ import { ResolveProgressSection } from './sections/ResolveProgressSection';
 import { RecentUploadsSection } from './sections/RecentUploadsSection';
 import { ConflictsSection } from './sections/ConflictsSection';
 import { UniverseMapSection } from './sections/UniverseMapSection';
+import { StuckSceneSection } from './sections/StuckSceneSection';
 
 /**
  * 내 우주 홈(BUILD_SPEC 6.3). 배너 → 나의 우주 지도(대표 영역) → 기존 카드들.
@@ -51,6 +52,7 @@ export default function HomeScreen() {
               <Column>
                 <ForgottenListSection workId={workId} />
                 <TodaySuggestionSection workId={workId} />
+                <StuckSceneSection workId={workId} />
               </Column>
               <Column>
                 <ResolveProgressSection workId={workId} />

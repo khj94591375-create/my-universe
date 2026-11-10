@@ -49,6 +49,8 @@ export type AskResult = { answer: string; found: boolean; evidence: { text: stri
 type ProfileField = { text: string; evidence: { text: string; tag: string; ep: number | null }[] };
 export type ProfileResult = { look: ProfileField; personality: ProfileField; speech: ProfileField; dropped: number };
 
+export type UnstickResult = { options: { title: string; plan: string; uses: { item: string; evidence: string | null; ep: number | null }[]; caution: string }[] };
+
 export type SummaryResult = { summary: string };
 
 export type AnalyzeResult = { summary: string; counts: { new_items: number; aliases: number; relations: number; resolutions: number } };

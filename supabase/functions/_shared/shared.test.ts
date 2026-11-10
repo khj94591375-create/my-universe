@@ -219,3 +219,27 @@ describe('인물 소개 카드', () => {
     expect(r.dropped).toBe(1);
   });
 });
+
+import { finishAlternatives } from './unstick.ts';
+
+describe('막힌 장면 대안 전개', () => {
+  it('설정집에 없는 항목은 빼고, 근거가 확인 안 되면 근거만 비우고, 대안은 3개까지', () => {
+    const scenes = new Map([['E3-S2', '노인은 은열쇠를 내려다보며 말이 없었다.']]);
+    const opt = (title: string) => ({
+      title,
+      plan: '노인이 정체를 밝힌다.',
+      uses: [
+        { item: '검은 망토의 노인', evidence: '노인은 은열쇠를 내려다보며 말이 없었다.', tag: 'E3-S2' },
+        { item: '반쪽짜리 은열쇠', evidence: '은열쇠가 빛났다.', tag: 'E3-S2' },
+        { item: '새 인물', evidence: '노인은 은열쇠를 내려다보며 말이 없었다.', tag: 'E3-S2' },
+      ],
+      caution: '',
+    });
+    const r = finishAlternatives([opt('가'), opt('나'), opt('다'), opt('라'), { ...opt(''), title: ' ' }], scenes, new Set(['검은 망토의 노인', '반쪽짜리 은열쇠']));
+    expect(r.map((o) => o.title)).toEqual(['가', '나', '다']);
+    expect(r[0].uses).toEqual([
+      { item: '검은 망토의 노인', evidence: '노인은 은열쇠를 내려다보며 말이 없었다.', ep: 3 },
+      { item: '반쪽짜리 은열쇠', evidence: null, ep: null },
+    ]);
+  });
+});

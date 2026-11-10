@@ -99,3 +99,17 @@ export const profileSchema = z.object({
   personality: profileField.describe('성격: 행동으로 드러난 성향'),
   speech: profileField.describe('말투: 말버릇·어조·호칭(대사 예시는 evidence로)'),
 });
+
+/** 막힌 장면 대안 전개(저장하지 않음, 플롯 수준만) */
+export const unstickSchema = z.object({
+  options: z
+    .array(
+      z.object({
+        title: z.string().describe('대안 이름 한 줄(예: "노인이 먼저 정체를 밝힌다")'),
+        plan: z.string().describe('이 장면을 어떻게 풀지 2~3문장. 본문 문장이 아니라 전개 설명'),
+        uses: z.array(z.object({ item: z.string().describe('설정집 이름 그대로'), evidence: z.string(), tag: z.string() })),
+        caution: z.string().describe('이 대안을 쓰면 앞 설정과 부딪히거나 챙겨야 할 점 한 줄. 없으면 빈 문자열'),
+      }),
+    )
+    .describe('서로 방향이 다른 대안 3개'),
+});
