@@ -81,3 +81,10 @@ export const spellSchema = z.object({
 export const summarySchema = z.object({
   summary: z.string().describe('이 회차 요약 2~3문장. 원고에 있는 사건만, 평가·추측 없이'),
 });
+
+/** 세계관 질문하기(저장하지 않음) */
+export const askSchema = z.object({
+  found: z.boolean().describe('주어진 원고 장면·설정집에서 답을 찾았으면 true, 찾지 못했으면 false'),
+  answer: z.string().describe('2~5문장 답. 찾지 못했으면 무엇이 확인되지 않는지 짧게'),
+  evidence: z.array(z.object({ text: z.string(), tag: z.string() })).describe('답의 근거가 된 원고 문장(글자 그대로)과 장면 꼬리표'),
+});

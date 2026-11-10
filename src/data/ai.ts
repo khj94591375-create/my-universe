@@ -44,6 +44,8 @@ export type DesignResult = {
 
 export type ChatResult = { reply: string; evidence: { text: string | null; tag: string }[] };
 
+export type AskResult = { answer: string; found: boolean; evidence: { text: string; tag: string; ep: number | null }[]; dropped: number };
+
 export type SummaryResult = { summary: string };
 
 export type AnalyzeResult = { summary: string; counts: { new_items: number; aliases: number; relations: number; resolutions: number } };

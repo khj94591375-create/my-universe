@@ -168,3 +168,33 @@ describe('맞춤법 제안 거르기', () => {
     expect(r.kept).toHaveLength(1);
   });
 });
+
+import { itemsInQuestion, keepVerified } from './ask.ts';
+
+describe('세계관 질문하기', () => {
+  const items = [
+    { id: 'a', name: '리안', aliases: ['견습생'] },
+    { id: 'b', name: '반쪽짜리 은열쇠', aliases: ['은열쇠'] },
+    { id: 'c', name: '세린', aliases: ['린'] }, // 한 글자 별칭은 무시
+  ];
+  it('질문에 나온 이름·별칭으로 항목을 찾는다(긴 이름 우선, 한 글자 별칭 무시)', () => {
+    expect(itemsInQuestion('견습생이 은열쇠를 처음 본 회차는?', items).sort()).toEqual(['a', 'b']);
+    expect(itemsInQuestion('반쪽짜리 은열쇠와 리안', items)).toEqual(['b', 'a']);
+    expect(itemsInQuestion('린이 누구야?', items)).toEqual([]);
+    expect(itemsInQuestion('달빛 서고 규칙', items)).toEqual([]);
+  });
+  it('원고에 글자 그대로 있는 근거만 남기고 중복을 뺀다', () => {
+    const scenes = new Map([['E2-S1', '리안은 은열쇠를 처음 손에 쥐었다. 차가웠다.']]);
+    const r = keepVerified(
+      [
+        { text: '리안은 은열쇠를 처음 손에 쥐었다.', tag: 'E2-S1' },
+        { text: '리안은 은열쇠를 처음 손에 쥐었다.', tag: 'E2-S1' },
+        { text: '리안은 열쇠를 버렸다.', tag: 'E2-S1' },
+        { text: '리안은 은열쇠를 처음 손에 쥐었다.', tag: 'E3-S1' },
+      ],
+      scenes,
+    );
+    expect(r.evidence).toEqual([{ text: '리안은 은열쇠를 처음 손에 쥐었다.', tag: 'E2-S1', ep: 2 }]);
+    expect(r.dropped).toBe(2);
+  });
+});
