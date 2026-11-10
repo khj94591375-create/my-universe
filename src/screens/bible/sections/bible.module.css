@@ -184,7 +184,7 @@
 .askForm {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--s-2);
+  gap: var(--sp-2);
   align-items: flex-start;
 }
 .askForm > label {
@@ -193,4 +193,27 @@
 .askAnswer {
   margin: 0;
   white-space: pre-wrap;
+}
+.profile {
+  display: grid;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+}
+.profileList {
+  display: grid;
+  gap: var(--sp-3);
+  margin: 0;
+}
+.profileList dt {
+  font-weight: 600;
+}
+.profileList dd {
+  margin: 0;
+  display: grid;
+  gap: var(--sp-1);
+}
+.profileList p {
+  margin: 0;
 }

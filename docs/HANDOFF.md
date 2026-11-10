@@ -179,6 +179,7 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 ## 3-16. Claude 연결 이후 AI 기능 추가
 - ① 회차 요약 초안 `supabase/functions/summarize-episode`(저장 안 함) + `EpisodeDetailSection` 편집 칸 버튼, 테스트 `e2e/summary.spec.ts`. analyze-episode는 빈 요약만 채움
 - ② 세계관 질문하기 `supabase/functions/ask-world` + `_shared/ask.ts`(항목 찾기·근거 거르기, 단위 테스트), 화면 `screens/bible/sections/AskWorldSection.tsx`, 테스트 `e2e/ask.spec.ts`
+- ③ 인물 소개 카드 `supabase/functions/profile-item` + `_shared/profile.ts`, 화면 `screens/bible/sections/ProfileDraft.tsx`(ItemRow의 profile 모드), 테스트 `e2e/profile.spec.ts`
 
 ## 4. 작업 습관
 

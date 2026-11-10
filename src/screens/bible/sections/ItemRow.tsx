@@ -12,11 +12,14 @@ import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { useWorkData } from '../../../features/works/workData';
 import { kindOptions } from './NewItemSection';
 import { SheetImage } from './SheetImage';
+import { ProfileDraft } from './ProfileDraft';
+import { useAiStatus } from '../../../features/ai/aiStatus';
+import type { ProfileResult } from '../../../data/ai';
 import s from './bible.module.css';
 
 const statusOptions: [ItemStatus, string][] = (['open', 'resolved', 'reuse_planned', 'reused'] as ItemStatus[]).map((st) => [st, copy.labels.status[st]]);
 
-type Mode = 'view' | 'edit' | 'merge' | 'confirmMerge' | 'confirmDelete';
+type Mode = 'view' | 'edit' | 'merge' | 'confirmMerge' | 'confirmDelete' | 'profile';
 
 /** 설정집 한 줄: 보기 / 고치기 / 합치기 / 삭제. 예시 작품에서는 보기만. */
 export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
@@ -29,9 +32,20 @@ export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
   const [mergeId, setMergeId] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const ai = useAiStatus();
 
   const startEdit = () => {
     setDraft({ name: item.name, kind: item.kind, note: item.note ?? '', look: item.look ?? '', status: item.status });
+    setError(null);
+    setMode('edit');
+  };
+
+  // AI 인물 소개를 고치기 칸으로: 기존 글은 그대로 두고 외모는 외모 칸 끝에, 성격·말투는 설명 칸 끝에 덧붙인다. 저장은 작가가
+  const useProfile = (p: ProfileResult) => {
+    const add = (['personality', 'speech'] as const).filter((f) => p[f].text).map((f) => `${copy.profile.notePrefix[f]}: ${p[f].text}`);
+    const note = [item.note ?? '', ...add].filter(Boolean).join('\n');
+    const look = [item.look ?? '', p.look.text].filter(Boolean).join('\n');
+    setDraft({ name: item.name, kind: item.kind, note, look, status: item.status });
     setError(null);
     setMode('edit');
   };
@@ -158,6 +172,7 @@ export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
           }
         />
       )}
+      {mode === 'profile' && <ProfileDraft workId={workId} item={item} onUse={useProfile} onClose={() => setMode('view')} />}
       {mode === 'confirmDelete' && (
         <ConfirmBar
           message={copy.bible.removeConfirm(item.name)}
@@ -178,6 +193,11 @@ export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
           <Button variant="ghost" size="sm" onClick={startEdit}>
             {copy.bible.edit}
           </Button>
+          {item.kind === 'character' && ai.on && (
+            <Button variant="ghost" size="sm" onClick={() => setMode('profile')}>
+              {copy.profile.open}
+            </Button>
+          )}
           <Button variant="ghost" size="sm" onClick={() => { setMergeId(''); setMode('merge'); }}>
             {copy.bible.merge}
           </Button>

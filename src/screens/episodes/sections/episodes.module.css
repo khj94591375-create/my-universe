@@ -140,7 +140,7 @@
 }
 .aiDraft {
   display: grid;
-  gap: var(--s-2);
+  gap: var(--sp-2);
 }
 .error {
   color: var(--c-warn);

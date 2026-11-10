@@ -46,6 +46,9 @@ export type ChatResult = { reply: string; evidence: { text: string | null; tag: 
 
 export type AskResult = { answer: string; found: boolean; evidence: { text: string; tag: string; ep: number | null }[]; dropped: number };
 
+type ProfileField = { text: string; evidence: { text: string; tag: string; ep: number | null }[] };
+export type ProfileResult = { look: ProfileField; personality: ProfileField; speech: ProfileField; dropped: number };
+
 export type SummaryResult = { summary: string };
 
 export type AnalyzeResult = { summary: string; counts: { new_items: number; aliases: number; relations: number; resolutions: number } };

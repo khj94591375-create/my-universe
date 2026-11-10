@@ -88,3 +88,14 @@ export const askSchema = z.object({
   answer: z.string().describe('2~5문장 답. 찾지 못했으면 무엇이 확인되지 않는지 짧게'),
   evidence: z.array(z.object({ text: z.string(), tag: z.string() })).describe('답의 근거가 된 원고 문장(글자 그대로)과 장면 꼬리표'),
 });
+
+const profileField = z.object({
+  text: z.string().describe('1~2문장. 원고에서 확인되지 않으면 빈 문자열'),
+  evidence: z.array(z.object({ text: z.string(), tag: z.string() })).describe('원고 문장 그대로와 장면 꼬리표, 최대 3개'),
+});
+/** 인물 소개 카드(저장하지 않음, 작가가 고쳐서 설정집에 넣음) */
+export const profileSchema = z.object({
+  look: profileField.describe('외모: 생김새·옷차림·눈에 띄는 특징'),
+  personality: profileField.describe('성격: 행동으로 드러난 성향'),
+  speech: profileField.describe('말투: 말버릇·어조·호칭(대사 예시는 evidence로)'),
+});

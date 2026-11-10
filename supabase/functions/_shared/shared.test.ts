@@ -198,3 +198,24 @@ describe('세계관 질문하기', () => {
     expect(r.dropped).toBe(2);
   });
 });
+
+import { finishProfile } from './profile.ts';
+
+describe('인물 소개 카드', () => {
+  it('근거가 확인된 항목만 남기고, 근거 없는 항목은 비운다', () => {
+    const scenes = new Map([['E1-S1', '리안은 잿빛 망토를 걸쳤다. "괜찮아요, 사서님." 리안이 웃었다.']]);
+    const r = finishProfile(
+      {
+        look: { text: '잿빛 망토를 걸친다.', evidence: [{ text: '리안은 잿빛 망토를 걸쳤다.', tag: 'E1-S1' }] },
+        personality: { text: '용감하다.', evidence: [{ text: '리안은 용감하게 뛰어들었다.', tag: 'E1-S1' }] },
+        speech: { text: '공손한 존댓말.', evidence: [] },
+      },
+      scenes,
+    );
+    expect(r.look.text).toBe('잿빛 망토를 걸친다.');
+    expect(r.look.evidence[0].ep).toBe(1);
+    expect(r.personality).toEqual({ text: '', evidence: [] });
+    expect(r.speech).toEqual({ text: '', evidence: [] });
+    expect(r.dropped).toBe(1);
+  });
+});
