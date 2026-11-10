@@ -182,6 +182,8 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - ③ 인물 소개 카드 `supabase/functions/profile-item` + `_shared/profile.ts`, 화면 `screens/bible/sections/ProfileDraft.tsx`(ItemRow의 profile 모드), 테스트 `e2e/profile.spec.ts`
 - ④ 막힌 장면 풀기 `supabase/functions/unstick-scene` + `_shared/unstick.ts`, 화면 `screens/home/sections/StuckSceneSection.tsx`, 테스트 `e2e/unstick.spec.ts`
 - ⑤ 문체 분석 통계 `src/features/style/stats.ts`(단위 테스트) + AI `supabase/functions/analyze-style` + `_shared/style.ts`, 화면 `screens/episodes/sections/StyleSection.tsx`, 테스트 `e2e/style.spec.ts`
+- 작가 테스트 안내서·기록표 `docs/USER_TEST.md`, 실제 AI 채점 순서 `docs/CHECKLIST.md` 5장
+- 이 작업 공간에서는 Anthropic·Supabase에 직접 접속할 수 없어 실제 AI 품질은 작가가 사이트에서 채점 결과를 보내 줘야 확인 가능
 
 ## 4. 작업 습관
 
