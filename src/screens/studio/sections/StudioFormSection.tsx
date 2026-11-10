@@ -11,7 +11,7 @@ import type { ItemView } from '../../../data/types';
 import { aiErrorMessage, refreshAiStatus, useAiStatus } from '../../../features/ai/aiStatus';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { useWorkData } from '../../../features/works/workData';
-import { DEFAULT_RATIO, buildImagePrompt, type ImagePurpose, type ImageRatio } from '../../../../supabase/functions/_shared/imagePrompt';
+import { DEFAULT_RATIO, buildImagePrompt, numberReferences, type ImagePurpose, type ImageRatio } from '../../../../supabase/functions/_shared/imagePrompt';
 import s from './studio.module.css';
 
 export type StudioPrefill = { purpose: ImagePurpose; itemIds: string[]; referencePath?: string; nonce?: number };
@@ -56,7 +56,20 @@ export function StudioFormSection({ workId, prefill, onCreated }: { workId: stri
 
   const chosen = useMemo(() => (data ? picked.map((id) => data.itemById.get(id)).filter((i): i is ItemView => Boolean(i)) : []), [data, picked]);
   const hasSheet = chosen.some((i) => i.reference_image_path) || Boolean(referencePath);
-  const prompt = buildImagePrompt({ purpose, style, scene, items: chosen.map((i) => ({ name: i.name, kind: i.kind, look: i.look })), hasReference: hasSheet });
+  // 서버와 같은 규칙으로 참조 이미지 번호를 매겨, 미리보기 문장 = 보내는 문장
+  const redrawOnly = Boolean(referencePath) && !chosen.some((i) => i.reference_image_path === referencePath);
+  const numbered = numberReferences(
+    chosen.map((i) => ({ name: i.name, kind: i.kind, look: i.look, hasRef: Boolean(i.reference_image_path) })),
+    redrawOnly,
+  );
+  const prompt = buildImagePrompt({
+    purpose,
+    style,
+    scene,
+    items: numbered.items.map(({ name, kind, look, ref }) => ({ name, kind, look, ref })),
+    hasReference: hasSheet,
+    redrawRef: numbered.redrawRef,
+  });
   if (!data) return null;
 
   const st = ai.status;

@@ -3,11 +3,10 @@
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { generateImage } from '../_shared/openai.ts';
-import { DEFAULT_RATIO, buildImagePrompt, type ImagePurpose, type ImageRatio, type PromptItem } from '../_shared/imagePrompt.ts';
+import { DEFAULT_RATIO, MAX_REFS, buildImagePrompt, numberReferences, type ImagePurpose, type ImageRatio, type PromptItem } from '../_shared/imagePrompt.ts';
 
 const PURPOSES: ImagePurpose[] = ['sketch', 'illustration', 'cover', 'sheet'];
 const RATIOS: ImageRatio[] = ['3:4', '4:3', '1:1'];
-const MAX_REFS = 4;
 
 serve(async (ctx) => {
   const userId = requireUser(ctx);
@@ -29,17 +28,31 @@ serve(async (ctx) => {
   const { data: w } = await admin.from('works').select('art_style').eq('id', work.id).single();
   const style = typeof ctx.body.style === 'string' && ctx.body.style.trim() ? ctx.body.style.slice(0, 100) : ((w?.art_style as string) ?? '');
 
-  // 참조 이미지: 고른 항목의 이미지 시트 + "이 이미지로 다시 그리기"의 원본(내 작품 폴더 안의 것만)
-  const refPaths = [...new Set([...items.map((i) => i.reference_image_path).filter((p): p is string => Boolean(p)), ...(typeof ctx.body.referencePath === 'string' ? [ctx.body.referencePath] : [])])]
-    .filter((p) => p.startsWith(`${workId}/`))
-    .slice(0, MAX_REFS);
-  const references = [];
-  for (const path of refPaths) {
+  // 참조 이미지: 고른 항목의 이미지 시트(고른 순서) + "이 이미지로 다시 그리기"의 원본(내 작품 폴더 안의 것만).
+  // 실제로 내려받은 것만 번호를 매겨, 요청 문장의 "참조 이미지 n번 = 이름"과 보내는 순서를 맞춘다.
+  type Ref = { name: string; bytes: Uint8Array; type: string };
+  const load = async (path: string | null | undefined): Promise<Ref | null> => {
+    if (!path || !path.startsWith(`${workId}/`)) return null;
     const { data: blob } = await admin.storage.from('images').download(path);
-    if (blob) references.push({ name: path.split('/').pop()!, bytes: new Uint8Array(await blob.arrayBuffer()), type: blob.type || 'image/png' });
-  }
+    return blob ? { name: path.split('/').pop()!, bytes: new Uint8Array(await blob.arrayBuffer()), type: blob.type || 'image/png' } : null;
+  };
+  const ordered = itemIds.map((id) => items.find((i) => i.id === id)).filter((i): i is (typeof items)[number] => Boolean(i));
+  const sheets: (Ref | null)[] = [];
+  for (const it of ordered) sheets.push(sheets.filter(Boolean).length < MAX_REFS ? await load(it.reference_image_path) : null);
+  const redrawPath = typeof ctx.body.referencePath === 'string' ? ctx.body.referencePath : null;
+  const redraw = redrawPath && !ordered.some((i) => i.reference_image_path === redrawPath) ? await load(redrawPath) : null;
+  const numbered = numberReferences(
+    ordered.map((it, k) => ({ name: it.name, kind: it.kind, look: it.look, hasRef: Boolean(sheets[k]) })),
+    Boolean(redraw),
+  );
+  const references: Ref[] = [];
+  numbered.items.forEach((it, k) => {
+    if (it.ref != null) references[it.ref - 1] = sheets[k]!;
+  });
+  if (numbered.redrawRef != null && redraw) references[numbered.redrawRef - 1] = redraw;
+  const promptItems: PromptItem[] = numbered.items.map(({ name, kind, look, ref }) => ({ name, kind, look, ref }));
 
-  const prompt = buildImagePrompt({ purpose, style, scene, items, hasReference: references.length > 0 });
+  const prompt = buildImagePrompt({ purpose, style, scene, items: promptItems, hasReference: references.length > 0, redrawRef: numbered.redrawRef });
   const png = await generateImage(prompt, ratio, references);
 
   const id = crypto.randomUUID();

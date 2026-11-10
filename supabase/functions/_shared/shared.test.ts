@@ -115,7 +115,7 @@ describe('7.9 설정 충돌', () => {
   });
 });
 
-import { buildImagePrompt, DEFAULT_RATIO } from './imagePrompt.ts';
+import { buildImagePrompt, DEFAULT_RATIO, numberReferences } from './imagePrompt.ts';
 
 describe('8.9 삽화 요청 문장', () => {
   const items = [
@@ -266,5 +266,29 @@ describe('문체 분석', () => {
     const s = sampleBodies([long, long, long], 3000);
     expect([...s].length).toBeLessThanOrEqual(3000);
     expect(sampleBodies(['', '  '])).toBe('');
+  });
+});
+
+describe('8.9 참조 이미지 번호', () => {
+  const pick = (name: string, hasRef: boolean, look: string | null = null) => ({ name, kind: 'character' as const, look, hasRef });
+  it('이미지 시트가 있는 항목만 고른 순서대로 번호, 다시 그리기 원본은 마지막, 4장까지', () => {
+    const r = numberReferences([pick('리안', true), pick('노인', false), pick('세린', true)], true);
+    expect(r.items.map((i) => i.ref)).toEqual([1, undefined, 2]);
+    expect(r.redrawRef).toBe(3);
+    const many = numberReferences(['가', '나', '다', '라', '마'].map((n) => pick(n, true)), true);
+    expect(many.items.map((i) => i.ref)).toEqual([1, 2, 3, undefined, undefined]);
+    expect(many.redrawRef).toBe(4);
+    expect(numberReferences([pick('리안', true)], false).redrawRef).toBeUndefined();
+  });
+  it('요청 문장: 누구의 참조 이미지인지 적고, 외모가 없으면 참조 이미지 모습 그대로', () => {
+    const { items, redrawRef } = numberReferences([pick('리안', true, '짧은 갈색 머리'), pick('세린', true), pick('노인', false)], false);
+    const p = buildImagePrompt({ purpose: 'illustration', style: '', scene: '', items: items.map(({ name, kind, look, ref }) => ({ name, kind, look, ref })), hasReference: true, redrawRef });
+    expect(p).toContain('- 리안: 짧은 갈색 머리 (참조 이미지 1번)');
+    expect(p).toContain('- 세린: 참조 이미지 2번의 모습 그대로');
+    expect(p).toContain('- 노인: (외모 정보 없음)');
+    expect(p).toContain('[참조] 참조 이미지 1번 = 리안, 2번 = 세린.');
+    expect(p).toContain('서로 섞지 않는다');
+    const r2 = buildImagePrompt({ purpose: 'illustration', style: '', scene: '', items: [], hasReference: true, redrawRef: 1 });
+    expect(r2).toContain('[참조] 참조 이미지 1번 = 원본 그림(구도·분위기 참고).');
   });
 });
