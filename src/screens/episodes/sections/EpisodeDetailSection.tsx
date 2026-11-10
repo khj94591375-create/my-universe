@@ -7,7 +7,9 @@ import { Loading } from '../../../components/Loading';
 import { KindTag } from '../../../components/Badges';
 import { TextArea, TextField } from '../../../components/TextField';
 import { copy } from '../../../config/copy';
+import { callAi, type SummaryResult } from '../../../data/ai';
 import { toMessage } from '../../../data/errors';
+import { aiErrorMessage, refreshAiStatus, useAiStatus } from '../../../features/ai/aiStatus';
 import { deleteAppearances, deleteEpisode, updateEpisode } from '../../../data/episodes';
 import { fetchChunks } from '../../../data/workData';
 import type { Chunk, ItemView } from '../../../data/types';
@@ -33,6 +35,11 @@ export function EpisodeDetailSection({ workId, no, onClose, autoCheck = false }:
   const [busy, setBusy] = useState(false);
   // 맞춤법 검사 패널(원고 불러오기에서 ?check=1로 오면 바로 연다)
   const [checking, setChecking] = useState(autoCheck);
+  // AI 요약 초안: 칸에만 넣고 저장은 작가가([저장])
+  const ai = useAiStatus();
+  const [drafting, setDrafting] = useState(false);
+  const [draftNote, setDraftNote] = useState<{ text: string; error?: boolean } | null>(null);
+  const [beforeDraft, setBeforeDraft] = useState<string | null>(null);
 
   const analyzedAt = episode?.analyzed_at;
   useEffect(() => {
@@ -63,6 +70,21 @@ export function EpisodeDetailSection({ workId, no, onClose, autoCheck = false }:
       await recomputeCoOccur(workId);
     });
 
+  const draftSummary = async () => {
+    setDrafting(true);
+    setDraftNote(null);
+    try {
+      const r = await callAi<SummaryResult>('summarize-episode', { workId, episodeId: episode.id });
+      setBeforeDraft(meta.summary);
+      setMeta((m) => ({ ...m, summary: r.summary }));
+      setDraftNote({ text: copy.episodes.aiSummaryDone });
+    } catch (e) {
+      setDraftNote({ text: aiErrorMessage(e), error: true });
+      refreshAiStatus();
+    }
+    setDrafting(false);
+  };
+
   const submitMeta = async (e: FormEvent) => {
     e.preventDefault();
     setBusy(true);
@@ -86,6 +108,26 @@ export function EpisodeDetailSection({ workId, no, onClose, autoCheck = false }:
         <form className={s.form} onSubmit={submitMeta}>
           <TextField label={copy.episodes.titleLabel} value={meta.title} onChange={(e) => setMeta({ ...meta, title: e.target.value })} maxLength={80} autoFocus />
           <TextArea label={copy.episodes.summaryLabel} value={meta.summary} onChange={(e) => setMeta({ ...meta, summary: e.target.value })} rows={3} />
+          {ai.on ? (
+            <div className={s.aiDraft}>
+              <p className={s.muted}>{copy.episodes.aiSummaryNotice}</p>
+              <div className={s.formActions}>
+                <Button variant="ghost" size="sm" onClick={draftSummary} loading={drafting} disabled={busy}>
+                  {drafting ? copy.episodes.aiSummaryRunning : copy.episodes.aiSummary}
+                </Button>
+                {beforeDraft !== null && !drafting && (
+                  <Button variant="ghost" size="sm" onClick={() => { setMeta((m) => ({ ...m, summary: beforeDraft })); setBeforeDraft(null); setDraftNote(null); }}>
+                    {copy.episodes.aiSummaryUndo}
+                  </Button>
+                )}
+              </div>
+              {draftNote && (
+                <p className={draftNote.error ? s.error : s.muted} role="status">
+                  {draftNote.text}
+                </p>
+              )}
+            </div>
+          ) : null}
           <div className={s.formActions}>
             <Button variant="ghost" onClick={() => setMode('view')} disabled={busy}>
               {copy.episodes.cancel}
@@ -172,7 +214,7 @@ export function EpisodeDetailSection({ workId, no, onClose, autoCheck = false }:
       )}
       {canWrite && mode === 'view' && (
         <div className={s.actions}>
-          <Button variant="ghost" size="sm" onClick={() => { setMeta({ title: episode.title ?? '', summary: episode.summary ?? '' }); setMode('edit'); }}>
+          <Button variant="ghost" size="sm" onClick={() => { setMeta({ title: episode.title ?? '', summary: episode.summary ?? '' }); setBeforeDraft(null); setDraftNote(null); setMode('edit'); }}>
             {copy.episodes.editMeta}
           </Button>
           <Button

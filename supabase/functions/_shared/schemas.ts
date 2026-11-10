@@ -76,3 +76,8 @@ export const spellSchema = z.object({
     }),
   ),
 });
+
+/** 회차 요약 초안(저장하지 않음, 작가가 고쳐서 저장) */
+export const summarySchema = z.object({
+  summary: z.string().describe('이 회차 요약 2~3문장. 원고에 있는 사건만, 평가·추측 없이'),
+});

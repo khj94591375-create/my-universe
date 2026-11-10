@@ -138,3 +138,11 @@
     align-items: center;
   }
 }
+.aiDraft {
+  display: grid;
+  gap: var(--s-2);
+}
+.error {
+  color: var(--c-warn);
+  margin: 0;
+}

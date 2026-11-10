@@ -176,6 +176,9 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 - 작품 사전 표 `style_terms`(`supabase/migrations/0005_style_terms.sql`, **사용자 실행 필요**). 실행 전에는 "앞으로도 이 표현 유지"만 꺼짐
 - 테스트: 단위 `features/__tests__/spell.test.ts`, `_shared/shared.test.ts`, 화면 `e2e/spell.spec.ts`
 
+## 3-16. Claude 연결 이후 AI 기능 추가
+- ① 회차 요약 초안 `supabase/functions/summarize-episode`(저장 안 함) + `EpisodeDetailSection` 편집 칸 버튼, 테스트 `e2e/summary.spec.ts`. analyze-episode는 빈 요약만 채움
+
 ## 4. 작업 습관
 
 - 단계가 끝나면 `README.md`의 단계 표를 갱신하고, 중요한 판단은 `docs/DECISIONS.md`에 한 줄 추가한다

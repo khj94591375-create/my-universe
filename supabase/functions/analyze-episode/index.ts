@@ -37,8 +37,8 @@ serve(async (ctx) => {
     return chunks.find((c) => t && c.seq === t.seq)?.id ?? null;
   };
 
-  // 회차 요약
-  await admin.from('episodes').update({ summary: out.summary || null }).eq('id', episodeId);
+  // 회차 요약: 비어 있을 때만 채운다(작가가 쓴 요약은 덮어쓰지 않음)
+  if (!ep.summary?.trim() && out.summary) await admin.from('episodes').update({ summary: out.summary }).eq('id', episodeId);
 
   // 새 항목 + 등장(AI 추정)
   for (const it of out.new_items) {
