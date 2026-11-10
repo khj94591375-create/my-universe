@@ -20,6 +20,7 @@ import { save } from '../../../features/works/save';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { useWorkData } from '../../../features/works/workData';
 import { SpellCheckSection } from './SpellCheckSection';
+import { AiOrganizeSection } from './AiOrganizeSection';
 import s from './episodes.module.css';
 
 /** 회차 열기: 원고 전문(장면 구분, 등장 항목 강조), 제목·요약 고치기, 등장 항목 체크, 다시 정리, 삭제. */
@@ -234,6 +235,7 @@ export function EpisodeDetailSection({ workId, no, onClose, autoCheck = false }:
           </Button>
         </div>
       )}
+      {canWrite && mode === 'view' && <AiOrganizeSection workId={workId} single={episode.no} />}
     </Card>
   );
 }

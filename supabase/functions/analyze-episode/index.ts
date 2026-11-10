@@ -40,7 +40,9 @@ serve(async (ctx) => {
   // 회차 요약: 비어 있을 때만 채운다(작가가 쓴 요약은 덮어쓰지 않음)
   if (!ep.summary?.trim() && out.summary) await admin.from('episodes').update({ summary: out.summary }).eq('id', episodeId);
 
-  // 새 항목 + 등장(AI 추정)
+  // 여러 번 돌려도 겹치지 않게 실제로 새로 들어간 것만 센다
+  let newItems = 0;
+  // 새 항목 + 등장(AI 추정). 이미 있는 이름은 건너뛴다(작가가 지운 항목은 다시 생길 수 있음)
   for (const it of out.new_items) {
     const { data: row, error: e1 } = await admin
       .from('items')
@@ -48,6 +50,7 @@ serve(async (ctx) => {
       .select('id')
       .single();
     if (e1 || !row) continue; // 같은 이름이 동시에 생긴 경우 등은 건너뛴다
+    newItems++;
     byName.set(it.name.trim(), row.id);
     await admin.from('appearances').insert({
       item_id: row.id,
@@ -59,10 +62,11 @@ serve(async (ctx) => {
     });
   }
   // 별칭(AI 추정)
-  if (out.aliases.length) {
-    await admin
-      .from('item_aliases')
-      .upsert(out.aliases.map((a) => ({ item_id: byName.get(a.item_name), alias: a.alias.trim(), source: 'ai' })), { ignoreDuplicates: true });
+  let newAliases = 0;
+  const aliasRows = out.aliases.map((a) => ({ item_id: byName.get(a.item_name), alias: a.alias.trim(), source: 'ai' })).filter((a) => a.item_id);
+  if (aliasRows.length) {
+    const { data: added } = await admin.from('item_aliases').upsert(aliasRows, { ignoreDuplicates: true }).select('alias');
+    newAliases = (added ?? []).length;
   }
   // 관계(AI 추정 연결선, a < b)
   const rel = out.relations
@@ -74,16 +78,27 @@ serve(async (ctx) => {
       return { work_id: workId, a, b, kind: 'ai', label: r.label, weight: 1, evidence: r.evidence, direction: 'none' };
     })
     .filter((r): r is NonNullable<typeof r> => r != null);
-  if (rel.length) await admin.from('links').upsert(rel, { onConflict: 'a,b,kind,direction', ignoreDuplicates: true });
-  // 회수 추정: 상태는 바꾸지 않고 제안만(장면 칸은 비워 규칙 등장 기록과 겹치지 않게)
+  let newRelations = 0;
+  if (rel.length) {
+    const { data: added } = await admin.from('links').upsert(rel, { onConflict: 'a,b,kind,direction', ignoreDuplicates: true }).select('a');
+    newRelations = (added ?? []).length;
+  }
+  // 회수 추정: 상태는 바꾸지 않고 제안만(장면 칸은 비워 규칙 등장 기록과 겹치지 않게). 같은 회차·항목의 제안이 이미 있으면 건너뛴다
+  let newResolutions = 0;
+  const { data: prevResolve } = await admin.from('appearances').select('item_id').eq('episode_id', episodeId).eq('role', 'resolve');
+  const hasResolve = new Set(((prevResolve ?? []) as { item_id: string }[]).map((r) => r.item_id));
   for (const r of out.resolutions) {
-    await admin.from('appearances').insert({ item_id: byName.get(r.item_name), episode_id: episodeId, chunk_id: null, evidence: r.evidence, source: 'ai', role: 'resolve' });
+    const itemId = byName.get(r.item_name);
+    if (!itemId || hasResolve.has(itemId)) continue;
+    hasResolve.add(itemId);
+    const { error: e2 } = await admin.from('appearances').insert({ item_id: itemId, episode_id: episodeId, chunk_id: null, evidence: r.evidence, source: 'ai', role: 'resolve' });
+    if (!e2) newResolutions++;
   }
   await admin.from('episodes').update({ analyzed_at: new Date().toISOString() }).eq('id', episodeId);
   await addUsage(admin, userId, 'text');
   return {
     summary: out.summary,
-    counts: { new_items: out.new_items.length, aliases: out.aliases.length, relations: rel.length, resolutions: out.resolutions.length },
+    counts: { new_items: newItems, aliases: newAliases, relations: newRelations, resolutions: newResolutions },
     dropped: raw.new_items.length + raw.aliases.length + raw.relations.length + raw.resolutions.length - (out.new_items.length + out.aliases.length + out.relations.length + out.resolutions.length),
   };
 });

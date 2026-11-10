@@ -6,6 +6,7 @@ import { EpisodeListSection } from './sections/EpisodeListSection';
 import { EpisodeDetailSection } from './sections/EpisodeDetailSection';
 import { ReanalyzeAllButton } from './sections/ReanalyzeAllButton';
 import { StyleSection } from './sections/StyleSection';
+import { AiOrganizeSection } from './sections/AiOrganizeSection';
 
 /** 회차 기록(BUILD_SPEC 6.9). 열어 본 회차는 주소의 ?open=회차번호 로 기억한다. */
 export default function EpisodesScreen() {
@@ -25,6 +26,7 @@ export default function EpisodesScreen() {
         {() => (
           <>
             {open && <EpisodeDetailSection key={open} workId={workId} no={Number(open)} onClose={() => setOpen(null)} autoCheck={params.get('check') === '1'} />}
+            <AiOrganizeSection workId={workId} />
             <EpisodeListSection workId={workId} openNo={open ? Number(open) : null} onOpen={setOpen} />
             <StyleSection workId={workId} />
           </>
