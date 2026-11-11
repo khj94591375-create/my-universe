@@ -44,6 +44,12 @@
   padding: 3px 4px 3px 11px;
   font-size: var(--fs-sm);
   font-weight: 700;
+  /* 긴 이름은 칩 안에서 줄바꿈(칸을 넘지 않게) */
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.chip button {
+  flex: none;
 }
 .chip button {
   border: 0;

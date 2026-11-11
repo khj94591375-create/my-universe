@@ -299,7 +299,7 @@ export const copy = {
       addLink: '연결 추가',
       pairTitle: (a: string, b: string) => `「${a}」 · 「${b}」`,
       pairConnect: '이 두 별 잇기',
-      pairRemove: (label: string | null) => `연결 지우기${label ? `(${label})` : ''}`,
+      pairRemove: (label: string | null) => `연결 지우기${label ? `(${[...label].length > 12 ? `${[...label].slice(0, 11).join('')}…` : label})` : ''}`,
       pairHint: '별을 두 개 고르면 여기서 바로 잇거나 지울 수 있어요.',
       pickTarget: (name: string) => `「${name}」과(와) 이을 별을 지도에서 고르세요.`,
       linkLabel: '관계 이름(예: 편지를 쓴 사람)',

@@ -39,3 +39,24 @@ for (const [theme, w] of [['light', 1280], ['dark', 390]] as const)
     await expect(page.getByText(LONG, { exact: true }).first()).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
   });
+
+test('긴 이름 두 별을 고르면 오른쪽 창의 잇기 버튼·칩이 칸 안에서 줄바꿈', async ({ page }) => {
+  const { db } = await prepare(page, { user: true, mine: true, theme: 'dark' });
+  const base = { work_id: MINE, note: null, look: null, status: 'open', source: 'manual', confirmed: true, reference_image_path: null, created_at: '' };
+  const A = "'여긴 지나갈 수 없습니다'라는 경계";
+  const B = '레니-401의 오래된 기억 저장소와 봉인';
+  db.T.items.push({ ...base, id: 'fb000000-0000-4000-8000-000000000001', kind: 'setting', name: A });
+  db.T.items.push({ ...base, id: 'fb000000-0000-4000-8000-000000000002', kind: 'setting', name: B });
+  await page.goto('#/w/' + MINE + '/map?sel=fb000000-0000-4000-8000-000000000001,fb000000-0000-4000-8000-000000000002');
+  const btn = page.getByRole('button', { name: /잇기$/ }).filter({ hasText: '과(와)' });
+  await expect(btn).toBeVisible();
+  const panel = page.locator('[class*=panel]').first();
+  const p = (await panel.boundingBox())!;
+  for (const el of [btn, page.locator('[class*=chip]').filter({ hasText: A }).first(), page.locator('[class*=chip]').filter({ hasText: B }).first()]) {
+    const b = (await el.boundingBox())!;
+    expect(b.x).toBeGreaterThanOrEqual(p.x - 1);
+    expect(b.x + b.width).toBeLessThanOrEqual(p.x + p.width + 1);
+  }
+  // 버튼 글자가 버튼 밖으로 넘치지 않음
+  expect(await btn.evaluate((e) => e.scrollWidth <= e.clientWidth + 1)).toBe(true);
+});

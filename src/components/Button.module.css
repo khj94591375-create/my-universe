@@ -9,6 +9,8 @@
   cursor: pointer;
   text-decoration: none;
   white-space: nowrap;
+  /* 칸보다 넓어지지 않게(긴 이름이 든 버튼) */
+  max-width: 100%;
 }
 .btn:disabled {
   opacity: 0.45;
@@ -28,6 +30,11 @@
 }
 .block {
   width: 100%;
+  /* 가로로 꽉 찬 버튼은 긴 글(긴 이름 등)을 줄바꿈해 칸 안에 */
+  white-space: normal;
+  word-break: keep-all; /* 한국어는 띄어쓰기에서 줄바꿈 */
+  overflow-wrap: anywhere; /* 띄어쓰기 없는 아주 긴 낱말만 쪼갬 */
+  text-align: center;
 }
 .primary {
   background: var(--c-primary);
