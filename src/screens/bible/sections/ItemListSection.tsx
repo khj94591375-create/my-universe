@@ -8,6 +8,11 @@ import { copy } from '../../../config/copy';
 import { art } from '../../../config/art';
 import type { ItemKind } from '../../../data/types';
 import { useWorkData } from '../../../features/works/workData';
+import { useCanWrite, useWork } from '../../../features/works/useWork';
+import { ConfirmBar } from '../../../components/ConfirmBar';
+import { deleteItems } from '../../../data/items';
+import { recomputeCoOccur } from '../../../features/analysis/runRules';
+import { save } from '../../../features/works/save';
 import { ItemRow } from './ItemRow';
 import s from './bible.module.css';
 
@@ -19,6 +24,13 @@ export function ItemListSection({ workId }: { workId: string }) {
   const { data } = useWorkData(workId);
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState<Filter>('all');
+  // 여러 개 골라 지우기
+  const { work } = useWork(workId);
+  const canWrite = useCanWrite(work);
+  const [selecting, setSelecting] = useState(false);
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const [busy, setBusy] = useState(false);
   // 우주 지도 등에서 ?item=id 로 오면 그 항목으로 이동해 강조한다
   const [params] = useSearchParams();
   const target = params.get('item');
@@ -43,6 +55,31 @@ export function ItemListSection({ workId }: { workId: string }) {
   const matches = data.items.filter(
     (i) => (kind === 'all' || i.kind === kind) && (!q || i.name.toLowerCase().includes(q) || i.aliases.some((a) => a.toLowerCase().includes(q))),
   );
+  // 지워졌거나 지금 안 보이는 항목은 선택에서 뺀다
+  const visibleIds = new Set(matches.map((i) => i.id));
+  const pickedNow = [...picked].filter((id) => visibleIds.has(id));
+  const togglePick = (id: string, on: boolean) =>
+    setPicked((old) => {
+      const next = new Set(old);
+      if (on) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  const removePicked = async () => {
+    setBusy(true);
+    const n = pickedNow.length;
+    const ok = await save(
+      workId,
+      async () => {
+        await deleteItems(pickedNow);
+        await recomputeCoOccur(workId);
+      },
+      copy.bible.removedPicked(n),
+    );
+    setBusy(false);
+    setConfirmRemove(false);
+    if (ok) setPicked(new Set());
+  };
   const filters: [Filter, string][] = [['all', copy.bible.filterAll], ...KINDS.map((k): [Filter, string] => [k, copy.labels.kind[k]])];
 
   return (
@@ -71,6 +108,39 @@ export function ItemListSection({ workId }: { workId: string }) {
         <p className={s.muted} role="status">
           {copy.bible.shown(matches.length, data.items.length)}
         </p>
+        {canWrite && (
+          <div className={s.selectBar}>
+            <Button variant="ghost" size="sm" aria-pressed={selecting} onClick={() => { setSelecting((v) => !v); setPicked(new Set()); setConfirmRemove(false); }}>
+              {selecting ? copy.bible.selectDone : copy.bible.selectMode}
+            </Button>
+            {selecting && (
+              <>
+                <Button variant="ghost" size="sm" onClick={() => setPicked(new Set(matches.map((i) => i.id)))} disabled={matches.length === 0}>
+                  {copy.bible.selectAll(matches.length)}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setPicked(new Set())} disabled={pickedNow.length === 0}>
+                  {copy.bible.selectNone}
+                </Button>
+                <span className={s.muted} role="status">
+                  {copy.bible.selectedCount(pickedNow.length)}
+                </span>
+                <Button variant="danger" size="sm" onClick={() => setConfirmRemove(true)} disabled={pickedNow.length === 0 || busy}>
+                  {copy.bible.removePicked(pickedNow.length)}
+                </Button>
+              </>
+            )}
+          </div>
+        )}
+        {selecting && confirmRemove && pickedNow.length > 0 && (
+          <ConfirmBar
+            message={copy.bible.removePickedConfirm(pickedNow.length)}
+            confirmLabel={copy.bible.removePickedYes}
+            cancelLabel={copy.bible.cancel}
+            busy={busy}
+            onCancel={() => setConfirmRemove(false)}
+            onConfirm={removePicked}
+          />
+        )}
       </div>
       {matches.length === 0 && (
         <EmptyState
@@ -96,7 +166,7 @@ export function ItemListSection({ workId }: { workId: string }) {
             <p className={s.muted}>{copy.labels.kindHelp[k]}</p>
             <ul className={s.list}>
               {items.map((i) => (
-                <ItemRow key={i.id} workId={workId} item={i} />
+                <ItemRow key={i.id} workId={workId} item={i} pick={selecting ? { checked: picked.has(i.id), onChange: (on) => togglePick(i.id, on) } : undefined} />
               ))}
             </ul>
           </Card>

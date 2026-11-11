@@ -217,3 +217,15 @@
 .profileList p {
   margin: 0;
 }
+.selectBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+}
+.pick {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--c-primary);
+  flex: none;
+}

@@ -123,3 +123,40 @@
   margin: 0;
   color: var(--c-sub);
 }
+.cardRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+}
+.cardRow > button {
+  flex: 1;
+  min-width: 0;
+}
+.pick {
+  width: 20px;
+  height: 20px;
+  margin-top: 14px;
+  accent-color: var(--c-primary);
+  flex: none;
+}
+.pickBar {
+  position: sticky;
+  bottom: var(--sp-3);
+  display: grid;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: var(--c-card);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-float);
+  overflow-wrap: anywhere;
+}
+.pickNames {
+  margin: 0;
+  font-weight: 600;
+}
+.pickActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}

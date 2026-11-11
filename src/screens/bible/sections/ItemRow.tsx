@@ -24,7 +24,7 @@ const statusOptions: [ItemStatus, string][] = (['open', 'resolved', 'reuse_plann
 type Mode = 'view' | 'edit' | 'merge' | 'confirmMerge' | 'confirmDelete' | 'profile';
 
 /** 설정집 한 줄: 보기 / 고치기 / 합치기 / 삭제. 예시 작품에서는 보기만. */
-export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
+export function ItemRow({ workId, item, pick }: { workId: string; item: ItemView; pick?: { checked: boolean; onChange: (on: boolean) => void } }) {
   const { work } = useWork(workId);
   const canWrite = useCanWrite(work);
   const { data } = useWorkData(workId);
@@ -131,6 +131,7 @@ export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
   return (
     <li className={s.row} id={`item-${item.id}`} tabIndex={-1}>
       <div className={s.head}>
+        {pick && <input type="checkbox" className={s.pick} checked={pick.checked} onChange={(e) => pick.onChange(e.target.checked)} aria-label={copy.bible.pick(item.name)} />}
         <strong className={s.name}>{item.name}</strong>
         <KindTag kind={item.kind} />
         {item.kind === 'foreshadow' && <StatusTag status={item.status} />}

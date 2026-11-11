@@ -1,4 +1,6 @@
 import { useState, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../../../components/Button';
 import { AiBadge, GapTag, KindTag, StatusTag } from '../../../components/Badges';
 import { Tag } from '../../../components/Tag';
 import { copy } from '../../../config/copy';
@@ -32,7 +34,12 @@ export function ForgotListSection({ workId, selectedId, onSelect }: { workId: st
   const { data } = useWorkData(workId);
   const [status, setStatus] = useState<ItemStatus | 'all'>('all');
   const [kind, setKind] = useState<ItemKind | 'all'>('all');
+  // 여러 개 체크해서 함께 엮기 → 우주 지도에서 다음 이야기 설계(?sel=)
+  const [picked, setPicked] = useState<string[]>([]);
+  const nav = useNavigate();
   if (!data) return null;
+  const pickedItems = picked.map((id) => data.itemById.get(id)).filter((x): x is ItemView => Boolean(x));
+  const togglePick = (id: string) => setPicked((old) => (old.includes(id) ? old.filter((x) => x !== id) : [...old, id]));
 
   const byKind = data.items.filter((i) => kind === 'all' || i.kind === kind);
   const list = byKind
@@ -66,7 +73,8 @@ export function ForgotListSection({ workId, selectedId, onSelect }: { workId: st
         {list.map((i) => {
           const reuse = i.status === 'resolved' && i.kind === 'foreshadow' ? reuseOf(data, i) : null;
           return (
-            <li key={i.id}>
+            <li key={i.id} className={s.cardRow}>
+              <input type="checkbox" className={s.pick} checked={picked.includes(i.id)} onChange={() => togglePick(i.id)} aria-label={copy.forgot.pick(i.name)} />
               <button type="button" className={i.id === selectedId ? `${s.card} ${s.selected}` : s.card} onClick={() => onSelect(i.id)} aria-pressed={i.id === selectedId}>
                 <span className={s.cardHead}>
                   <strong>{i.name}</strong>
@@ -90,6 +98,20 @@ export function ForgotListSection({ workId, selectedId, onSelect }: { workId: st
           );
         })}
       </ul>
+      {pickedItems.length > 0 && (
+        <div className={s.pickBar} role="region" aria-label={copy.forgot.toDesign}>
+          <p className={s.pickNames}>{copy.forgot.picked(pickedItems.map((i) => i.name))}</p>
+          {pickedItems.length < 2 && <p className={s.muted}>{copy.forgot.pickedHint}</p>}
+          <div className={s.pickActions}>
+            <Button size="sm" onClick={() => nav(`/w/${workId}/map?sel=${picked.join(',')}`)} disabled={pickedItems.length < 2}>
+              {copy.forgot.toDesign}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setPicked([])}>
+              {copy.forgot.clearPicked}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -185,3 +185,10 @@ export async function setIssueStatus(id: string, status: 'open' | 'ignored' | 'f
   const { error } = await db().from('consistency_issues').update({ status }).eq('id', id);
   if (error) throw error;
 }
+
+/** 여러 항목을 한 번에 지운다(등장·별칭·연결선은 데이터베이스가 함께 지움). */
+export async function deleteItems(ids: string[]) {
+  if (ids.length === 0) return;
+  const { error } = await db().from('items').delete().in('id', ids);
+  if (error) throw error;
+}
