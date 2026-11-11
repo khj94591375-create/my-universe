@@ -16,6 +16,7 @@ import { ProfileDraft } from './ProfileDraft';
 import { useAiStatus } from '../../../features/ai/aiStatus';
 import type { ProfileResult } from '../../../data/ai';
 import s from './bible.module.css';
+import { isUnconfirmedAi } from '../../../features/ai/review';
 
 const statusOptions: [ItemStatus, string][] = (['open', 'resolved', 'reuse_planned', 'reused'] as ItemStatus[]).map((st) => [st, copy.labels.status[st]]);
 
@@ -107,7 +108,7 @@ export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
         <strong className={s.name}>{item.name}</strong>
         <KindTag kind={item.kind} />
         {item.kind === 'foreshadow' && <StatusTag status={item.status} />}
-        {(item.source === 'ai' || !item.confirmed) && <AiBadge />}
+        {isUnconfirmedAi(item) && <AiBadge />}
         <span className={s.muted}>
           {item.first_ep != null && item.last_ep != null ? `${copy.bible.appears} ${copy.labels.epRange(item.first_ep, item.last_ep)}` : copy.labels.noAppearance}
           {' · '}

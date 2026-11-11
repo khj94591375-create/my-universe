@@ -13,6 +13,7 @@ import { save } from '../../../features/works/save';
 import type { WorkData } from '../../../features/works/workData';
 import type { MapFocus } from './MapCanvasSection';
 import s from './map.module.css';
+import { isUnconfirmedAi } from '../../../features/ai/review';
 
 /**
  * 오른쪽 패널 ② 관계 확인: 고른 별 하나의 이름·종류·설명·상태·등장 회차·관련 복선·연결된 항목.
@@ -41,7 +42,7 @@ export function StarDetailCard({
   const linked = linkedOf(data, item.id);
   const related = [...new Map(linked.filter((x) => x.other.kind === 'foreshadow').map((x) => [x.other.id, x.other])).values()];
   const eps = episodesOf(data, item.id);
-  const isAi = item.source === 'ai' || !item.confirmed;
+  const isAi = isUnconfirmedAi(item);
   const look = (id: string) => {
     focus.setFocusId(id);
     focus.centerOn(id);

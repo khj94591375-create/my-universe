@@ -16,6 +16,7 @@ import { callAi, type GuideResult } from '../../../data/ai';
 import { aiErrorMessage, refreshAiStatus, useAiStatus } from '../../../features/ai/aiStatus';
 import { showToast } from '../../../components/Toast';
 import s from './forgot.module.css';
+import { isUnconfirmedAi } from '../../../features/ai/review';
 
 /** 선택한 항목의 가이드: 시작 문장 예시 + 방향 3개(각각 근거 문장) + 상태 바꾸기(BUILD_SPEC 6.6, 7.8). */
 export function GuidePanelSection({ workId, itemId }: { workId: string; itemId: string | null }) {
@@ -69,7 +70,7 @@ export function GuidePanelSection({ workId, itemId }: { workId: string; itemId: 
         <KindTag kind={item.kind} />
         <StatusTag status={item.status} />
         <GapTag gap={item.gap} />
-        {(item.source === 'ai' || !item.confirmed) && <AiBadge />}
+        {isUnconfirmedAi(item) && <AiBadge />}
       </div>
       {item.note && <p className={s.muted}>{item.note}</p>}
 

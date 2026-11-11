@@ -7,6 +7,7 @@ import { shapePath, starRadius, starState } from '../features/map/stars';
 import { circleBox, LABEL_FONT, LINK_FONT, placeLinkLabels, placeStarLabels, textBox } from '../features/map/labels';
 import { controlPoint, linkEnds, pairOffsets, pointOnCurve } from '../features/map/links';
 import s from './StarMap.module.css';
+import { isUnconfirmedAi } from '../features/ai/review';
 
 /*
  * 우주 지도(BUILD_SPEC 6.7). 확대·축소(휠, 두 손가락, 버튼), 끌어서 이동, Tab·Enter로 별 고르기, 선을 눌러 관계 보기.
@@ -357,7 +358,7 @@ export function StarMap({
           const r = starRadius(i.mention_count);
           const st = starState(i, maxGap, aiResolve?.get(i.id) ?? null);
           const details = starDetails(i, st);
-          const mark = [i.source === 'ai' || !i.confirmed ? 'AI' : '', st.aiResolveEp ? copy.map.state.aiResolveShort : ''].filter(Boolean).join(' · ');
+          const mark = [isUnconfirmedAi(i) ? 'AI' : '', st.aiResolveEp ? copy.map.state.aiResolveShort : ''].filter(Boolean).join(' · ');
           const dim = focusMode && !isLit(i.id);
           const label = starLabels.get(i.id);
           return (
@@ -446,7 +447,7 @@ function starDetails(i: ItemView, st: ReturnType<typeof starState>): string[] {
     st.done ? copy.labels.status[i.status] : st.planned ? copy.labels.status.reuse_planned : '',
     st.forgotten ? copy.map.state.forgotten : '',
     st.aiResolveEp ? copy.map.state.aiResolve(st.aiResolveEp) : '',
-    i.source === 'ai' || !i.confirmed ? copy.labels.ai : '',
+    isUnconfirmedAi(i) ? copy.labels.ai : '',
   ].filter(Boolean);
 }
 

@@ -6,6 +6,7 @@ import type { ItemKind, ItemStatus, ItemView } from '../../../data/types';
 import { reuseScore } from '../../../features/foreshadow/reuse';
 import { useWorkData, type WorkData } from '../../../features/works/workData';
 import s from './forgot.module.css';
+import { isUnconfirmedAi } from '../../../features/ai/review';
 
 const STATUSES: ItemStatus[] = ['open', 'resolved', 'reuse_planned', 'reused'];
 const KINDS: ItemKind[] = ['foreshadow', 'character', 'setting'];
@@ -70,7 +71,7 @@ export function ForgotListSection({ workId, selectedId, onSelect }: { workId: st
                 <span className={s.cardHead}>
                   <strong>{i.name}</strong>
                   <KindTag kind={i.kind} />
-                  {(i.source === 'ai' || !i.confirmed) && <AiBadge />}
+                  {isUnconfirmedAi(i) && <AiBadge />}
                 </span>
                 <span className={s.cardMeta}>
                   {i.first_ep != null && i.last_ep != null ? copy.labels.epRange(i.first_ep, i.last_ep) : copy.labels.noAppearance}

@@ -13,6 +13,7 @@ import { acceptResolution, updateItem } from '../../../data/items';
 import { StatusTag } from '../../../components/Badges';
 import { recomputeCoOccur } from '../../../features/analysis/runRules';
 import { save } from '../../../features/works/save';
+import { isUnconfirmedAi } from '../../../features/ai/review';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { useWorkData } from '../../../features/works/workData';
 import s from './review.module.css';
@@ -86,19 +87,20 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
                   const mine = apps.filter((a) => a.item_id === itemId);
                   const first = mine[0];
                   const scenes = [...new Set(mine.map((a) => (a.chunk_id ? seqs.get(a.chunk_id) : null)).filter((n): n is number => n != null))];
-                  const isAi = mine.some((a) => a.source === 'ai') || !item.confirmed;
+                  const isAi = isUnconfirmedAi(item);
+                  const foundByAi = mine.some((a) => a.source === 'ai') || item.source === 'ai';
                   const key = `${ep.id}|${itemId}`;
                   return (
                     <li key={key} className={s.row}>
                       <div className={s.rowHead}>
                         <strong>{item.name}</strong>
                         <KindTag kind={item.kind} />
-                        {isAi ? <AiBadge evidence={first.evidence} /> : <Tag tone="ok">{copy.labels.source[first.source]} · {copy.review.confirmed}</Tag>}
+                        {isAi ? <AiBadge evidence={first.evidence} /> : <Tag tone="ok">{foundByAi ? copy.labels.aiConfirmed : `${copy.labels.source[first.source]} · ${copy.review.confirmed}`}</Tag>}
                         <span className={s.muted}>{copy.review.scenes(ep.no, scenes)}</span>
                         {canWrite && (
                           <span className={s.actions}>
                             {isAi && (
-                              <Button size="sm" onClick={() => save(workId, () => updateItem(item.id, { confirmed: true }))}>
+                              <Button size="sm" onClick={() => save(workId, () => updateItem(item.id, { confirmed: true }), copy.review.okDone(item.name))}>
                                 {copy.review.ok}
                               </Button>
                             )}

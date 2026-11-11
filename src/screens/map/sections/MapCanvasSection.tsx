@@ -17,6 +17,7 @@ import { save } from '../../../features/works/save';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { useWorkData } from '../../../features/works/workData';
 import s from './map.module.css';
+import { isUnconfirmedAi } from '../../../features/ai/review';
 
 const KINDS: ItemKind[] = ['character', 'setting', 'foreshadow'];
 
@@ -354,7 +355,7 @@ export function MapCanvasSection({
             <div className={s.stateRow}>
               {(quick.kind === 'foreshadow' || quick.status === 'reuse_planned') && <StatusTag status={quick.status} />}
               {quick.gap != null && <GapTag gap={quick.gap} />}
-              {(quick.source === 'ai' || !quick.confirmed) && <AiBadge />}
+              {isUnconfirmedAi(quick) && <AiBadge />}
             </div>
             {quick.note && <p className={s.quickNote}>{quick.note}</p>}
             <p className={s.muted}>

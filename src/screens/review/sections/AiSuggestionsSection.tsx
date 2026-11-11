@@ -30,7 +30,7 @@ export function AiSuggestionsSection({ workId }: { workId: string }) {
                   <AiBadge />
                   {canWrite && (
                     <span className={s.actions}>
-                      <Button size="sm" onClick={() => save(workId, () => confirmAlias(item.id, alias))}>
+                      <Button size="sm" onClick={() => save(workId, () => confirmAlias(item.id, alias), copy.review.okAlias(alias))}>
                         {copy.review.ok}
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => save(workId, () => removeAlias(item.id, alias), copy.toast.deleted)}>
@@ -54,7 +54,7 @@ export function AiSuggestionsSection({ workId }: { workId: string }) {
                   <AiBadge evidence={l.evidence} />
                   {canWrite && (
                     <span className={s.actions}>
-                      <Button size="sm" onClick={() => save(workId, () => confirmAiLink(l.id))}>
+                      <Button size="sm" onClick={() => save(workId, () => confirmAiLink(l.id), copy.review.okLink)}>
                         {copy.review.ok}
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => save(workId, () => deleteLink(l.id), copy.toast.deleted)}>
