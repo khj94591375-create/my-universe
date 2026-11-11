@@ -314,9 +314,21 @@ describe('AI 회차 나누기(자르는 위치만)', () => {
       map,
     );
     expect(s).toEqual([
-      { line: 2, title: '등불', heading: true, no: 1 },
-      { line: 5, title: '서가', heading: true, no: 2 },
+      { line: 2, title: '등불', heading: true, no: 1, scenes: [] },
+      { line: 5, title: '서가', heading: true, no: 2, scenes: [] },
     ]);
-    expect(checkStarts([], map)).toEqual([{ line: 0, title: '', heading: false, no: null }]);
+    expect(checkStarts([], map)).toEqual([{ line: 0, title: '', heading: false, no: null, scenes: [] }]);
+  });
+  it('장면 시작 줄: 회차 범위 안만, 제목 줄 바로 다음(첫 장면)은 빼고, 원래 줄 위치로', () => {
+    const t = '1화\n가 장면\n가 계속\n나 장면\n2화\n다 장면\n라 장면';
+    const { map } = numberLines(t);
+    const s = checkStarts(
+      [
+        { start_line: 1, title: '', heading: true, no: 1, scene_lines: [2, 4, 4, 6, 99] },
+        { start_line: 5, title: '', heading: true, no: 2, scene_lines: [7, 3] },
+      ],
+      map,
+    );
+    expect(s.map((x) => x.scenes)).toEqual([[3], [6]]);
   });
 });

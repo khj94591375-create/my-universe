@@ -198,7 +198,26 @@ describe('같은 두 별 사이의 선 두 개', () => {
   });
 });
 
-import { parseManuscript, splitByStarts } from '../manuscript/parse';
+import { parseManuscript, scenesOf, splitByStarts } from '../manuscript/parse';
+import { reusableScenes } from '../analysis/runRules';
+
+describe('AI 장면 나누기', () => {
+  it('회차 시작 줄과 장면 시작 줄로 나누고, 장면 위치는 회차 본문 기준', () => {
+    const text = '1화 시작\n가 장면이다.\n가 계속.\n\n나 장면이다.\n2화\n다 장면이다.\n라 장면이다.';
+    const r = splitByStarts(text, [
+      { line: 0, title: '', heading: true, no: 1, scenes: [4] },
+      { line: 5, title: '', heading: true, no: 2, scenes: [7] },
+    ]);
+    expect(r[0].sceneStarts).toEqual([3]);
+    expect(scenesOf(r[0].body, r[0].sceneStarts!)).toEqual(['가 장면이다.\n가 계속.', '나 장면이다.']);
+    expect(scenesOf(r[1].body, r[1].sceneStarts!)).toEqual(['다 장면이다.', '라 장면이다.']);
+  });
+  it('본문이 그대로면 지금 장면 나누기를 지키고, 바뀌었으면 다시 나눈다', () => {
+    expect(reusableScenes('가 장면.\n\n나 장면.', ['가 장면.', '나 장면.'])).toEqual(['가 장면.', '나 장면.']);
+    expect(reusableScenes('가 장면.\n\n나 장면을 고쳤다.', ['가 장면.', '나 장면.'])).toBeNull();
+    expect(reusableScenes('본문', [])).toBeNull();
+  });
+});
 
 describe('AI가 고른 시작 줄로 나누기(글자는 그대로)', () => {
   const text = '별의 도서관\n\n1화 등불\n리안이 왔다.\n\n그날 밤 세린이 웃었다.\n다음 날이 밝았다.';
@@ -299,5 +318,50 @@ describe('바뀐 도움말 다시 보여 주기', () => {
     expect(tipSeen(closedOld, tipKey('home', 2))).toBe(false);
     expect(tipSeen(withTip(closedOld, 'home@2'), tipKey('home', 2))).toBe(true);
     expect(tipSeen(withTip({}, ALL_TIPS), tipKey('home', 2))).toBe(true);
+  });
+});
+
+import { mergeRows, mergeScene, renumberFrom, splitRowAt, splitScene } from '../manuscript/edit';
+
+describe('미리보기 표: 회차 합치기·나누기(글자는 그대로)', () => {
+  const a = { key: 'a', no: '1', title: '첫', body: '가 장면.\n\n나 장면.', sceneStarts: [2] };
+  const b = { key: 'b', no: '2', title: '둘', body: '다 장면.\n라 장면.', sceneStarts: [1] };
+  it('AI 장면이 있는 두 회차를 합치면 장면 위치가 이어지고 합친 자리가 새 장면', () => {
+    const [m] = mergeRows([a, b], 'b');
+    expect(m.title).toBe('첫');
+    expect(m.body).toBe('가 장면.\n\n나 장면.\n\n다 장면.\n라 장면.');
+    expect(scenesOf(m.body, m.sceneStarts!)).toEqual(['가 장면.', '나 장면.', '다 장면.', '라 장면.']);
+  });
+  it('규칙 회차끼리 합치면 빈 줄 두 개로 이어 규칙이 장면 경계로 본다', () => {
+    const [m] = mergeRows([{ ...a, sceneStarts: undefined }, { ...b, sceneStarts: undefined }], 'b');
+    expect(m.sceneStarts).toBeUndefined();
+    expect(splitScenes(m.body)).toEqual(['가 장면.\n\n나 장면.', '다 장면.\n라 장면.']);
+  });
+  it('원하는 줄에서 나누면 앞뒤 회차가 되고 장면 위치도 따라간다, 번호는 차례로', () => {
+    const [m] = mergeRows([a, b], 'b');
+    const r = renumberFrom(splitRowAt([m], 'a', 4, () => 'n'), 5);
+    expect(r.map((x) => [x.no, x.title, x.body])).toEqual([
+      ['5', '첫', '가 장면.\n\n나 장면.'],
+      ['6', '', '다 장면.\n라 장면.'],
+    ]);
+    expect(scenesOf(r[0].body, r[0].sceneStarts!)).toEqual(['가 장면.', '나 장면.']);
+    expect(scenesOf(r[1].body, r[1].sceneStarts!)).toEqual(['다 장면.', '라 장면.']);
+    expect(splitRowAt([{ ...a, sceneStarts: undefined }], 'a', 2, () => 'n')[1].sceneStarts).toBeUndefined();
+  });
+});
+
+describe('회차 기록: 장면 합치기·나누기(글자는 그대로)', () => {
+  const body = '가 장면.\n가 계속.\n\n***\n\n나 장면.\n\n\n다 장면.';
+  const scenes = ['가 장면.\n가 계속.', '나 장면.', '다 장면.'];
+  it('합치면 사이의 구분선·빈 줄까지 본문 그대로', () => {
+    expect(mergeScene(body, scenes, 1)).toEqual(['가 장면.\n가 계속.\n\n***\n\n나 장면.', '다 장면.']);
+    expect(mergeScene(body, scenes, 0)).toBe(scenes);
+  });
+  it('장면 안의 줄에서 나눈다', () => {
+    expect(splitScene(scenes, 0, 1)).toEqual(['가 장면.', '가 계속.', '나 장면.', '다 장면.']);
+    expect(splitScene(scenes, 1, 0)).toBe(scenes);
+  });
+  it('합친 장면도 본문과 맞아 다음 "다시 정리" 때 그대로 지켜진다', () => {
+    expect(reusableScenes(body, mergeScene(body, scenes, 1))).not.toBeNull();
   });
 });

@@ -53,7 +53,7 @@ export type UnstickResult = { options: { title: string; plan: string; uses: { it
 
 export type StyleResult = { traits: { name: string; description: string; examples: string[] }[]; dropped: number; episodes: number; sampleChars: number };
 
-export type SplitResult = { starts: { line: number; title: string; heading: boolean; no: number | null }[] };
+export type SplitResult = { starts: { line: number; title: string; heading: boolean; no: number | null; scenes: number[] }[] };
 
 export type SummaryResult = { summary: string };
 

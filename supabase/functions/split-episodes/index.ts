@@ -1,4 +1,4 @@
-// AI 회차 나누기. 입력 { workId, text }(브라우저에서 정리한 원고 글자). 회차 시작 줄만 돌려준다. 아무것도 저장하지 않는다.
+// AI 회차·장면 나누기. 입력 { workId, text }(브라우저에서 정리한 원고 글자). 회차 시작 줄과 장면 시작 줄만 돌려준다. 아무것도 저장하지 않는다.
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
 import { askJson } from '../_shared/claude.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
@@ -18,7 +18,7 @@ serve(async (ctx) => {
   await requireOwnWork(admin, userId, workId);
   await checkLimit(admin, userId, 'text');
   const { numbered, map } = numberLines(text);
-  const out = await askJson({ tier: 'fast', system: SPLIT_SYSTEM, user: `원고(줄 ${map.length}개):\n<<<\n${numbered}\n>>>\n\n회차 시작 줄을 JSON으로 답하라.`, schema: splitSchema });
+  const out = await askJson({ tier: 'fast', system: SPLIT_SYSTEM, user: `원고(줄 ${map.length}개):\n<<<\n${numbered}\n>>>\n\n회차 시작 줄과 장면 시작 줄을 JSON으로 답하라.`, schema: splitSchema });
   const starts = checkStarts(out.episodes, map);
   await addUsage(admin, userId, 'text');
   return { starts };

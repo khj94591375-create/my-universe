@@ -6,6 +6,8 @@ import { WriteButton } from '../../../components/WriteButton';
 import { TextArea, TextField } from '../../../components/TextField';
 import { copy } from '../../../config/copy';
 import { savePastedEpisode } from '../../../features/analysis/runRules';
+import { callAi, type SplitResult } from '../../../data/ai';
+import { scenesOf } from '../../../features/manuscript/parse';
 import { save } from '../../../features/works/save';
 import { refreshWorkData, useWorkData } from '../../../features/works/workData';
 import { aiAnalyzeEpisodes } from '../../../features/ai/analyze';
@@ -40,7 +42,19 @@ export function PasteSection({ workId }: { workId: string }) {
     const ok = await save(
       workId,
       async () => {
-        const ep = await savePastedEpisode(workId, { no: n, title, body }, data.items, overwrite);
+        // AI가 켜져 있으면 문맥으로 장면을 나눈다(회차 하나이므로 AI가 고른 회차 경계도 장면 경계로). 실패하면 규칙으로
+        const text = body.replace(/\r\n?/g, '\n').trim();
+        let scenes: string[] | undefined;
+        if (ai.on) {
+          try {
+            const r = await callAi<SplitResult>('split-episodes', { workId, text });
+            const cuts = r.starts.flatMap((st, k) => [...(k > 0 ? [st.line] : []), ...(st.scenes ?? [])]);
+            scenes = scenesOf(text, cuts);
+          } catch {
+            scenes = undefined;
+          }
+        }
+        const ep = await savePastedEpisode(workId, { no: n, title, body: text, scenes }, data.items, overwrite);
         saved = { id: ep.id, no: ep.no };
       },
       copy.upload.done(n),
@@ -80,7 +94,7 @@ export function PasteSection({ workId }: { workId: string }) {
         </div>
         <TextArea label={copy.upload.body} placeholder={copy.upload.bodyPlaceholder} value={body} onChange={(e) => setBody(e.target.value)} rows={14} />
         <p className={s.muted}>
-          {copy.upload.count(body.replace(/\n/g, '').length)} · {copy.upload.aiNotice}
+          {copy.upload.count(body.replace(/\n/g, '').length)} · {ai.on ? copy.upload.aiNotice : copy.upload.aiNoticeOff}
         </p>
         {error && (
           <p className={s.error} role="alert">

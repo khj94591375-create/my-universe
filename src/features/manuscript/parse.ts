@@ -8,6 +8,8 @@ export type ParsedEpisode = {
   /** 회차 표시 줄에서 번호를 뺀 나머지. 없으면 '' (저장할 때 "N화") */
   title: string;
   body: string;
+  /** AI가 나눈 장면: body를 줄로 나눴을 때 새 장면이 시작되는 줄 위치(첫 장면은 빼고). 없으면 규칙으로 나눈다 */
+  sceneStarts?: number[];
 };
 
 /** 회차 표시 줄: "1화", "제 1 화", "12화 등불이 켜진 밤", "3화. 제목" */
@@ -115,21 +117,40 @@ export function parseManuscript(fileName: string, rawText: string): ParsedEpisod
 }
 
 /**
- * AI가 고른 회차 시작 줄로 나눈다(원고 글자는 그대로, 자르는 위치만). text는 cleanText를 거친 글자.
+ * AI가 고른 회차 시작 줄(과 장면 시작 줄)로 나눈다. 원고 글자는 그대로, 자르는 위치만. text는 cleanText를 거친 글자.
  * 시작 줄이 제목 줄(heading)이면 본문에서 빼고 제목으로 쓴다. 첫 회차 앞 글은 규칙 나누기와 같이(길면 첫 회차에 붙임).
  */
-export function splitByStarts(text: string, starts: { line: number; title: string; heading: boolean; no: number | null }[]): ParsedEpisode[] {
+export function splitByStarts(text: string, starts: { line: number; title: string; heading: boolean; no: number | null; scenes?: number[] }[]): ParsedEpisode[] {
   const lines = text.split('\n');
   if (starts.length === 0) return text.trim() ? [{ no: null, title: '', body: text.trim() }] : [];
-  const preamble = lines.slice(0, starts[0].line).join('\n').trim();
-  const out = starts.map((st, k) => {
+  const preText = lines.slice(0, starts[0].line).join('\n').trim();
+  const out: ParsedEpisode[] = starts.map((st, k) => {
     const end = k + 1 < starts.length ? starts[k + 1].line : lines.length;
-    let body = lines.slice(st.heading ? st.line + 1 : st.line, end).join('\n').trim();
-    if (k === 0 && preamble.length > 100) body = `${preamble}\n\n${body}`;
+    let abs = st.heading ? st.line + 1 : st.line;
+    const seg = lines.slice(abs, end);
+    while (seg.length && !seg[0].trim()) {
+      seg.shift();
+      abs++;
+    }
+    while (seg.length && !seg[seg.length - 1].trim()) seg.pop();
+    const prefix = k === 0 && preText.length > 100 ? [...preText.split('\n'), ''] : [];
+    const sceneStarts = (st.scenes ?? []).filter((l) => l > abs && l < abs + seg.length).map((l) => l - abs + prefix.length);
     const title = st.title || (st.heading ? lines[st.line].trim() : '');
-    return { no: st.no, title, body };
+    return { no: st.no, title, body: [...prefix, ...seg].join('\n').trim(), ...(st.scenes ? { sceneStarts } : {}) };
   });
   return out.filter((e) => e.body);
+}
+
+/** 본문과 장면 시작 줄로 장면 글자 목록을 만든다(빈 장면은 뺌). */
+export function scenesOf(body: string, sceneStarts: number[]): string[] {
+  const lines = body.split('\n');
+  const cuts = [0, ...[...new Set(sceneStarts)].filter((n) => n > 0 && n < lines.length).sort((a, b) => a - b), lines.length];
+  const out: string[] = [];
+  for (let k = 0; k + 1 < cuts.length; k++) {
+    const t = lines.slice(cuts[k], cuts[k + 1]).join('\n').trim();
+    if (t) out.push(t);
+  }
+  return out;
 }
 
 /** 파일 이름에서 확장자(소문자). */

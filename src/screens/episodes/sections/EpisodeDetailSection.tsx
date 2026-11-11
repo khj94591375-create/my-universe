@@ -14,7 +14,8 @@ import { deleteAppearances, deleteEpisode, updateEpisode } from '../../../data/e
 import { fetchChunks } from '../../../data/workData';
 import type { Chunk, ItemView } from '../../../data/types';
 import { highlightPieces } from '../../../features/analysis/highlight';
-import { addManualAppearance, reanalyzeEpisode, recomputeCoOccur } from '../../../features/analysis/runRules';
+import { addManualAppearance, reanalyzeEpisode, recomputeCoOccur, resceneEpisode } from '../../../features/analysis/runRules';
+import { mergeScene, splitScene } from '../../../features/manuscript/edit';
 import { splitScenes } from '../../../features/analysis/split';
 import { save } from '../../../features/works/save';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
@@ -36,6 +37,7 @@ export function EpisodeDetailSection({ workId, no, onClose, autoCheck = false }:
   const [busy, setBusy] = useState(false);
   // 맞춤법 검사 패널(원고 불러오기에서 ?check=1로 오면 바로 연다)
   const [checking, setChecking] = useState(autoCheck);
+  const [sceneEdit, setSceneEdit] = useState(false);
   // AI 요약 초안: 칸에만 넣고 저장은 작가가([저장])
   const ai = useAiStatus();
   const [drafting, setDrafting] = useState(false);
@@ -84,6 +86,14 @@ export function EpisodeDetailSection({ workId, no, onClose, autoCheck = false }:
       refreshAiStatus();
     }
     setDrafting(false);
+  };
+
+  // 장면 합치기·나누기: 원고 글자는 그대로, 장면 경계만 바꾸고 등장 기록을 다시 정리
+  const changeScenes = async (next: string[]) => {
+    if (next.length === scenes.length && next.every((t, k) => t === scenes[k])) return;
+    setBusy(true);
+    await save(workId, () => resceneEpisode(episode, data.items, next), copy.episodes.sceneSaved);
+    setBusy(false);
   };
 
   const submitMeta = async (e: FormEvent) => {
@@ -170,11 +180,31 @@ export function EpisodeDetailSection({ workId, no, onClose, autoCheck = false }:
         <Loading label={copy.episodes.loadingBody} />
       ) : (
         <div className={s.body}>
+          {canWrite && chunks && chunks.length > 0 && (
+            <div className={s.sceneTools}>
+              <Button variant="ghost" size="sm" onClick={() => setSceneEdit((v) => !v)} aria-pressed={sceneEdit} disabled={busy}>
+                {sceneEdit ? copy.episodes.sceneEditDone : copy.episodes.sceneEdit}
+              </Button>
+              {sceneEdit && <p className={s.muted}>{copy.episodes.sceneEditHint}</p>}
+            </div>
+          )}
           {scenes.map((text, idx) => (
             <section key={idx} className={s.scene} aria-label={copy.episodes.scene(idx + 1)}>
-              <span className={s.sceneNo}>{copy.episodes.scene(idx + 1)}</span>
+              <span className={s.sceneNo}>
+                {copy.episodes.scene(idx + 1)}
+                {sceneEdit && idx > 0 && (
+                  <Button variant="ghost" size="sm" disabled={busy} onClick={() => changeScenes(mergeScene(episode.body, scenes, idx))}>
+                    {copy.episodes.sceneMerge}
+                  </Button>
+                )}
+              </span>
               {text.split('\n').map((para, pi) => (
                 <p key={pi}>
+                  {sceneEdit && pi > 0 && para.trim() && (
+                    <Button variant="ghost" size="sm" className={s.splitBtn} disabled={busy} onClick={() => changeScenes(splitScene(scenes, idx, pi))}>
+                      {copy.episodes.sceneSplit}
+                    </Button>
+                  )}
                   {highlightPieces(para, data.items).map((piece, k) =>
                     piece.itemId ? (
                       <mark key={k} className={s.mark} title={data.itemById.get(piece.itemId)?.name}>

@@ -2,6 +2,8 @@ import type { Episode, ItemView } from '../../data/types';
 import {
   deleteEpisode,
   fetchChunkItems,
+  fetchDetachedAiAppearances,
+  setAppearanceChunk,
   fetchWorkChunks,
   replaceRuleAppearancesForItem,
   findEpisodeByNo,
@@ -15,18 +17,43 @@ import { setItemStatus } from '../../data/items';
 import { toMessage } from '../../data/errors';
 import { computeCoOccur } from './cooccur';
 import { detectAppearances, findInText, type DetectItem } from './detect';
-import { splitScenes, splitSentences } from './split';
+import { splitLong, splitScenes, splitSentences } from './split';
+import { fetchChunks } from '../../data/workData';
 
 /*
  * 규칙 정리(AI 없음): 장면 나누기 → 재등장 감지 → 재사용 예정 → 재사용됨 → 같은 장면 연결선.
  * BUILD_SPEC 6.4 처리 순서 2단계, 7.3·7.4·7.6.
  */
 
-/** 회차 하나를 규칙으로 정리한다. 이미 있던 규칙 등장 기록은 새로 만든다. */
-export async function analyzeEpisodeByRules(episode: Episode, items: ItemView[]) {
-  const chunks = await replaceChunks(episode, splitScenes(episode.body));
+/** 지금 장면들이 본문과 순서대로 맞으면(본문이 바뀌지 않았으면) 그 장면 나누기를 그대로 쓴다 — AI·작가가 나눈 장면을 지킨다 */
+export function reusableScenes(body: string, chunkTexts: string[]): string[] | null {
+  if (chunkTexts.length === 0) return null;
+  const norm = (t: string) => t.replace(/\s+/g, ' ').trim();
+  const b = norm(body);
+  let at = 0;
+  for (const t of chunkTexts) {
+    const i = b.indexOf(norm(t), at);
+    if (i < 0) return null;
+    at = i + norm(t).length;
+  }
+  return chunkTexts;
+}
+
+/**
+ * 회차 하나를 규칙으로 정리한다. 이미 있던 규칙 등장 기록은 새로 만든다.
+ * 장면: scenes를 주면 그대로(AI·작가가 나눈 장면), 없으면 지금 장면이 본문과 맞을 때 그대로, 아니면 규칙으로 나눈다.
+ */
+export async function analyzeEpisodeByRules(episode: Episode, items: ItemView[], scenes?: string[]) {
+  const texts = scenes ? scenes.flatMap(splitLong) : (reusableScenes(episode.body, (await fetchChunks(episode.id)).map((c) => c.text)) ?? splitScenes(episode.body));
+  const chunks = await replaceChunks(episode, texts);
   const found = detectAppearances(chunks, items);
   await insertAppearances(found.map((f) => ({ item_id: f.itemId, episode_id: episode.id, chunk_id: f.chunkId, evidence: f.evidence, source: 'rule' })));
+  // 장면을 다시 만들면 AI 등장 기록의 장면 칸이 비므로, 근거 문장이 든 새 장면에 다시 잇는다
+  for (const a of await fetchDetachedAiAppearances(episode.id)) {
+    const ev = a.evidence?.replace(/\s+/g, ' ').trim();
+    const c = ev ? chunks.find((x) => x.text.replace(/\s+/g, ' ').includes(ev)) : null;
+    if (c) await setAppearanceChunk(a.id, c.id).catch(() => undefined); // 같은 장면에 규칙 기록이 이미 있으면 그대로 둔다
+  }
   const seen = new Set(found.map((f) => f.itemId));
   await Promise.all(items.filter((i) => i.status === 'reuse_planned' && seen.has(i.id)).map((i) => setItemStatus(i.id, 'reused')));
   await updateEpisode(episode.id, { analyzed_at: new Date().toISOString() });
@@ -38,7 +65,7 @@ export async function recomputeCoOccur(workId: string) {
   await replaceCoOccurLinks(workId, computeCoOccur(map, total));
 }
 
-export type PasteInput = { no: number; title: string; body: string };
+export type PasteInput = { no: number; title: string; body: string; /** AI가 나눈 장면(없으면 규칙) */ scenes?: string[] };
 
 /** 같은 번호의 회차가 이미 있는지. 있으면 화면에서 덮어쓰기/건너뛰기를 묻는다. */
 export function episodeExists(workId: string, no: number) {
@@ -58,7 +85,7 @@ export async function saveEpisode(workId: string, input: PasteInput, items: Item
     body: input.body.replace(/\r\n?/g, '\n').trim(),
     source_file: sourceFile,
   });
-  await analyzeEpisodeByRules(episode, items);
+  await analyzeEpisodeByRules(episode, items, input.scenes);
   return episode;
 }
 
@@ -127,6 +154,12 @@ export async function researchItem(workId: string, item: DetectItem): Promise<nu
   );
   await recomputeCoOccur(workId);
   return new Set(found.map((f) => epOf.get(f.chunkId))).size;
+}
+
+/** 작가가 장면을 합치거나 나눈 뒤: 그 장면대로 다시 만들고 등장 기록·같은 장면 연결선을 다시 정리한다(AI 근거는 새 장면에 다시 연결). */
+export async function resceneEpisode(episode: Episode, items: ItemView[], scenes: string[]) {
+  await analyzeEpisodeByRules(episode, items, scenes);
+  await recomputeCoOccur(episode.work_id);
 }
 
 /** 회차 다시 정리(규칙). */

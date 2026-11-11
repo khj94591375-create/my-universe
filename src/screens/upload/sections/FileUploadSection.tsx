@@ -1,4 +1,4 @@
-import { useRef, useState, type DragEvent } from 'react';
+import { Fragment, useRef, useState, type DragEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
@@ -10,7 +10,8 @@ import { limits } from '../../../config/limits';
 import { art } from '../../../config/art';
 import { ArtImage } from '../../../components/ArtImage';
 import { saveEpisodes, type BatchResult, type BatchRow } from '../../../features/analysis/runRules';
-import { cleanText, parseManuscript, splitByStarts, type ParsedEpisode } from '../../../features/manuscript/parse';
+import { cleanText, parseManuscript, scenesOf, splitByStarts, type ParsedEpisode } from '../../../features/manuscript/parse';
+import { mergeRows, renumberFrom, splitRowAt } from '../../../features/manuscript/edit';
 import { callAi, type SplitResult } from '../../../data/ai';
 import { aiErrorMessage, refreshAiStatus, useAiStatus } from '../../../features/ai/aiStatus';
 import { ACCEPT, ManuscriptError, extractText } from '../../../features/manuscript/readFile';
@@ -20,7 +21,8 @@ import { showToast } from '../../../components/Toast';
 import { refreshWorkData, useWorkData } from '../../../features/works/workData';
 import s from './upload.module.css';
 
-type Row = { key: string; fileName: string; no: string; title: string; body: string; guessed: boolean };
+/** sceneStarts: AI(또는 합치기·나누기)로 정한 장면 시작 줄(본문 줄 기준, 첫 장면 제외). 없으면 저장할 때 규칙으로 나눈다 */
+type Row = { key: string; fileName: string; no: string; title: string; body: string; guessed: boolean; sceneStarts?: number[] };
 type FileError = { fileName: string; message: string };
 /** 파일마다 정리한 원고 글자와 지금 나눈 방식(AI로 다시 나누기·되돌리기용) */
 type Source = { fileName: string; text: string; mode: 'rule' | 'ai'; ruleRows: Row[]; busy?: boolean; error?: string };
@@ -42,7 +44,7 @@ function toRows(fileName: string, parsed: ParsedEpisode[], next: number): Row[] 
   return parsed.map((p) => {
     const no = p.no ?? n;
     n = Math.max(n, no + 1);
-    return { key: `r${++seq}`, fileName, no: String(no), title: p.title, body: p.body, guessed: p.no == null };
+    return { key: `r${++seq}`, fileName, no: String(no), title: p.title, body: p.body, guessed: p.no == null, ...(p.sceneStarts ? { sceneStarts: p.sceneStarts } : {}) };
   });
 }
 
@@ -106,20 +108,26 @@ export function FileUploadSection({ workId }: { workId: string }) {
     setRows((old) => [...old, ...added].sort((x, y) => Number(x.no) - Number(y.no)));
     setFileErrors((old) => [...old, ...errs]);
     setSources((old) => [...old.filter((x) => !newSources.some((n) => n.fileName === x.fileName)), ...newSources]);
+    // AI가 켜져 있으면 올리자마자 문맥으로 회차·장면을 나눈다(전송 안내는 올리기 칸 위에 늘 보임)
+    if (canWrite && ai.on) for (const src of newSources) await aiSplit(src, true);
   };
 
   const patchSource = (fileName: string, patch: Partial<Source>) => setSources((old) => old.map((x) => (x.fileName === fileName ? { ...x, ...patch } : x)));
   const replaceFileRows = (fileName: string, list: Row[]) => setRows((old) => [...old.filter((r) => r.fileName !== fileName), ...list].sort((x, y) => Number(x.no) - Number(y.no)));
 
-  /** AI로 문맥 보고 나누기: AI는 회차 시작 줄만 고르고, 자르기는 여기서(원고 글자는 그대로) */
-  const aiSplit = async (src: Source) => {
+  /** AI로 문맥 보고 나누기: AI는 회차·장면 시작 줄만 고르고, 자르기는 여기서(원고 글자는 그대로). 실패하면 규칙 결과 그대로 */
+  const aiSplit = async (src: Source, auto = false) => {
+    if ([...src.text].length > 120_000) {
+      patchSource(src.fileName, { error: copy.upload.splitTooLong });
+      return;
+    }
     patchSource(src.fileName, { busy: true, error: undefined });
     try {
       const r = await callAi<SplitResult>('split-episodes', { workId, text: src.text });
       const parsed = splitByStarts(src.text, r.starts);
       if (parsed.length === 0) throw new Error('empty');
       // 번호: AI가 읽은 번호가 늘어나기만 하면 그대로, 아니면 이 파일의 첫 번호부터 차례로
-      const base = Math.min(...rows.filter((x) => x.fileName === src.fileName).map((x) => Number(x.no) || Infinity), ...src.ruleRows.map((x) => Number(x.no)));
+      const base = Math.min(...src.ruleRows.map((x) => Number(x.no)));
       const nums = parsed.map((p) => p.no);
       const ok = nums.every((n) => n != null) && nums.every((n, k) => k === 0 || n! > nums[k - 1]!);
       const start = Number.isFinite(base) ? base : Math.max(0, ...existing) + 1;
@@ -127,9 +135,28 @@ export function FileUploadSection({ workId }: { workId: string }) {
       replaceFileRows(src.fileName, list);
       patchSource(src.fileName, { busy: false, mode: 'ai' });
     } catch (e) {
-      patchSource(src.fileName, { busy: false, error: aiErrorMessage(e) });
+      const why = aiErrorMessage(e);
+      patchSource(src.fileName, { busy: false, error: auto ? copy.upload.splitFallback(why) : why });
     }
     refreshAiStatus();
+  };
+
+  // 회차 합치기·나누기(원고 글자는 그대로, 자르는 위치만). 바꾼 뒤 그 파일의 번호를 차례로 다시 매긴다
+  const [splitting, setSplitting] = useState<string | null>(null);
+  const editFile = (fileName: string, fn: (list: Row[]) => Row[]) =>
+    setRows((old) => {
+      const mine = old.filter((r) => r.fileName === fileName).sort((x, y) => Number(x.no) - Number(y.no));
+      const edited = renumberFrom(fn(mine), Number(mine[0]?.no) || 1).map((r) => ({ ...r, guessed: false }));
+      return [...old.filter((r) => r.fileName !== fileName), ...edited].sort((x, y) => Number(x.no) - Number(y.no));
+    });
+  const mergeUp = (r: Row) => {
+    editFile(r.fileName, (list) => mergeRows(list, r.key));
+    showToast(copy.upload.renumbered);
+  };
+  const splitAt = (r: Row, line: number) => {
+    editFile(r.fileName, (list) => splitRowAt(list, r.key, line, () => `r${++seq}`));
+    setSplitting(null);
+    showToast(copy.upload.renumbered);
   };
 
   const onDrop = (e: DragEvent) => {
@@ -165,7 +192,7 @@ export function FileUploadSection({ workId }: { workId: string }) {
   const run = async (list: Row[], overwrite: boolean) => {
     if (!data || list.length === 0) return;
     setConfirm(null);
-    const batch: BatchRow[] = list.map((r) => ({ key: r.key, no: Number(r.no), title: r.title, body: r.body, sourceFile: r.fileName }));
+    const batch: BatchRow[] = list.map((r) => ({ key: r.key, no: Number(r.no), title: r.title, body: r.body, sourceFile: r.fileName, ...(r.sceneStarts ? { scenes: scenesOf(r.body, r.sceneStarts) } : {}) }));
     const res = await saveEpisodes(workId, batch, data.items, overwrite, (done, total, no) => setProgress({ done, total, no }));
     refreshWorkData(workId);
     setProgress(null);
@@ -234,6 +261,7 @@ export function FileUploadSection({ workId }: { workId: string }) {
             }}
           />
           <p className={s.muted}>{copy.upload.dropHint}</p>
+          {canWrite && ai.on && <p className={s.notice}>{copy.upload.autoSplitNotice}</p>}
           <a className={s.sampleLink} href={`${import.meta.env.BASE_URL}samples/star-library-1-6.txt`} download="별의도서관_1-6화.txt">
             {copy.upload.sampleFile}
           </a>
@@ -301,25 +329,64 @@ export function FileUploadSection({ workId }: { workId: string }) {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => (
-                  <tr key={r.key}>
-                    <td>
-                      <input className={s.noInput} type="number" min={1} value={r.no} aria-label={`${r.fileName} ${copy.upload.colNo}`} onChange={(e) => update(r.key, { no: e.target.value })} />
-                      {existing.has(Number(r.no)) && <Tag tone="warn">{copy.upload.existsTag}</Tag>}
-                      {r.guessed && <span className={s.guess} title={copy.upload.guessed}>?</span>}
-                    </td>
-                    <td>
-                      <input className={s.titleInput} value={r.title} placeholder={`${r.no}화`} aria-label={`${r.fileName} ${copy.upload.colTitle}`} onChange={(e) => update(r.key, { title: e.target.value })} />
-                    </td>
-                    <td className={s.fileCell}>{r.fileName}</td>
-                    <td className={s.num}>{r.body.replace(/\n/g, '').length.toLocaleString('ko-KR')}</td>
-                    <td>
-                      <Button variant="ghost" size="sm" onClick={() => setRows((old) => old.filter((x) => x.key !== r.key))} disabled={Boolean(progress)}>
-                        {copy.upload.removeRow}
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                {rows.map((r) => {
+                  const fileRows = rows.filter((x) => x.fileName === r.fileName);
+                  const first = fileRows[0]?.key === r.key;
+                  const lines = r.body.split('\n');
+                  return (
+                    <Fragment key={r.key}>
+                      <tr>
+                        <td>
+                          <input className={s.noInput} type="number" min={1} value={r.no} aria-label={`${r.fileName} ${copy.upload.colNo}`} onChange={(e) => update(r.key, { no: e.target.value })} />
+                          {existing.has(Number(r.no)) && <Tag tone="warn">{copy.upload.existsTag}</Tag>}
+                          {r.guessed && <span className={s.guess} title={copy.upload.guessed}>?</span>}
+                        </td>
+                        <td>
+                          <input className={s.titleInput} value={r.title} placeholder={`${r.no}화`} aria-label={`${r.fileName} ${copy.upload.colTitle}`} onChange={(e) => update(r.key, { title: e.target.value })} />
+                        </td>
+                        <td className={s.fileCell}>{r.fileName}</td>
+                        <td className={s.num}>
+                          {r.body.replace(/\n/g, '').length.toLocaleString('ko-KR')}
+                          {r.sceneStarts && <span className={s.sceneCount}>{copy.upload.scenes(scenesOf(r.body, r.sceneStarts).length)}</span>}
+                        </td>
+                        <td className={s.rowBtns}>
+                          {!first && (
+                            <Button variant="ghost" size="sm" onClick={() => mergeUp(r)} disabled={Boolean(progress)} aria-label={`${r.no}화 ${copy.upload.mergeUp}`}>
+                              {copy.upload.mergeUp}
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="sm" onClick={() => setSplitting(splitting === r.key ? null : r.key)} disabled={Boolean(progress)} aria-expanded={splitting === r.key} aria-label={`${r.no}화 ${copy.upload.splitOpen}`}>
+                            {splitting === r.key ? copy.upload.splitClose : copy.upload.splitOpen}
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => setRows((old) => old.filter((x) => x.key !== r.key))} disabled={Boolean(progress)}>
+                            {copy.upload.removeRow}
+                          </Button>
+                        </td>
+                      </tr>
+                      {splitting === r.key && (
+                        <tr>
+                          <td colSpan={5}>
+                            <p className={s.muted}>{copy.upload.splitPick}</p>
+                            <ol className={s.lineList}>
+                              {lines.map((l, i) =>
+                                l.trim() ? (
+                                  <li key={i}>
+                                    {i > 0 && (
+                                      <Button variant="ghost" size="sm" onClick={() => splitAt(r, i)}>
+                                        {copy.upload.splitHere}
+                                      </Button>
+                                    )}
+                                    <span>{l.length > 70 ? `${l.slice(0, 70)}…` : l}</span>
+                                  </li>
+                                ) : null,
+                              )}
+                            </ol>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
             {rows.some((r) => r.guessed) && <p className={s.muted}>? {copy.upload.guessed}</p>}

@@ -36,7 +36,8 @@ export function splitScenes(body: string): string[] {
   return scenes.flatMap(splitLong);
 }
 
-function splitLong(scene: string): string[] {
+/** 너무 긴 장면은 문단 경계에서 다시 나눈다(AI가 나눈 장면에도 쓴다). */
+export function splitLong(scene: string): string[] {
   if (scene.length <= limits.sceneMax) return [scene];
   const paras = scene.split(/\n/).filter((p) => p.trim());
   const out: string[] = [];

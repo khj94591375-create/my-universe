@@ -136,6 +136,7 @@ export const splitSchema = z.object({
         title: z.string().describe('회차 제목. 원고에 제목 줄이 있으면 그대로, 없으면 빈 문자열'),
         heading: z.boolean().describe('시작 줄이 "1화", "제1장 만남" 같은 제목 줄이면 true(본문에서 뺌), 본문 문장이면 false'),
         no: z.number().describe('원고에 적힌 회차 번호. 없으면 0'),
+        scene_lines: z.array(z.number()).describe('이 회차 안에서 새 장면이 시작되는 줄 번호들(회차 첫 장면은 빼고). 장면이 하나면 빈 목록'),
       }),
     )
     .describe('회차 순서대로'),

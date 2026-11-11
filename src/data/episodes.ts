@@ -125,3 +125,15 @@ export async function replaceRuleAppearancesForItem(itemId: string, rows: { item
   const { error: e2 } = await c.from('appearances').insert(rows.map((r) => ({ ...r, source: 'rule' })));
   if (e2) throw e2;
 }
+
+/** 장면을 다시 만든 뒤 장면 칸이 비어 버린 AI 등장 기록(회수 제안 제외). 근거 문장으로 새 장면에 다시 잇는다. */
+export async function fetchDetachedAiAppearances(episodeId: string): Promise<{ id: string; evidence: string | null }[]> {
+  const { data, error } = await db().from('appearances').select('id, evidence, role').eq('episode_id', episodeId).eq('source', 'ai').is('chunk_id', null);
+  if (error) throw error;
+  return ((data ?? []) as { id: string; evidence: string | null; role: string }[]).filter((a) => a.role !== 'resolve');
+}
+
+export async function setAppearanceChunk(id: string, chunkId: string) {
+  const { error } = await db().from('appearances').update({ chunk_id: chunkId }).eq('id', id);
+  if (error) throw error;
+}
