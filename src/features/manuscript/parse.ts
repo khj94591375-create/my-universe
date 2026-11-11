@@ -118,7 +118,7 @@ export function parseManuscript(fileName: string, rawText: string): ParsedEpisod
 
 /**
  * AI가 고른 회차 시작 줄(과 장면 시작 줄)로 나눈다. 원고 글자는 그대로, 자르는 위치만. text는 cleanText를 거친 글자.
- * 시작 줄이 제목 줄(heading)이면 본문에서 빼고 제목으로 쓴다. 첫 회차 앞 글은 규칙 나누기와 같이(길면 첫 회차에 붙임).
+ * 시작 줄이 제목 줄(heading)이면 본문에서 빼고 제목으로 쓴다. 첫 회차 앞 글은 짧아도 첫 회차에 붙인다(글자가 빠지지 않게).
  */
 export function splitByStarts(text: string, starts: { line: number; title: string; heading: boolean; no: number | null; scenes?: number[] }[]): ParsedEpisode[] {
   const lines = text.split('\n');
@@ -133,7 +133,8 @@ export function splitByStarts(text: string, starts: { line: number; title: strin
       abs++;
     }
     while (seg.length && !seg[seg.length - 1].trim()) seg.pop();
-    const prefix = k === 0 && preText.length > 100 ? [...preText.split('\n'), ''] : [];
+    // 첫 회차 앞 글은 버리지 않고 첫 회차에 붙인다(AI가 경계를 한 줄 늦게 잡아도 원고 글자가 빠지지 않게)
+    const prefix = k === 0 && preText ? [...preText.split('\n'), ''] : [];
     const sceneStarts = (st.scenes ?? []).filter((l) => l > abs && l < abs + seg.length).map((l) => l - abs + prefix.length);
     const title = st.title || (st.heading ? lines[st.line].trim() : '');
     return { no: st.no, title, body: [...prefix, ...seg].join('\n').trim(), ...(st.scenes ? { sceneStarts } : {}) };

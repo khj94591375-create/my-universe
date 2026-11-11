@@ -103,3 +103,22 @@ describe('띄어쓰기 규칙 더', () => {
     expect(got.some((g) => g.startsWith('그것같'))).toBe(false);
   });
 });
+
+import { correctedScenes } from '../spell/text';
+
+describe('교정 반영 때 장면 나누기 지키기', () => {
+  const body = '리안은 금새 잠들었다.\n\n***\n\n세린은 되요라고 말했다.';
+  const scenes = ['리안은 금새 잠들었다.', '세린은 되요라고 말했다.'];
+  const sg = (id: string, original: string, suggestion: string) => {
+    const start = body.indexOf(original);
+    return { id, start, end: start + original.length, original, suggestion, type: 'spelling' as const, reason: '', certainty: 'sure' as const, inDialogue: false, source: 'rule' as const };
+  };
+  it('장면마다 그 안의 수정 적용만 반영하고 경계는 그대로', () => {
+    const list = [sg('a', '금새', '금세'), sg('b', '되요', '돼요')];
+    expect(correctedScenes(body, scenes, list, { a: 'apply', b: 'keep' })).toEqual(['리안은 금세 잠들었다.', '세린은 되요라고 말했다.']);
+    expect(correctedScenes(body, scenes, list, { a: 'apply', b: 'apply' })).toEqual(['리안은 금세 잠들었다.', '세린은 돼요라고 말했다.']);
+  });
+  it('장면을 본문에서 찾지 못하면 null(규칙으로 다시 나눔)', () => {
+    expect(correctedScenes(body, ['없는 장면'], [], {})).toBeNull();
+  });
+});

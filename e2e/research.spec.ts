@@ -29,3 +29,20 @@ test('설정집에 인물을 나중에 넣어도 올린 원고에서 바로 찾�
   const minji = db.T.items.find((i) => i.work_id === MINE && i.name === '김민지')!;
   expect(db.T.appearances.filter((a) => a.item_id === minji.id)).toHaveLength(1);
 });
+
+test('같은 장면에 AI 기록이 이미 있어도 별칭 추가 후 다시 찾기가 실패하지 않는다', async ({ page }) => {
+  const { db } = await prepare(page, { user: true, mine: true });
+  const ep = 'e7100000-0000-4000-8000-000000000001';
+  const ch = 'c7100000-0000-4000-8000-000000000001';
+  db.T.episodes.push({ id: ep, work_id: MINE, no: 1, title: '1화', summary: null, body: 'x', source_file: 'x', analyzed_at: '2026-11-01T00:00:00Z', created_at: '2026-10-28T00:00:00Z' });
+  db.T.chunks.push({ id: ch, episode_id: ep, work_id: MINE, seq: 1, text: '견습생은 리안이라 불렸다.' });
+  const rian = db.T.items.find((i) => i.work_id === MINE && i.name === '리안')!;
+  db.T.appearances.push({ id: 'a7100000-0000-4000-8000-000000000001', item_id: rian.id, episode_id: ep, chunk_id: ch, evidence: '견습생은 리안이라 불렸다.', source: 'ai', role: 'mention', created_at: '' });
+  await page.goto(`#/w/${MINE}/bible`);
+  const row = page.locator('li', { has: page.getByText('리안', { exact: true }) }).first();
+  await row.getByPlaceholder(/다른 이름/).fill('꼬마 사서');
+  await row.getByRole('button', { name: '별칭 추가' }).click();
+  await expect(page.getByText(/저장했어요\. 올린 원고/)).toBeVisible();
+  await expect(page.getByText(/저장하지 못했어요|이미 같은 내용이 저장되어/)).toHaveCount(0);
+  expect(db.T.appearances.filter((a) => a.item_id === rian.id && a.chunk_id === ch)).toHaveLength(1); // AI 기록 하나만
+});

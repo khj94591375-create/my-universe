@@ -133,6 +133,7 @@ export const copy = {
   },
   upload: {
     splitTitle: '회차 나누기',
+    splitWait: 'AI가 회차를 나누는 중이에요. 끝나면 저장할 수 있어요.',
     autoSplitNotice: 'AI가 켜져 있어 파일을 올리면 원고가 AI 회사(Anthropic) 서버로 전송되고, AI가 앞뒤 문맥을 보고 회차와 장면을 나눠요(파일 하나당 하루 사용량 1회). 원고 글자는 바뀌지 않아요.',
     splitFallback: (reason: string) => `AI로 나누지 못해 회차 표시 줄로 나눴어요(${reason}). 다시 시도할 수 있어요.`,
     splitTooLong: '12만 자가 넘는 파일이라 회차 표시 줄로 나눴어요. AI로 나누려면 파일을 나눠서 올려 주세요.',
@@ -299,7 +300,7 @@ export const copy = {
       addLink: '연결 추가',
       pairTitle: (a: string, b: string) => `「${a}」 · 「${b}」`,
       pairConnect: '이 두 별 잇기',
-      pairRemove: (label: string | null) => `연결 지우기${label ? `(${[...label].length > 12 ? `${[...label].slice(0, 11).join('')}…` : label})` : ''}`,
+      pairRemove: (label: string | null) => `연결 지우기${label ? `(${label})` : ''}`,
       pairHint: '별을 두 개 고르면 여기서 바로 잇거나 지울 수 있어요.',
       pickTarget: (name: string) => `「${name}」과(와) 이을 별을 지도에서 고르세요.`,
       linkLabel: '관계 이름(예: 편지를 쓴 사람)',

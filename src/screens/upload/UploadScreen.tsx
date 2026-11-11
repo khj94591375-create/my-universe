@@ -21,7 +21,6 @@ export default function UploadScreen() {
         ))}
       </div>
       <WorkDataGate workId={workId}>{() => (tab === 'file' ? <FileUploadSection workId={workId} /> : <PasteSection workId={workId} />)}</WorkDataGate>
-      <p className={s.notice}>{copy.start.aiNotice}</p>
     </ScreenLayout>
   );
 }

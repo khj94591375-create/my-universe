@@ -126,6 +126,30 @@ export function applyAccepted(text: string, suggestions: Suggestion[], decisions
   return out;
 }
 
+/**
+ * 교정을 원고에 반영할 때 장면 나누기를 지킨다: 지금 장면들을 본문에서 찾아, 장면마다 그 안의 "수정 적용"만 반영한 글을 돌려준다.
+ * 장면을 본문에서 순서대로 찾지 못하거나, 장면 경계에 걸친 수정이 있으면 null(규칙으로 다시 나눔).
+ */
+export function correctedScenes(body: string, sceneTexts: string[], suggestions: Suggestion[], decisions: Record<string, Decision | undefined>): string[] | null {
+  const ranges: [number, number][] = [];
+  let at = 0;
+  for (const t of sceneTexts) {
+    const i = body.indexOf(t, at);
+    if (i < 0) return null;
+    ranges.push([i, i + t.length]);
+    at = i + t.length;
+  }
+  const applied = suggestions.filter((sg) => decisions[sg.id] === 'apply' && body.slice(sg.start, sg.end) === sg.original);
+  if (applied.some((sg) => !ranges.some(([s, e]) => sg.start >= s && sg.end <= e) && ranges.some(([s, e]) => sg.start < e && sg.end > s))) return null;
+  return ranges.map(([s, e]) =>
+    applyAccepted(
+      body.slice(s, e),
+      applied.filter((sg) => sg.start >= s && sg.end <= e).map((sg) => ({ ...sg, start: sg.start - s, end: sg.end - s })),
+      decisions,
+    ),
+  );
+}
+
 /** 유형별 건수 */
 export function countByType(list: Suggestion[]): Record<string, number> {
   const c: Record<string, number> = {};

@@ -67,6 +67,10 @@ export function FileUploadSection({ workId }: { workId: string }) {
   const [aiProgress, setAiProgress] = useState<string | null>(null);
   const [aiFailed, setAiFailed] = useState<AiAnalyzeResult[]>([]);
   const [sources, setSources] = useState<Source[]>([]);
+  // 목록을 비우면 올라가는 번호: 그 전에 시작한 AI 나누기 결과는 버린다
+  const listGen = useRef(0);
+  const sourcesRef = useRef<Source[]>([]);
+  sourcesRef.current = sources;
   const ai = useAiStatus();
 
   const existing = new Set(data?.episodes.map((e) => e.no) ?? []);
@@ -112,8 +116,16 @@ export function FileUploadSection({ workId }: { workId: string }) {
     if (canWrite && ai.on) for (const src of newSources) await aiSplit(src, true);
   };
 
+  const splittingAny = sources.some((x) => x.busy);
   const patchSource = (fileName: string, patch: Partial<Source>) => setSources((old) => old.map((x) => (x.fileName === fileName ? { ...x, ...patch } : x)));
   const replaceFileRows = (fileName: string, list: Row[]) => setRows((old) => [...old.filter((r) => r.fileName !== fileName), ...list].sort((x, y) => Number(x.no) - Number(y.no)));
+  // 줄을 빼다가 그 파일 줄이 다 사라지면 파일 정보도 뺀다(늦게 온 AI 결과가 되살리지 않게)
+  const removeRow = (r: Row) =>
+    setRows((old) => {
+      const next = old.filter((x) => x.key !== r.key);
+      if (!next.some((x) => x.fileName === r.fileName)) setSources((src) => src.filter((x) => x.fileName !== r.fileName));
+      return next;
+    });
 
   /** AI로 문맥 보고 나누기: AI는 회차·장면 시작 줄만 고르고, 자르기는 여기서(원고 글자는 그대로). 실패하면 규칙 결과 그대로 */
   const aiSplit = async (src: Source, auto = false) => {
@@ -122,8 +134,10 @@ export function FileUploadSection({ workId }: { workId: string }) {
       return;
     }
     patchSource(src.fileName, { busy: true, error: undefined });
+    const gen = listGen.current;
     try {
       const r = await callAi<SplitResult>('split-episodes', { workId, text: src.text });
+      if (gen !== listGen.current || !sourcesRef.current.some((x) => x.fileName === src.fileName)) return; // 기다리는 사이 목록을 비웠거나 그 파일을 뺐으면 넣지 않는다
       const parsed = splitByStarts(src.text, r.starts);
       if (parsed.length === 0) throw new Error('empty');
       // 번호: AI가 읽은 번호가 늘어나기만 하면 그대로, 아니면 이 파일의 첫 번호부터 차례로
@@ -284,7 +298,7 @@ export function FileUploadSection({ workId }: { workId: string }) {
           <div className={s.preview}>
             <div className={s.previewHead}>
               <h3>{copy.upload.previewTitle(rows.length)}</h3>
-              <Button variant="ghost" size="sm" onClick={() => { setRows([]); setFileErrors([]); setProblem(null); setSources([]); }} disabled={Boolean(progress)}>
+              <Button variant="ghost" size="sm" onClick={() => { listGen.current++; setRows([]); setFileErrors([]); setProblem(null); setSources([]); }} disabled={Boolean(progress)}>
                 {copy.upload.clear}
               </Button>
             </div>
@@ -358,7 +372,7 @@ export function FileUploadSection({ workId }: { workId: string }) {
                           <Button variant="ghost" size="sm" onClick={() => setSplitting(splitting === r.key ? null : r.key)} disabled={Boolean(progress)} aria-expanded={splitting === r.key} aria-label={`${r.no}화 ${copy.upload.splitOpen}`}>
                             {splitting === r.key ? copy.upload.splitClose : copy.upload.splitOpen}
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => setRows((old) => old.filter((x) => x.key !== r.key))} disabled={Boolean(progress)}>
+                          <Button variant="ghost" size="sm" onClick={() => removeRow(r)} disabled={Boolean(progress)}>
                             {copy.upload.removeRow}
                           </Button>
                         </td>
@@ -401,9 +415,10 @@ export function FileUploadSection({ workId }: { workId: string }) {
               />
             ) : (
               <div className={s.actions}>
-                <WriteButton workId={workId} variant="accent" onClick={submit} loading={Boolean(progress)}>
+                <WriteButton workId={workId} variant="accent" onClick={submit} loading={Boolean(progress)} disabled={splittingAny}>
                   {copy.upload.submit}
                 </WriteButton>
+                {splittingAny && <span className={s.muted} role="status">{copy.upload.splitWait}</span>}
               </div>
             )}
           </div>

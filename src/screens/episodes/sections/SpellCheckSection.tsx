@@ -9,9 +9,10 @@ import { toMessage } from '../../../data/errors';
 import { addStyleTerm, listStyleTerms, removeStyleTerm, type StyleTerm } from '../../../data/styleTerms';
 import type { Episode } from '../../../data/types';
 import { aiErrorMessage, refreshAiStatus, useAiStatus } from '../../../features/ai/aiStatus';
-import { reanalyzeEpisode } from '../../../features/analysis/runRules';
+import { reanalyzeEpisode, resceneEpisode } from '../../../features/analysis/runRules';
+import { fetchChunks } from '../../../data/workData';
 import { ruleSuggestions } from '../../../features/spell/rules';
-import { applyAccepted, countByType, locateAi, mergeSuggestions, splitForCheck, type TextPart } from '../../../features/spell/text';
+import { applyAccepted, correctedScenes, countByType, locateAi, mergeSuggestions, splitForCheck, type TextPart } from '../../../features/spell/text';
 import type { AiSpell, Decision, Suggestion } from '../../../features/spell/types';
 import { save } from '../../../features/works/save';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
@@ -146,7 +147,12 @@ export function SpellCheckSection({ workId, episode, onClose }: { workId: string
       workId,
       async () => {
         await updateEpisodeBody(episode.id, corrected);
-        if (reanalyze) await reanalyzeEpisode({ ...episode, body: corrected }, data.items);
+        if (reanalyze) {
+          // AI·작가가 나눈 장면 경계는 그대로 두고, 장면 안 글자만 교정본으로(못 맞추면 규칙으로 다시 나눔)
+          const scenes = correctedScenes(episode.body, (await fetchChunks(episode.id)).map((c) => c.text), list, decisions);
+          if (scenes) await resceneEpisode({ ...episode, body: corrected }, data.items, scenes);
+          else await reanalyzeEpisode({ ...episode, body: corrected }, data.items);
+        }
       },
       copy.spell.applied(n),
     );

@@ -49,11 +49,14 @@ export async function analyzeEpisodeByRules(episode: Episode, items: ItemView[],
   const found = detectAppearances(chunks, items);
   await insertAppearances(found.map((f) => ({ item_id: f.itemId, episode_id: episode.id, chunk_id: f.chunkId, evidence: f.evidence, source: 'rule' })));
   // 장면을 다시 만들면 AI 등장 기록의 장면 칸이 비므로, 근거 문장이 든 새 장면에 다시 잇는다
-  for (const a of await fetchDetachedAiAppearances(episode.id)) {
-    const ev = a.evidence?.replace(/\s+/g, ' ').trim();
-    const c = ev ? chunks.find((x) => x.text.replace(/\s+/g, ' ').includes(ev)) : null;
-    if (c) await setAppearanceChunk(a.id, c.id).catch(() => undefined); // 같은 장면에 규칙 기록이 이미 있으면 그대로 둔다
-  }
+  const flat = chunks.map((x) => ({ id: x.id, text: x.text.replace(/\s+/g, ' ') }));
+  await Promise.all(
+    (await fetchDetachedAiAppearances(episode.id)).map((a) => {
+      const ev = a.evidence?.replace(/\s+/g, ' ').trim();
+      const c = ev ? flat.find((x) => x.text.includes(ev)) : null;
+      return c ? setAppearanceChunk(a.id, c.id).catch(() => undefined) : undefined; // 같은 장면에 규칙 기록이 이미 있으면 그대로 둔다
+    }),
+  );
   const seen = new Set(found.map((f) => f.itemId));
   await Promise.all(items.filter((i) => i.status === 'reuse_planned' && seen.has(i.id)).map((i) => setItemStatus(i.id, 'reused')));
   await updateEpisode(episode.id, { analyzed_at: new Date().toISOString() });

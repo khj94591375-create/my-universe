@@ -18,6 +18,7 @@ import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { useWorkData } from '../../../features/works/workData';
 import s from './map.module.css';
 import { isUnconfirmedAi } from '../../../features/ai/review';
+import { shortLabel } from '../../../features/map/labels';
 
 const KINDS: ItemKind[] = ['character', 'setting', 'foreshadow'];
 
@@ -275,7 +276,7 @@ export function MapCanvasSection({
               </Button>
               {between.map((l) => (
                 <Button key={l.id} variant="ghost" size="sm" onClick={() => setRemoving(l.id)}>
-                  {copy.map.info.pairRemove(l.label)}
+                  {copy.map.info.pairRemove(l.label ? shortLabel(l.label, limits.mapLinkLabelMax) : null)}
                 </Button>
               ))}
               {between.map((l) => <span key={`c-${l.id}`}>{removeConfirm(l, a.name, b.name)}</span>)}

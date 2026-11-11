@@ -103,7 +103,7 @@ export function ForgotListSection({ workId, selectedId, onSelect }: { workId: st
           <p className={s.pickNames}>{copy.forgot.picked(pickedItems.map((i) => i.name))}</p>
           {pickedItems.length < 2 && <p className={s.muted}>{copy.forgot.pickedHint}</p>}
           <div className={s.pickActions}>
-            <Button size="sm" onClick={() => nav(`/w/${workId}/map?sel=${picked.join(',')}`)} disabled={pickedItems.length < 2}>
+            <Button size="sm" onClick={() => nav(`/w/${workId}/map?sel=${pickedItems.map((i) => i.id).join(',')}`)} disabled={pickedItems.length < 2}>
               {copy.forgot.toDesign}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setPicked([])}>

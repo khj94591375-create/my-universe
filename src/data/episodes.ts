@@ -125,7 +125,10 @@ export async function replaceRuleAppearancesForItem(itemId: string, rows: { item
   const { error: e1 } = await c.from('appearances').delete().eq('item_id', itemId).eq('source', 'rule');
   if (e1) throw e1;
   if (rows.length === 0) return;
-  const { error: e2 } = await c.from('appearances').insert(rows.map((r) => ({ ...r, source: 'rule' })));
+  // 같은 장면에 AI·작가 기록이 이미 있으면 그대로 두고 건너뛴다(같은 항목·회차·장면은 하나만 저장됨)
+  const { error: e2 } = await c
+    .from('appearances')
+    .upsert(rows.map((r) => ({ ...r, source: 'rule' })), { onConflict: 'item_id,episode_id,chunk_id', ignoreDuplicates: true });
   if (e2) throw e2;
 }
 
