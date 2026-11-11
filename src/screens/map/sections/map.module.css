@@ -209,8 +209,11 @@
   gap: 4px;
 }
 .draft {
-  background: var(--c-paper);
+  /* 장면 근거 상자(--c-paper)와 구분: 카드색 + 점선 테두리 */
+  background: var(--c-card);
+  border: 1px dashed var(--c-line);
   border-radius: var(--r-sm);
+  margin-top: var(--sp-2);
   padding: var(--sp-3);
   font-family: var(--f-display);
   font-size: var(--fs-sm);
@@ -518,4 +521,14 @@
 .panel,
 .quick {
   overflow-wrap: anywhere;
+}
+
+/* 설계 결과: 장면 목록·본문 초안·결과 복사 사이를 띄운다(상자가 붙어 보이지 않게) */
+.resultBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.resultBlock > button {
+  align-self: flex-start;
 }
