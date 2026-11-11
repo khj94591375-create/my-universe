@@ -35,23 +35,16 @@ describe('문체 통계(브라우저 안)', () => {
   });
 });
 
-import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
 
 describe('옛 Safari 보호', () => {
   it('화면 코드에 뒤쪽 확인(lookbehind) 정규식이 없다(Safari 16.4 미만에서 앱 전체가 멈춤)', () => {
-    const files: string[] = [];
-    const walk = (d: string) => {
-      for (const f of readdirSync(d)) {
-        const p = join(d, f);
-        if (statSync(p).isDirectory()) {
-          if (f !== '__tests__') walk(p);
-        } else if (/\.(ts|tsx)$/.test(f)) files.push(p);
-      }
-    };
-    walk('src');
-    walk('supabase/functions/_shared');
-    const bad = files.filter((f) => /\(\?<[=!]/.test(readFileSync(f, 'utf8').replace(/\/\/[^\n]*/g, '')));
+    const files = {
+      ...import.meta.glob('/src/**/*.{ts,tsx}', { query: '?raw', import: 'default', eager: true }),
+      ...import.meta.glob('/supabase/functions/_shared/*.ts', { query: '?raw', import: 'default', eager: true }),
+    } as Record<string, string>;
+    const checked = Object.keys(files).filter((f) => !f.includes('__tests__') && !f.endsWith('.test.ts'));
+    expect(checked.length).toBeGreaterThan(50);
+    const bad = checked.filter((f) => /\(\?<[=!]/.test(files[f].replace(/\/\/[^\n]*/g, '')));
     expect(bad).toEqual([]);
   });
 });
