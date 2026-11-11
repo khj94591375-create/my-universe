@@ -13,6 +13,8 @@ serve(async (ctx) => {
   const workId = str(ctx.body, 'workId');
   const itemIds = Array.isArray(ctx.body.itemIds) ? (ctx.body.itemIds as unknown[]).filter((x): x is string => typeof x === 'string') : [];
   const includeDraft = ctx.body.includeDraft === true;
+  // 초안 길이는 300자 또는 800자만(다른 값은 300)
+  const draftLength = ctx.body.draftLength === 800 ? 800 : 300;
   if (itemIds.length === 0) throw new HttpError('bad_request', '항목을 하나 이상 골라 주세요.');
   const { admin } = ctx;
   await requireOwnWork(admin, userId, workId);
@@ -25,10 +27,10 @@ serve(async (ctx) => {
   const out = await askJson({
     tier: 'main',
     system: DESIGN_SYSTEM,
-    user: `${context.text}\n\n${targetEp}화를 설계한다. 고른 항목: ${chosen.map((i) => `「${i.name}」`).join(', ')}.\n본문 초안 요청: ${includeDraft ? '있음(300자 이내)' : '없음(draft는 빈 문자열)'}\n장면 3개를 JSON으로 답하라.`,
+    user: `${context.text}\n\n${targetEp}화를 설계한다. 고른 항목: ${chosen.map((i) => `「${i.name}」`).join(', ')}.\n본문 초안 요청: ${includeDraft ? `있음(장면 1의 시작 부분, ${draftLength}자 이내)` : '없음(draft는 빈 문자열)'}\n장면 3개를 JSON으로 답하라.`,
     schema: designSchema,
   });
-  const result = finishDesign({ ...out, scenes: out.scenes.slice(0, 3) }, includeDraft, context.scenes);
+  const result = finishDesign({ ...out, scenes: out.scenes.slice(0, 3) }, includeDraft, context.scenes, draftLength);
   const missing = chosen.filter((i) => !result.scenes.some((s) => s.uses.some((u) => u.item === i.name))).map((i) => i.name);
   const { data: session, error } = await admin
     .from('design_sessions')

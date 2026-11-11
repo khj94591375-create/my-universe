@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { normalize, parseTag, verifyEvidence } from './verify.ts';
 import { buildContext, pickScenes, trimItems, type CtxItem } from './context.ts';
-import { filterAnalysis, finishDesign, markEvidence } from './rules.ts';
+import { filterAnalysis, finishDesign, markEvidence, trimAtSentence } from './rules.ts';
 
 const scenes = new Map([['E3-S1', '“반쪽으로는 열리지 않는다.” 등 뒤에서 목소리가 들렸다.\n노인은   웃었다...']]);
 
@@ -351,5 +351,21 @@ describe('삽화 사용 제한(IMAGE_ALLOWED_EMAILS)', () => {
     expect(emailAllowed('kimhj@gmail.com', 'kim.hj@gmail.com')).toBe(true);
     expect(emailAllowed('Kim.HJ+test@googlemail.com', 'kimhj@gmail.com')).toBe(true);
     expect(emailAllowed('kimhj@naver.com', 'kim.hj@naver.com')).toBe(false);
+  });
+});
+
+describe('본문 초안 길이(문장 중간에서 자르지 않음)', () => {
+  it('짧으면 그대로, 넘으면 마지막 문장 끝에서, 닫는 따옴표 포함, 문장 끝이 없으면 말줄임', () => {
+    expect(trimAtSentence('짧은 초안이다.', 300)).toBe('짧은 초안이다.');
+    expect(trimAtSentence('첫 문장이다. 둘째 문장은 아주 길어서 넘친다', 12)).toBe('첫 문장이다.');
+    expect(trimAtSentence('"괜찮아?" 그가 물었다 그리고', 10)).toBe('"괜찮아?"');
+    expect(trimAtSentence('끝맺음없이계속이어지는아주긴문장', 8)).toBe('끝맺음없이계속…');
+  });
+  it('finishDesign: 길이를 받아 쓰고, 스위치가 꺼져 있으면 초안 없음([고정])', () => {
+    const long = '가'.repeat(700) + '.';
+    const out = { scenes: [], draft: `${long} ${'나'.repeat(200)}.` };
+    expect(finishDesign(out, true, new Map(), 800).draft).toBe(long);
+    expect(finishDesign(out, true, new Map(), 300).draft!.length).toBe(300);
+    expect(finishDesign(out, false, new Map(), 800).draft).toBeNull();
   });
 });

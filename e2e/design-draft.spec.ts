@@ -9,12 +9,14 @@ for (const theme of ['light', 'dark'] as const)
     const { db } = await prepare(page, { user: true, mine: true, theme });
     const mine = db.T.items.filter((i) => i.work_id === MINE);
     const ids = ['리안', '세린'].map((n) => mine.find((i) => i.name === n)!.id);
+    const sent: Record<string, unknown>[] = [];
     await page.route('**/functions/v1/**', async (route) => {
       const req = route.request();
       if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
       const name = new URL(req.url()).pathname.split('/').pop();
       const ok = (d: unknown) => route.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'application/json' }, body: JSON.stringify(d) });
       if (name === 'ai-status') return ok({ ok: true, enabled: true, limits: { text: 50, image: 8 }, usage: { text: 0, image: 0 } });
+      if (name === 'design-next') sent.push(req.postDataJSON());
       if (name === 'design-next')
         return ok({ ok: true, sessionId: 's1', targetEp: 2, missing: [], draft: '밤이 깊어도 개구리들은 움직이지 않았다. 달빛 아래 수만 개의 눈이 한곳을 향하고 있었다.', scenes: [
           { no: 1, text: '리안이 서고에 들어선다.', uses: [{ item: '리안', evidence: '리안은 서고에 들어섰다.', tag: 'E1-S1' }] },
@@ -24,8 +26,13 @@ for (const theme of ['light', 'dark'] as const)
       return ok({ ok: true });
     });
     await page.goto('#/w/' + MINE + '/map?sel=' + ids.join(','));
+    await expect(page.getByRole('radio', { name: '길게(800자)' })).toHaveCount(0); // 스위치를 켜야 길이 선택이 보임
     await page.getByRole('switch', { name: '본문 초안까지 받기' }).check();
+    await expect(page.getByRole('radio', { name: '짧게(300자)' })).toBeChecked();
+    await page.getByRole('radio', { name: '길게(800자)' }).check();
     await page.getByRole('button', { name: /다음 회차 설계/ }).first().click();
+    await expect.poll(() => sent.length).toBe(1);
+    expect(sent[0]).toMatchObject({ includeDraft: true, draftLength: 800 });
     const draft = page.locator('[class*=draft]').filter({ hasText: '본문 초안(AI 제안)' });
     await expect(draft).toBeVisible();
     const quote = page.locator('blockquote', { hasText: '쇠붙이로는 설명할 수 없는 일이었다.' });

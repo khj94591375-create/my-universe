@@ -44,7 +44,7 @@ export const designSchema = z.object({
       uses: z.array(z.object({ item: z.string(), evidence: z.string(), tag: z.string() })),
     }),
   ),
-  draft: z.string().describe('본문 초안 300자 이내. 요청이 없으면 빈 문자열'),
+  draft: z.string().describe('장면 1의 시작 부분 본문 초안(요청한 글자 수 이내, 문장을 끝까지 맺음). 요청이 없으면 빈 문자열'),
 });
 
 export const chatSchema = z.object({

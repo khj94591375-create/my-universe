@@ -33,6 +33,7 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
   const canWrite = useCanWrite(work);
   const ai = useAiStatus();
   const [includeDraft, setIncludeDraft] = useState(false);
+  const [draftLength, setDraftLength] = useState<300 | 800>(300);
   const [result, setResult] = useState<DesignResult | null>(null);
   const [designing, setDesigning] = useState(false);
   const [messages, setMessages] = useState<ChatMsg[]>([]);
@@ -68,7 +69,7 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
     if (chosen.length === 0) return showToast(copy.map.panel.needSelect);
     setDesigning(true);
     try {
-      const r = await callAi<DesignResult>('design-next', { workId, itemIds: chosen.map((i) => i.id), targetEp: data.next, includeDraft });
+      const r = await callAi<DesignResult>('design-next', { workId, itemIds: chosen.map((i) => i.id), targetEp: data.next, includeDraft, draftLength });
       setResult(r);
       setMessages([]);
     } catch (e) {
@@ -225,6 +226,16 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
         <p id="draft-hint" className={s.muted}>
           {copy.map.panel.draftHint}
         </p>
+        {includeDraft && (
+          <div className={s.draftLength} role="radiogroup" aria-label={copy.map.panel.draftLength}>
+            {([300, 800] as const).map((n) => (
+              <label key={n}>
+                <input type="radio" name="draft-length" checked={draftLength === n} disabled={!usable} onChange={() => setDraftLength(n)} />
+                <span>{n === 300 ? copy.map.panel.draftShort : copy.map.panel.draftLong}</span>
+              </label>
+            ))}
+          </div>
+        )}
         <Button variant="accent" block disabled={!usable || chosen.length === 0} loading={designing} title={reason ?? undefined} onClick={design}>
           {designing ? copy.map.panel.designing : result ? copy.map.panel.again : copy.map.panel.design}
         </Button>

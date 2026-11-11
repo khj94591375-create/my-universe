@@ -33,10 +33,23 @@ export function filterAnalysis(out: AnalysisOut, scenes: Map<string, string>, ex
 }
 
 /** 8.6 [고정]: 초안 스위치가 꺼져 있으면 서버에서 draft를 지운다. 근거 없는 사용처는 "근거 없음"으로. */
+/** 초안 길이 제한: 넘으면 그 안의 마지막 문장 끝(. ! ? … 닫는 따옴표)에서 끊고, 문장 끝이 없을 때만 말줄임 */
+export function trimAtSentence(text: string, max: number): string {
+  const t = text.trim();
+  const chars = [...t];
+  if (chars.length <= max) return t;
+  const head = chars.slice(0, max).join('');
+  let cut = -1;
+  const re = /[.!?…]["'”’」』)]*/g;
+  for (let m = re.exec(head); m; m = re.exec(head)) cut = m.index + m[0].length;
+  return cut > 0 ? head.slice(0, cut).trim() : `${chars.slice(0, max - 1).join('').trim()}…`;
+}
+
 export function finishDesign<T extends { scenes: { no: number; text: string; uses: (Ev & { item: string })[] }[]; draft?: string | null }>(
   out: T,
   includeDraft: boolean,
   scenes: Map<string, string>,
+  draftMax = 300,
 ) {
   return {
     scenes: out.scenes.map((s) => ({
@@ -44,7 +57,7 @@ export function finishDesign<T extends { scenes: { no: number; text: string; use
       text: s.text,
       uses: s.uses.map((u) => ({ item: u.item, evidence: verifyEvidence(u.evidence, u.tag, scenes) ? u.evidence : null, tag: u.tag })),
     })),
-    draft: includeDraft && out.draft ? out.draft.slice(0, 300) : null,
+    draft: includeDraft && out.draft ? trimAtSentence(out.draft, draftMax) : null,
   };
 }
 

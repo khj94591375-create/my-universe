@@ -532,3 +532,16 @@
 .resultBlock > button {
   align-self: flex-start;
 }
+
+.draftLength {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+}
+.draftLength label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+}
