@@ -35,7 +35,7 @@ for (const [theme, w] of [['light', 1280], ['dark', 390]] as const)
     expect(tipBox.x).toBeGreaterThanOrEqual(svgBox.x - 1); // 지도 밖으로 잘리지 않음
     expect(tipBox.x + tipBox.width).toBeLessThanOrEqual(svgBox.x + svgBox.width + 1);
     // 고르면 오른쪽 창(또는 휴대폰 아래 창)에 전체 이름
-    await star.click();
+    await star.press('Enter'); // 별이 지도 가장자리에 있어도(휴대폰) 키보드로 고를 수 있음
     await expect(page.getByText(LONG, { exact: true }).first()).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
   });
