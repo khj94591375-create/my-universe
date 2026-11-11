@@ -34,7 +34,7 @@ function serverKey(): string {
   }
 }
 
-export type Ctx = { admin: SupabaseClient; userId: string | null; body: Record<string, unknown> };
+export type Ctx = { admin: SupabaseClient; userId: string | null; userEmail: string | null; body: Record<string, unknown> };
 
 /** Deno.serve에 넘길 처리기. 로그를 남길 때 원고 원문은 절대 찍지 않는다(8.1). */
 export function serve(handler: (ctx: Ctx) => Promise<Record<string, unknown>>) {
@@ -46,12 +46,14 @@ export function serve(handler: (ctx: Ctx) => Promise<Record<string, unknown>>) {
       });
       const jwt = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '');
       let userId: string | null = null;
+      let userEmail: string | null = null;
       if (jwt) {
         const { data } = await admin.auth.getUser(jwt);
         userId = data.user?.id ?? null;
+        userEmail = data.user?.email ?? null;
       }
       const body = req.headers.get('content-type')?.includes('json') ? await req.json().catch(() => ({})) : {};
-      return json({ ok: true, ...(await handler({ admin, userId, body })) });
+      return json({ ok: true, ...(await handler({ admin, userId, userEmail, body })) });
     } catch (e) {
       if (e instanceof HttpError) return json({ ok: false, error: e.code, message: e.message });
       console.error('function error:', e instanceof Error ? e.name + ': ' + e.message.slice(0, 200) : 'unknown');

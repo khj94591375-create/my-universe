@@ -744,6 +744,7 @@ export const copy = {
     remaining: (n: number, total: number) => `오늘 남은 생성 횟수 ${n} / ${total}`,
     limitHit: (h: number, m: number) => `오늘 이미지 한도를 다 썼어요. ${h}시간 ${m}분 뒤(오전 9시)에 다시 채워져요.`,
     noKey: '이미지 AI 키가 아직 없어요(키를 넣으면 켜져요). 화면 구성과 요청 문장은 미리 확인할 수 있어요.',
+    restricted: '삽화 그리기는 지금 쉬고 있어요. 화면 구성과 요청 문장은 미리 확인할 수 있어요.',
     needSomething: '항목을 고르거나 장면 설명을 적어 주세요.',
     created: '그림을 만들어 갤러리에 저장했어요.',
     galleryTitle: '갤러리',

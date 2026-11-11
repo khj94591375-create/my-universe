@@ -332,3 +332,15 @@ describe('AI 회차 나누기(자르는 위치만)', () => {
     expect(s.map((x) => x.scenes)).toEqual([[3], [6]]);
   });
 });
+
+import { emailAllowed } from './allow.ts';
+
+describe('삽화 사용 제한(IMAGE_ALLOWED_EMAILS)', () => {
+  it('목록이 비면 모두, 있으면 목록의 이메일만(대소문자·공백 무시)', () => {
+    expect(emailAllowed('', 'a@b.com')).toBe(true);
+    expect(emailAllowed('', null)).toBe(true);
+    expect(emailAllowed(' Me@Mail.com , you@mail.com', 'me@mail.com')).toBe(true);
+    expect(emailAllowed('me@mail.com', 'other@mail.com')).toBe(false);
+    expect(emailAllowed('me@mail.com', null)).toBe(false);
+  });
+});

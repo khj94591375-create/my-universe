@@ -2,11 +2,13 @@
 import { serve } from '../_shared/http.ts';
 import { aiEnabled } from '../_shared/claude.ts';
 import { dailyLimits, usageToday } from '../_shared/limits.ts';
-import { imageEnabled } from '../_shared/openai.ts';
+import { imageAllowed, imageEnabled } from '../_shared/openai.ts';
 
-serve(async ({ admin, userId }) => ({
+serve(async ({ admin, userId, userEmail }) => ({
   enabled: aiEnabled(),
-  imageEnabled: imageEnabled(),
+  imageEnabled: imageEnabled() && imageAllowed(userEmail),
+  // 키는 있지만 이 사람에게는 잠시 꺼 둠(IMAGE_ALLOWED_EMAILS)
+  imageRestricted: imageEnabled() && !imageAllowed(userEmail),
   limits: dailyLimits(),
   usage: userId ? await usageToday(admin, userId) : null,
 }));

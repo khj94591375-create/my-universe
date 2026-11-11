@@ -2,7 +2,7 @@
 // 요청 문장에 고른 항목의 외모를 항상 넣고, 이미지 시트가 있으면 참조 이미지로 보낸다. 실패하면 사용량을 올리지 않는다.
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
-import { generateImage } from '../_shared/openai.ts';
+import { generateImage, imageAllowed } from '../_shared/openai.ts';
 import { DEFAULT_RATIO, MAX_REFS, buildImagePrompt, numberReferences, type ImagePurpose, type ImageRatio, type PromptItem } from '../_shared/imagePrompt.ts';
 
 const PURPOSES: ImagePurpose[] = ['sketch', 'illustration', 'cover', 'sheet'];
@@ -17,6 +17,7 @@ serve(async (ctx) => {
   const itemIds = Array.isArray(ctx.body.itemIds) ? (ctx.body.itemIds as unknown[]).filter((x): x is string => typeof x === 'string').slice(0, 8) : [];
   const scene = typeof ctx.body.scene === 'string' ? ctx.body.scene.slice(0, 600) : '';
   const { admin } = ctx;
+  if (!imageAllowed(ctx.userEmail)) throw new HttpError('forbidden', '삽화 기능은 지금 쉬고 있어요.');
   const work = await requireOwnWork(admin, userId, workId);
   await checkLimit(admin, userId, 'image');
 

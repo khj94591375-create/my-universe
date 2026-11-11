@@ -3,12 +3,23 @@
  */
 import { OpenAI, toFile } from './deps.ts';
 import { HttpError } from './http.ts';
+import { emailAllowed } from './allow.ts';
 import type { ImageRatio } from './imagePrompt.ts';
 import { SIZE } from './imagePrompt.ts';
 
 export function imageEnabled() {
   return Boolean(Deno.env.get('OPENAI_API_KEY'));
 }
+
+/**
+ * 삽화를 쓸 수 있는 사람 제한(테스트 기간 등): 비밀값 IMAGE_ALLOWED_EMAILS(쉼표로 여러 개)가 있으면 그 이메일만.
+ * 비어 있으면 모두 쓸 수 있다. 이메일은 비밀값에만 두고 저장소에는 넣지 않는다.
+ */
+export function imageAllowed(email: string | null): boolean {
+  return emailAllowed(Deno.env.get('IMAGE_ALLOWED_EMAILS') ?? '', email);
+}
+
+
 
 /** 모델 이름은 OPENAI_IMAGE_MODEL로 정한다(BUILD_SPEC 3.2: 구현 시점에 OpenAI 문서에서 확인). */
 export function imageModel() {

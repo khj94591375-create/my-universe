@@ -75,7 +75,7 @@ export function StudioFormSection({ workId, prefill, onCreated }: { workId: stri
   const st = ai.status;
   const imageOn = Boolean(st?.imageEnabled);
   const remaining = st?.usage ? Math.max(0, st.limits.image - st.usage.image) : null;
-  const reason = !canWrite ? copy.shell.loginToWrite : !imageOn ? copy.studio.noKey : remaining === 0 ? copy.studio.limitHit(untilReset().h, untilReset().m) : null;
+  const reason = !canWrite ? copy.shell.loginToWrite : !imageOn ? (st?.imageRestricted ? copy.studio.restricted : copy.studio.noKey) : remaining === 0 ? copy.studio.limitHit(untilReset().h, untilReset().m) : null;
 
   const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
   const create = async () => {

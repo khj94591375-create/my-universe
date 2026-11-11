@@ -80,6 +80,7 @@ Supabase 대시보드 → **SQL Editor** → **New query**에 아래 파일 내�
 - 코드: `supabase/functions/`(공용 `_shared/` + `ai-status`, `analyze-episode`, `guide`, `design-next`, `chat`, `check-consistency`, `generate-image`, `delete-account`, `spell-check`, `summarize-episode`, `ask-world`, `profile-item`, `unstick-scene`, `analyze-style`)
 - 결과를 저장하지 않는 함수(제안만): `spell-check`, `summarize-episode`, `ask-world`, `profile-item`, `unstick-scene`, `analyze-style`. 근거 문장은 원고에 글자 그대로 있는 것만 보여 준다
 - 배포: `main`에 함수가 바뀌면 GitHub Actions(`functions.yml`)가 올린다. 저장소 비밀값 `SUPABASE_ACCESS_TOKEN`이 없으면 건너뛴다.
+- 삽화를 특정 사람만 쓰게 하려면 Supabase Secrets에 `IMAGE_ALLOWED_EMAILS`(쉼표로 여러 개)를 넣는다. 지우면 모두 쓸 수 있다.
 - 키(`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `OPENAI_IMAGE_MODEL` 등)는 Supabase 대시보드 → Edge Functions → Secrets에만 넣는다. 키가 없으면 AI 버튼은 이유와 함께 꺼져 있고 기본 기능은 그대로 동작한다.
 
 ## 보안 규칙
