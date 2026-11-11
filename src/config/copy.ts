@@ -132,6 +132,16 @@ export const copy = {
     conflictsLink: '설정 충돌 보기',
   },
   upload: {
+    splitTitle: '회차 나누기',
+    splitRule: (file: string, n: number) => `「${file}」 — 회차 표시 줄로 ${n}개로 나눴어요.`,
+    splitAi: (file: string, n: number) => `「${file}」 — AI가 앞뒤 문맥을 보고 ${n}개로 나눴어요. 표에서 경계와 번호를 확인해 주세요.`,
+    splitHint: '회차 표시 줄만 보고 나누면 의도와 다른 곳에서 잘릴 수 있어요. AI는 앞뒤 문맥을 읽고 회차가 바뀌는 곳을 찾아요(원고 글자는 바꾸지 않고 자르는 위치만 정해요).',
+    splitRun: 'AI로 문맥 보고 나누기',
+    splitRunning: 'AI가 회차 경계를 찾는 중…',
+    splitNotice: '누르면 이 파일의 원고가 AI 회사(Anthropic) 서버로 전송돼요. 하루 사용량 1회.',
+    splitUndo: '회차 표시 줄로 나누기로 되돌리기',
+    splitOff: (reason: string) => `AI로 나누기는 지금 쓸 수 없어요: ${reason}`,
+
     title: '원고를 올리면 설정을 정리해 드려요',
     empty: '워드(.docx), PDF, 텍스트 파일을 여러 개 한 번에 올리거나, 회차 본문을 붙여 넣을 수 있어요.',
     hwp: '한글 파일은 PDF로 저장해서 올려 주세요.',

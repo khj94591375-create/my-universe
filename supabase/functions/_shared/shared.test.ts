@@ -292,3 +292,31 @@ describe('8.9 참조 이미지 번호', () => {
     expect(r2).toContain('[참조] 참조 이미지 1번 = 원본 그림(구도·분위기 참고).');
   });
 });
+
+import { checkStarts, numberLines } from './split.ts';
+
+describe('AI 회차 나누기(자르는 위치만)', () => {
+  const text = '별의 도서관\n\n1화 등불\n리안이 왔다.\n\n2화 서가\n세린이 웃었다.';
+  it('빈 줄이 아닌 줄에만 번호, 원래 줄 위치를 기억', () => {
+    const r = numberLines(text);
+    expect(r.numbered.split('\n')[1]).toBe('[2] 1화 등불');
+    expect(r.map).toEqual([0, 2, 3, 5, 6]);
+  });
+  it('범위 밖·중복 버림, 순서 정렬, 첫 회차는 맨 앞 줄부터', () => {
+    const { map } = numberLines(text);
+    const s = checkStarts(
+      [
+        { start_line: 4, title: '서가', heading: true, no: 2 },
+        { start_line: 2, title: '등불', heading: true, no: 1 },
+        { start_line: 4, title: '중복', heading: true, no: 2 },
+        { start_line: 99, title: '없음', heading: false, no: 0 },
+      ],
+      map,
+    );
+    expect(s).toEqual([
+      { line: 2, title: '등불', heading: true, no: 1 },
+      { line: 5, title: '서가', heading: true, no: 2 },
+    ]);
+    expect(checkStarts([], map)).toEqual([{ line: 0, title: '', heading: false, no: null }]);
+  });
+});

@@ -126,3 +126,17 @@ export const styleSchema = z.object({
     )
     .describe('이 작가 문체의 두드러진 특징 3~5개'),
 });
+
+/** AI 회차 나누기(저장하지 않음, 자르는 위치만) */
+export const splitSchema = z.object({
+  episodes: z
+    .array(
+      z.object({
+        start_line: z.number().describe('이 회차가 시작되는 줄 번호([n]의 n)'),
+        title: z.string().describe('회차 제목. 원고에 제목 줄이 있으면 그대로, 없으면 빈 문자열'),
+        heading: z.boolean().describe('시작 줄이 "1화", "제1장 만남" 같은 제목 줄이면 true(본문에서 뺌), 본문 문장이면 false'),
+        no: z.number().describe('원고에 적힌 회차 번호. 없으면 0'),
+      }),
+    )
+    .describe('회차 순서대로'),
+});

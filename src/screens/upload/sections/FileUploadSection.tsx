@@ -10,17 +10,20 @@ import { limits } from '../../../config/limits';
 import { art } from '../../../config/art';
 import { ArtImage } from '../../../components/ArtImage';
 import { saveEpisodes, type BatchResult, type BatchRow } from '../../../features/analysis/runRules';
-import { parseManuscript } from '../../../features/manuscript/parse';
+import { cleanText, parseManuscript, splitByStarts, type ParsedEpisode } from '../../../features/manuscript/parse';
+import { callAi, type SplitResult } from '../../../data/ai';
+import { aiErrorMessage, refreshAiStatus, useAiStatus } from '../../../features/ai/aiStatus';
 import { ACCEPT, ManuscriptError, extractText } from '../../../features/manuscript/readFile';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { aiAnalyzeEpisodes, type AiAnalyzeResult } from '../../../features/ai/analyze';
-import { useAiStatus } from '../../../features/ai/aiStatus';
 import { showToast } from '../../../components/Toast';
 import { refreshWorkData, useWorkData } from '../../../features/works/workData';
 import s from './upload.module.css';
 
 type Row = { key: string; fileName: string; no: string; title: string; body: string; guessed: boolean };
 type FileError = { fileName: string; message: string };
+/** 파일마다 정리한 원고 글자와 지금 나눈 방식(AI로 다시 나누기·되돌리기용) */
+type Source = { fileName: string; text: string; mode: 'rule' | 'ai'; ruleRows: Row[]; busy?: boolean; error?: string };
 let seq = 0;
 const MB = Math.round(limits.uploadMaxBytes / 1024 / 1024);
 
@@ -32,6 +35,16 @@ const errorText = (e: unknown) => {
   }
   return copy.upload.errRead;
 };
+
+/** 나눈 회차를 표 줄로. 번호가 없으면 next부터 */
+function toRows(fileName: string, parsed: ParsedEpisode[], next: number): Row[] {
+  let n = next;
+  return parsed.map((p) => {
+    const no = p.no ?? n;
+    n = Math.max(n, no + 1);
+    return { key: `r${++seq}`, fileName, no: String(no), title: p.title, body: p.body, guessed: p.no == null };
+  });
+}
 
 /** 파일 올리기: 글자 뽑기 → 회차 나누기·번호 찾기 → 미리보기(번호·제목 수정) → 저장하고 정리하기(BUILD_SPEC 6.4). */
 export function FileUploadSection({ workId }: { workId: string }) {
@@ -51,6 +64,7 @@ export function FileUploadSection({ workId }: { workId: string }) {
   const [limitNote, setLimitNote] = useState<string | null>(null);
   const [aiProgress, setAiProgress] = useState<string | null>(null);
   const [aiFailed, setAiFailed] = useState<AiAnalyzeResult[]>([]);
+  const [sources, setSources] = useState<Source[]>([]);
   const ai = useAiStatus();
 
   const existing = new Set(data?.episodes.map((e) => e.no) ?? []);
@@ -59,6 +73,7 @@ export function FileUploadSection({ workId }: { workId: string }) {
     setResults(null);
     const added: Row[] = [];
     const errs: FileError[] = [];
+    const newSources: Source[] = [];
     // 한 번에 올릴 수 있는 파일 수 제한(목록에 이미 있는 파일 포함)
     const already = new Set(rows.map((r) => r.fileName)).size;
     const room = Math.max(0, limits.uploadMaxFiles - already);
@@ -74,13 +89,13 @@ export function FileUploadSection({ workId }: { workId: string }) {
         continue;
       }
       try {
-        const parsed = parseManuscript(file.name, await extractText(file));
+        const raw = await extractText(file);
+        const parsed = parseManuscript(file.name, raw);
         if (parsed.length === 0) throw new ManuscriptError('empty', 'empty');
-        for (const p of parsed) {
-          const no = p.no ?? next;
-          next = Math.max(next, no + 1);
-          added.push({ key: `r${++seq}`, fileName: file.name, no: String(no), title: p.title, body: p.body, guessed: p.no == null });
-        }
+        const fileRows = toRows(file.name, parsed, next);
+        next = Math.max(next, ...fileRows.map((r) => Number(r.no) + 1));
+        added.push(...fileRows);
+        newSources.push({ fileName: file.name, text: cleanText(raw), mode: 'rule', ruleRows: fileRows });
       } catch (e) {
         errs.push({ fileName: file.name, message: errorText(e) });
       }
@@ -90,6 +105,31 @@ export function FileUploadSection({ workId }: { workId: string }) {
     setReading(null);
     setRows((old) => [...old, ...added].sort((x, y) => Number(x.no) - Number(y.no)));
     setFileErrors((old) => [...old, ...errs]);
+    setSources((old) => [...old.filter((x) => !newSources.some((n) => n.fileName === x.fileName)), ...newSources]);
+  };
+
+  const patchSource = (fileName: string, patch: Partial<Source>) => setSources((old) => old.map((x) => (x.fileName === fileName ? { ...x, ...patch } : x)));
+  const replaceFileRows = (fileName: string, list: Row[]) => setRows((old) => [...old.filter((r) => r.fileName !== fileName), ...list].sort((x, y) => Number(x.no) - Number(y.no)));
+
+  /** AI로 문맥 보고 나누기: AI는 회차 시작 줄만 고르고, 자르기는 여기서(원고 글자는 그대로) */
+  const aiSplit = async (src: Source) => {
+    patchSource(src.fileName, { busy: true, error: undefined });
+    try {
+      const r = await callAi<SplitResult>('split-episodes', { workId, text: src.text });
+      const parsed = splitByStarts(src.text, r.starts);
+      if (parsed.length === 0) throw new Error('empty');
+      // 번호: AI가 읽은 번호가 늘어나기만 하면 그대로, 아니면 이 파일의 첫 번호부터 차례로
+      const base = Math.min(...rows.filter((x) => x.fileName === src.fileName).map((x) => Number(x.no) || Infinity), ...src.ruleRows.map((x) => Number(x.no)));
+      const nums = parsed.map((p) => p.no);
+      const ok = nums.every((n) => n != null) && nums.every((n, k) => k === 0 || n! > nums[k - 1]!);
+      const start = Number.isFinite(base) ? base : Math.max(0, ...existing) + 1;
+      const list = toRows(src.fileName, parsed.map((p, k) => ({ ...p, no: ok ? p.no : start + k })), start).map((x) => ({ ...x, guessed: !ok }));
+      replaceFileRows(src.fileName, list);
+      patchSource(src.fileName, { busy: false, mode: 'ai' });
+    } catch (e) {
+      patchSource(src.fileName, { busy: false, error: aiErrorMessage(e) });
+    }
+    refreshAiStatus();
   };
 
   const onDrop = (e: DragEvent) => {
@@ -216,10 +256,40 @@ export function FileUploadSection({ workId }: { workId: string }) {
           <div className={s.preview}>
             <div className={s.previewHead}>
               <h3>{copy.upload.previewTitle(rows.length)}</h3>
-              <Button variant="ghost" size="sm" onClick={() => { setRows([]); setFileErrors([]); setProblem(null); }} disabled={Boolean(progress)}>
+              <Button variant="ghost" size="sm" onClick={() => { setRows([]); setFileErrors([]); setProblem(null); setSources([]); }} disabled={Boolean(progress)}>
                 {copy.upload.clear}
               </Button>
             </div>
+            {sources.length > 0 && (
+              <div className={s.splitBox}>
+                <strong>{copy.upload.splitTitle}</strong>
+                <p className={s.muted}>{copy.upload.splitHint}</p>
+                <ul className={s.splitList}>
+                  {sources.map((src) => {
+                    const n = rows.filter((r) => r.fileName === src.fileName).length;
+                    return (
+                      <li key={src.fileName}>
+                        <span>{src.mode === 'ai' ? copy.upload.splitAi(src.fileName, n) : copy.upload.splitRule(src.fileName, n)}</span>
+                        {canWrite && ai.on && (
+                          <span className={s.splitActions}>
+                            <Button size="sm" variant={src.mode === 'ai' ? 'ghost' : 'primary'} onClick={() => aiSplit(src)} loading={src.busy} disabled={Boolean(progress)}>
+                              {src.busy ? copy.upload.splitRunning : copy.upload.splitRun}
+                            </Button>
+                            {src.mode === 'ai' && !src.busy && (
+                              <Button size="sm" variant="ghost" onClick={() => { replaceFileRows(src.fileName, src.ruleRows); patchSource(src.fileName, { mode: 'rule' }); }} disabled={Boolean(progress)}>
+                                {copy.upload.splitUndo}
+                              </Button>
+                            )}
+                          </span>
+                        )}
+                        {src.error && <span className={s.error} role="alert">{src.error}</span>}
+                      </li>
+                    );
+                  })}
+                </ul>
+                {canWrite && ai.on ? <p className={s.muted}>{copy.upload.splitNotice}</p> : canWrite && ai.reason ? <p className={s.muted}>{copy.upload.splitOff(ai.reason)}</p> : null}
+              </div>
+            )}
             <table className={s.table}>
               <thead>
                 <tr>

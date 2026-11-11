@@ -69,7 +69,7 @@ function numberHeads(heads: Head[]): Head[] {
   return heads.map((h, k) => ({ ...h, no: increasing ? h.no : k + 1, title: h.raw ?? h.title }));
 }
 
-function clean(text: string): string {
+export function cleanText(text: string): string {
   return text
     .replace(/\r\n?/g, '\n')
     .replace(/ /g, ' ')
@@ -80,7 +80,7 @@ function clean(text: string): string {
 
 /** 파일 하나의 글자를 회차들로 나눈다. */
 export function parseManuscript(fileName: string, rawText: string): ParsedEpisode[] {
-  const text = clean(rawText);
+  const text = cleanText(rawText);
   const lines = text.split('\n');
   const heads = lines.map((l, i) => ({ i, h: headerOf(l) })).filter((x) => x.h);
 
@@ -112,6 +112,24 @@ export function parseManuscript(fileName: string, rawText: string): ParsedEpisod
   // 첫 줄이 회차 표시 줄이면 제목으로 쓰고 본문에서 뺀다
   const body = first ? lines.slice(firstIdx + 1).join('\n').trim() : text;
   return body ? [{ no, title: first?.title ?? '', body }] : [];
+}
+
+/**
+ * AI가 고른 회차 시작 줄로 나눈다(원고 글자는 그대로, 자르는 위치만). text는 cleanText를 거친 글자.
+ * 시작 줄이 제목 줄(heading)이면 본문에서 빼고 제목으로 쓴다. 첫 회차 앞 글은 규칙 나누기와 같이(길면 첫 회차에 붙임).
+ */
+export function splitByStarts(text: string, starts: { line: number; title: string; heading: boolean; no: number | null }[]): ParsedEpisode[] {
+  const lines = text.split('\n');
+  if (starts.length === 0) return text.trim() ? [{ no: null, title: '', body: text.trim() }] : [];
+  const preamble = lines.slice(0, starts[0].line).join('\n').trim();
+  const out = starts.map((st, k) => {
+    const end = k + 1 < starts.length ? starts[k + 1].line : lines.length;
+    let body = lines.slice(st.heading ? st.line + 1 : st.line, end).join('\n').trim();
+    if (k === 0 && preamble.length > 100) body = `${preamble}\n\n${body}`;
+    const title = st.title || (st.heading ? lines[st.line].trim() : '');
+    return { no: st.no, title, body };
+  });
+  return out.filter((e) => e.body);
 }
 
 /** 파일 이름에서 확장자(소문자). */

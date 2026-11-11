@@ -198,7 +198,23 @@ describe('같은 두 별 사이의 선 두 개', () => {
   });
 });
 
-import { parseManuscript } from '../manuscript/parse';
+import { parseManuscript, splitByStarts } from '../manuscript/parse';
+
+describe('AI가 고른 시작 줄로 나누기(글자는 그대로)', () => {
+  const text = '별의 도서관\n\n1화 등불\n리안이 왔다.\n\n그날 밤 세린이 웃었다.\n다음 날이 밝았다.';
+  it('제목 줄은 빼서 제목으로, 본문 시작 줄은 그대로 본문에', () => {
+    const r = splitByStarts(text, [
+      { line: 2, title: '', heading: true, no: 1 },
+      { line: 5, title: '', heading: false, no: null },
+    ]);
+    expect(r).toEqual([
+      { no: 1, title: '1화 등불', body: '리안이 왔다.' },
+      { no: null, title: '', body: '그날 밤 세린이 웃었다.\n다음 날이 밝았다.' },
+    ]);
+    // 자른 조각을 이으면 원고 글자가 빠지지 않는다(짧은 작품 제목 줄과 제목 줄만 빠짐)
+    expect(r.map((e) => e.body).join('')).toBe('리안이 왔다.그날 밤 세린이 웃었다.\n다음 날이 밝았다.');
+  });
+});
 
 describe('7.5 회차 나누기: "N화"가 아닌 표시', () => {
   const body = (t: string) => `${t} 본문이다. `.repeat(20);
