@@ -1,6 +1,7 @@
 import { forceCollide, forceLink, forceManyBody, forceSimulation, type SimulationNodeDatum } from 'd3-force';
 import { limits } from '../../config/limits';
 import type { ItemKind } from '../../data/types';
+import { shortLabel } from './labels';
 
 /*
  * 우주 지도 배치(BUILD_SPEC 6.7). 중심 = 작품, 2층 = 종류 3개, 3층 = 항목(별).
@@ -24,7 +25,8 @@ export function hubPos(kind: ItemKind): Pos {
 
 /** 라벨 폭 어림값(겹침 방지용). */
 export function labelWidth(name: string) {
-  return name.length * 20 + 14;
+  // 지도에는 짧은 이름만 그리므로 배치도 짧은 이름 폭으로(긴 이름 별이 다른 별을 밀어내지 않게)
+  return [...shortLabel(name, limits.mapLabelMax)].length * 20 + 14;
 }
 
 // 같은 별·관계면 배치를 다시 계산하지 않는다(홈 미리보기와 지도가 같은 결과를 함께 쓴다)

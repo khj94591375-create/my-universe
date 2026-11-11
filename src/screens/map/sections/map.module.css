@@ -512,3 +512,10 @@
     right: 8px;
   }
 }
+/* 긴 이름(지도에는 줄여 그림)은 정보창·패널·카드에서 전체를 보여 주되 칸을 넘지 않게 줄바꿈 */
+.linkBar,
+.info,
+.panel,
+.quick {
+  overflow-wrap: anywhere;
+}

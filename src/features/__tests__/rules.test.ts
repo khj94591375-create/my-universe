@@ -365,3 +365,32 @@ describe('회차 기록: 장면 합치기·나누기(글자는 그대로)', () =
     expect(reusableScenes(body, mergeScene(body, scenes, 1))).not.toBeNull();
   });
 });
+
+import { shortLabel, wrapLines } from '../map/labels';
+
+describe('지도 이름 줄이기', () => {
+  it('10글자 이하는 그대로, 넘으면 띄어쓰기 경계에서 자르고 말줄임', () => {
+    expect(shortLabel('반쪽짜리 은열쇠', 10)).toBe('반쪽짜리 은열쇠');
+    expect(shortLabel('왕립 천문대 지하 보관실', 10)).toBe('왕립 천문대 지하…');
+    expect(shortLabel('왕립   천문대  지하 보관실', 10)).toBe('왕립 천문대 지하…');
+  });
+  it('띄어쓰기가 없거나 경계가 너무 앞이면 글자 수로 자른다', () => {
+    expect(shortLabel('아주아주긴띄어쓰기없는이름입니다', 10)).toBe('아주아주긴띄어쓰기…');
+    expect(shortLabel('가 나다라마바사아자차카타', 10)).toBe('가 나다라마바사아…');
+  });
+  it('이모지·영문도 한 글자로 센다', () => {
+    expect([...shortLabel('🌙달빛 서고의 오래된 규칙서', 10)].length).toBeLessThanOrEqual(10);
+    expect(shortLabel('The Silver Key of Moon', 10)).toBe('The Silve…');
+  });
+});
+
+describe('가리킨 별 이름표 줄바꿈(이름표 안에서만)', () => {
+  it('한 줄 글자 수에 맞춰 띄어쓰기 경계로, 긴 낱말은 쪼개고, 최대 줄 수를 넘으면 말줄임', () => {
+    expect(wrapLines('왕립 천문대 지하 깊은 곳의 봉인된 보관실', 10)).toEqual(['왕립 천문대 지하', '깊은 곳의 봉인된', '보관실']);
+    expect(wrapLines('짧은 이름', 10)).toEqual(['짧은 이름']);
+    expect(wrapLines('달빛서고의절대깨면안되는세번째규칙', 8)).toEqual(['달빛서고의절대깨', '면안되는세번째규', '칙']);
+    const many = wrapLines('가나 다라 마바 사아 자차 카타 파하', 5, 2);
+    expect(many).toHaveLength(2);
+    expect(many[1].endsWith('…')).toBe(true);
+  });
+});

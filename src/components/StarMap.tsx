@@ -4,7 +4,8 @@ import type { ItemKind, ItemView, Link } from '../data/types';
 import { gapLabel } from '../features/foreshadow/gap';
 import { hubPos, layoutStars, type Pos } from '../features/map/layout';
 import { shapePath, starRadius, starState } from '../features/map/stars';
-import { circleBox, LABEL_FONT, LINK_FONT, placeLinkLabels, placeStarLabels, textBox } from '../features/map/labels';
+import { limits } from '../config/limits';
+import { circleBox, LABEL_FONT, LINK_FONT, placeLinkLabels, placeStarLabels, shortLabel, textBox, wrapLines } from '../features/map/labels';
 import { controlPoint, linkEnds, pairOffsets, pointOnCurve } from '../features/map/links';
 import s from './StarMap.module.css';
 import { isUnconfirmedAi } from '../features/ai/review';
@@ -222,7 +223,7 @@ export function StarMap({
       .filter((i) => !focusMode || isLit(i.id))
       .map((i) => {
         const q = center(pos.get(i.id));
-        return { id: i.id, x: q.x, y: q.y, r: starRadius(i.mention_count), name: i.name, priority: (anchors.has(i.id) ? 1000 : neighbors.has(i.id) ? 500 : 0) + i.mention_count, force: anchors.has(i.id) };
+        return { id: i.id, x: q.x, y: q.y, r: starRadius(i.mention_count), name: shortLabel(i.name, limits.mapLabelMax), priority: (anchors.has(i.id) ? 1000 : neighbors.has(i.id) ? 500 : 0) + i.mention_count, force: anchors.has(i.id) };
       });
     return placeStarLabels(cands, ks, blocked);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -233,7 +234,7 @@ export function StarMap({
       .filter((l) => l.label && l.kind !== 'co_occur' && (focusMode ? lit.has(l.id) : starLabels.has(l.a) && starLabels.has(l.b)))
       .map((l) => {
         const g = geometry(l);
-        return g ? { id: l.id, text: l.label as string, at: (t: number) => pointOnCurve(g.p0, g.c, g.p1, t), force: activeLinkId === l.id } : null;
+        return g ? { id: l.id, text: shortLabel(l.label as string, limits.mapLinkLabelMax), at: (t: number) => pointOnCurve(g.p0, g.c, g.p1, t), force: activeLinkId === l.id } : null;
       })
       .filter((x): x is NonNullable<typeof x> => x != null);
     const taken = [...blocked, ...starLabels.values(), ...items.map((i) => { const q = center(pos.get(i.id)); return circleBox(q.x, q.y, starRadius(i.mention_count)); })];
@@ -386,7 +387,7 @@ export function StarMap({
               <path d={shapePath(i.kind, r)} className={s.shape} opacity={isSel || isLit(i.id) ? 1 : dim ? 0.22 : st.brightness} />
               {label && (
                 <text y={label.y1 - q.y - fs * 0.3} style={{ fontSize: fs }}>
-                  {i.name}
+                  {shortLabel(i.name, limits.mapLabelMax)}
                 </text>
               )}
               {mark && !dim && (
@@ -403,7 +404,7 @@ export function StarMap({
           if (!spot || !l.label) return null;
           return (
             <text key={`t-${l.id}`} x={spot.x} y={spot.y + lfs * 0.35} style={{ fontSize: lfs, strokeWidth: 4 / ks }} className={`${s.linkLabel} ${l.kind === 'manual' ? s.linkLabelManual : ''}`}>
-              {l.label}
+              {shortLabel(l.label, limits.mapLinkLabelMax)}
             </text>
           );
         })}
@@ -414,23 +415,28 @@ export function StarMap({
           const st = starState(tipItem, maxGap, aiResolve?.get(tipItem.id) ?? null);
           const line2 = [copy.labels.kind[tipItem.kind], ...starDetails(tipItem, st)].join(' · ');
           const f2 = fs * 0.8;
-          const w = Math.max([...tipItem.name].length * fs, [...line2].length * f2 * 0.95) + fs;
-          const h = fs * 1.4 + f2 * 1.4 + fs * 0.4;
-          // 보이는 영역 안에 머물게(지도 가장자리에서 잘리지 않게)
+          // 보이는 영역 안에 머물게(지도 가장자리에서 잘리지 않게). 이름이 보이는 폭보다 길면(휴대폰 등) 이름표 안에서만 줄바꿈
           const [vx, vy, vw] = vb.split(' ').map(Number);
           const left = (vx - view.x) / k;
           const right = (vx + vw - view.x) / k;
+          const room = right - left - 8 / ks - fs;
+          const nameLines = wrapLines(tipItem.name, Math.max(4, Math.floor(room / fs)));
+          const detail = shortLabel(line2, Math.max(6, Math.floor(room / (f2 * 0.95))));
+          const w = Math.min(Math.max(...nameLines.map((l) => [...l].length * fs), [...detail].length * f2 * 0.95) + fs, right - left - 8 / ks);
+          const h = fs * 1.4 * nameLines.length + f2 * 1.4 + fs * 0.4;
           const cx = Math.min(Math.max(q.x, left + w / 2 + 4 / ks), right - w / 2 - 4 / ks);
           let top = q.y - r - 8 / ks - h;
           if (top < (vy - view.y) / k) top = q.y + r + 8 / ks + fs * 1.6; // 위가 막히면 별 이름 아래로
           return (
             <g className={s.tip} pointerEvents="none" aria-hidden="true">
               <rect x={cx - w / 2} y={top} width={w} height={h} rx={8 / ks} style={{ strokeWidth: 1 / ks }} />
-              <text x={cx} y={top + fs * 1.15} style={{ fontSize: fs }} className={s.tipName}>
-                {tipItem.name}
-              </text>
-              <text x={cx} y={top + fs * 1.35 + f2 * 1.2} style={{ fontSize: f2 }}>
-                {line2}
+              {nameLines.map((line, n) => (
+                <text key={n} x={cx} y={top + fs * 1.15 + fs * 1.4 * n} style={{ fontSize: fs }} className={s.tipName}>
+                  {line}
+                </text>
+              ))}
+              <text x={cx} y={top + fs * 1.4 * (nameLines.length - 1) + fs * 1.35 + f2 * 1.2} style={{ fontSize: f2 }}>
+                {detail}
               </text>
             </g>
           );

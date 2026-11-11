@@ -6,6 +6,22 @@
 
 export type Box = { x0: number; y0: number; x1: number; y1: number };
 
+/**
+ * 지도에 그릴 짧은 이름: max 글자를 넘으면 말줄임(…). 가능하면 띄어쓰기 경계에서 자르고,
+ * 그렇게 자르면 너무 짧아질 때(절반 미만)는 글자 수로 자른다. 글자 수는 이모지도 한 글자로 센다.
+ */
+export function shortLabel(text: string, max: number): string {
+  const t = text.trim().replace(/\s+/g, ' ');
+  const chars = [...t];
+  if (chars.length <= max) return t;
+  const head = chars.slice(0, max - 1).join('');
+  // 자른 자리 바로 뒤가 띄어쓰기면 마지막 낱말이 온전히 들어간 것
+  if (chars[max - 1] === ' ') return `${head.trimEnd()}…`;
+  const sp = head.lastIndexOf(' ');
+  const cut = sp >= Math.ceil((max - 1) / 2) ? head.slice(0, sp) : head;
+  return `${cut.trimEnd()}…`;
+}
+
 export const LABEL_FONT = 17; // 화면에서 보이는 별 이름 글자 크기(px)
 export const LINK_FONT = 15; // 관계 이름 글자 크기(px)
 
@@ -14,6 +30,41 @@ export function textBox(cx: number, cy: number, text: string, font: number): Box
   const w = [...text].length * font * 0.98 + font * 0.5;
   const h = font * 1.3;
   return { x0: cx - w / 2, y0: cy - h / 2, x1: cx + w / 2, y1: cy + h / 2 };
+}
+
+/**
+ * 가리킨 별 이름표(잠깐 위에 뜨는 상자)용 줄바꿈: 한 줄 maxChars 글자, 띄어쓰기 경계 우선, 최대 maxLines줄(넘치면 말줄임).
+ * 지도 위 별 이름은 줄바꿈하지 않는다(겹침 방지) — 이건 잠깐 덮어 보이는 이름표에만 쓴다.
+ */
+export function wrapLines(text: string, maxChars: number, maxLines = 3): string[] {
+  const words = text.trim().replace(/\s+/g, ' ').split(' ');
+  const lines: string[] = [];
+  let cur = '';
+  const push = (w: string) => {
+    // 한 낱말이 한 줄보다 길면 글자 수로 쪼갠다
+    let rest = [...w];
+    while (rest.length > maxChars) {
+      if (cur) {
+        lines.push(cur);
+        cur = '';
+      }
+      lines.push(rest.slice(0, maxChars).join(''));
+      rest = rest.slice(maxChars);
+    }
+    const piece = rest.join('');
+    if (!cur) cur = piece;
+    else if ([...cur].length + 1 + rest.length <= maxChars) cur = `${cur} ${piece}`;
+    else {
+      lines.push(cur);
+      cur = piece;
+    }
+  };
+  for (const w of words) push(w);
+  if (cur) lines.push(cur);
+  if (lines.length <= maxLines) return lines;
+  const kept = lines.slice(0, maxLines);
+  kept[maxLines - 1] = `${[...kept[maxLines - 1]].slice(0, Math.max(1, maxChars - 1)).join('')}…`;
+  return kept;
 }
 
 export function overlaps(a: Box, b: Box): boolean {

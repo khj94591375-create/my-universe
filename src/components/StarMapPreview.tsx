@@ -3,6 +3,8 @@ import type { ItemKind, ItemView, Link } from '../data/types';
 import { hubPos, layoutStars } from '../features/map/layout';
 import { shapePath, starRadius, starState } from '../features/map/stars';
 import s from './StarMap.module.css';
+import { shortLabel } from '../features/map/labels';
+import { limits } from '../config/limits';
 import p from './StarMapPreview.module.css';
 
 /**
@@ -73,7 +75,7 @@ function PreviewSvg({ items, links, label, maxLabels }: { items: ItemView[]; lin
             {st.forgotten && <circle r={r + 7} className={s.forgottenRing} />}
             {st.done && <circle r={r + 7} className={s.doneRing} />}
             <path d={shapePath(i.kind, r)} className={s.shape} opacity={st.brightness} />
-            {named.has(i.id) && <text y={r + 24}>{i.name}</text>}
+            {named.has(i.id) && <text y={r + 24}>{shortLabel(i.name, limits.mapLabelMax)}</text>}
           </g>
         );
       })}

@@ -19,4 +19,8 @@ export const limits = {
   uploadMaxBytes: 10 * 1024 * 1024,
   /** 한 번에 올릴 수 있는 원고 파일 수 */
   uploadMaxFiles: 50,
+  /** 우주 지도에 그리는 별 이름 최대 글자 수(넘으면 말줄임, 전체 이름은 가리키거나 고를 때) */
+  mapLabelMax: 10,
+  /** 우주 지도에 그리는 관계 이름 최대 글자 수 */
+  mapLinkLabelMax: 12,
 } as const;
