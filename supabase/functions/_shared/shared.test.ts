@@ -403,3 +403,24 @@ describe('직전 회차에서 이어 쓰기', () => {
     expect(finishEnding({ place: '', time: '', pov: '', people: '', last_moment: '', tension: '', evidence: '', tag: '' }, true, scenes)).toBeNull();
   });
 });
+
+import { rankFocus } from './focus.ts';
+
+describe('중심 별 고르기(개연성: 직전 장면 → 최근 회차 → 최근 순)', () => {
+  const mk = (id: string, name: string, last_ep: number | null, aliases: string[] = []) => ({ id, name, aliases, last_ep });
+  const items = [mk('a', '오래된 편지', 1), mk('b', '세린', 4), mk('c', '리안', 5, ['견습생']), mk('d', '금서 구역', 3), mk('e', '새 설정', null)];
+  it('직전 장면에 나온 별(별칭 포함)이 먼저, 그다음 최근 회차, 최근에 나온 순, 3개까지 중심', () => {
+    const r = rankFocus(items, ['견습생은 문 앞에 섰다.'], 5);
+    expect(r.core.map((x) => [x.id, x.why])).toEqual([['c', 'ending'], ['b', 'recent'], ['d', 'recent']]);
+    expect(r.side.map((x) => x.id)).toEqual(['a', 'e']);
+    expect(r.core[1].agoEp).toBe(1);
+  });
+  it('3개 이하면 모두 중심 별', () => {
+    const r = rankFocus(items.slice(0, 2), [], 5);
+    expect(r.side).toEqual([]);
+    expect(r.core.map((x) => x.id)).toEqual(['b', 'a']);
+  });
+  it('원고가 아직 없으면 고른 순서대로', () => {
+    expect(rankFocus(items.slice(3), [], null).core.map((x) => [x.id, x.why])).toEqual([['d', 'none'], ['e', 'none']]);
+  });
+});

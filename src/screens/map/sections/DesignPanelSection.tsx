@@ -279,6 +279,31 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
                 <p className={s.muted}>{copy.map.panel.endingHint}</p>
               </div>
             )}
+            {shown.focus && shown.focus.length > 0 && (shown.later?.length || (shown.focus.length > 1 && shown.focus.some((f) => f.why !== 'none'))) ? (
+              <div className={s.focusBox}>
+                <h4 className={s.endingHead}>{copy.map.panel.focusTitle}</h4>
+                <ul className={s.focusList}>
+                  {shown.focus.map((f) => (
+                    <li key={f.name}>
+                      <strong>{f.name}</strong> <span className={s.muted}>{copy.map.panel.focusWhy(f.why, f.agoEp)}</span>
+                    </li>
+                  ))}
+                </ul>
+                {shown.later && shown.later.length > 0 && (
+                  <>
+                    <h4 className={s.endingHead}>{copy.map.panel.laterTitle}</h4>
+                    <ul className={s.focusList}>
+                      {shown.later.map((l) => (
+                        <li key={l.item}>
+                          <strong>{l.item}</strong> <span className={s.muted}>{l.reason || copy.map.panel.laterNoReason}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                <p className={s.muted}>{copy.map.panel.focusHint}</p>
+              </div>
+            ) : null}
             <ol className={s.scenes}>
               {shown.scenes.map((sc) => (
                 <li key={sc.no}>

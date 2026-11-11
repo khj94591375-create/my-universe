@@ -48,7 +48,7 @@ export function pickScenes(scenes: CtxScene[], maxScenes: number = LIMITS.maxSce
 }
 
 /** hasEnding: 직전 회차의 마지막 장면을 넣었는지 */
-export type BuiltContext = { text: string; scenes: Map<string, string>; hasEnding?: boolean };
+export type BuiltContext = { text: string; scenes: Map<string, string>; hasEnding?: boolean; endingTexts?: string[] };
 
 /** 직전 회차의 끝부분: 다음 회차가 매끄럽게 이어지도록 항상 함께 보낸다. */
 export type CtxEnding = { ep: number; title: string | null; scenes: CtxScene[] };
@@ -109,7 +109,7 @@ export function buildContext(items: CtxItem[], summaries: CtxSummary[], scenes: 
       lines.push('', `[${tag}]`, s.text);
     }
   }
-  return { text: lines.join('\n'), scenes: map, hasEnding: Boolean(ending && ending.scenes.length) };
+  return { text: lines.join('\n'), scenes: map, hasEnding: Boolean(ending && ending.scenes.length), endingTexts: ending?.scenes.map((s) => s.text) ?? [] };
 }
 
 /** 문장 나누기(화면 쪽 features/analysis/split.ts와 같은 규칙). */

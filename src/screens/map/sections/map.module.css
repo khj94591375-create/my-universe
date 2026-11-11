@@ -575,3 +575,20 @@
 .endingList dd {
   margin: 0;
 }
+
+/* 이번 회차를 이끄는 별 / 미룬 별 */
+.focusBox {
+  display: grid;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+}
+.focusList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: var(--fs-sm);
+}

@@ -355,6 +355,12 @@ export const copy = {
       endingHint: '다음 회차의 장면 1과 본문 초안은 여기서 이어져요. 다르게 읽었다면 다시 설계하거나 아래 대화로 바로잡아 주세요.',
       endingFields: { place: '장소', time: '때', pov: '시점', people: '인물', last_moment: '끝난 순간', tension: '이어받을 긴장' } as Record<'place' | 'time' | 'pov' | 'people' | 'last_moment' | 'tension', string>,
       endingNoEvidence: '원고 문장으로는 확인하지 못했어요.',
+      focusTitle: '이번 회차를 이끄는 별',
+      focusHint: '고른 별이 많으면 직전 장면과 최근 회차에 나온 별을 먼저 중심에 둬요(이야기가 자연스럽게 이어지게).',
+      focusWhy: (why: 'ending' | 'latest' | 'recent' | 'none', ago: number | null) =>
+        why === 'ending' ? '직전 장면에 나옴' : why === 'latest' ? '최근 회차에 나옴' : why === 'recent' ? `${ago}화 전에 나옴` : '아직 등장 기록 없음',
+      laterTitle: '이번엔 미룬 별',
+      laterNoReason: '이번 흐름에 자연스럽게 넣지 못했어요.',
       missing: (names: string[]) => `${names.map((n) => `「${n}」`).join(', ')}은(는) 장면에 들어가지 못했어요. 다시 설계해 보세요.`,
       chatPlaceholder: '예: 2번 장면을 더 긴장감 있게 바꾸려면?',
       chatLabel: 'AI에게 질문하기',

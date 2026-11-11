@@ -56,6 +56,9 @@ export const designSchema = z.object({
       uses: z.array(z.object({ item: z.string(), evidence: z.string(), tag: z.string() })),
     }),
   ),
+  later: z
+    .array(z.object({ item: z.string().describe('곁들일 별 이름 그대로'), reason: z.string().describe('이번 회차에 쓰지 않은 이유 한 줄') }))
+    .describe('곁들일 별 중 이번 회차에 자연스럽게 넣지 못해 다음으로 미룬 별. 없으면 빈 목록'),
   draft: z.string().describe('장면 1의 시작 부분 본문 초안(요청한 글자 수 이내, 문장을 끝까지 맺음). 요청이 없으면 빈 문자열'),
 });
 
