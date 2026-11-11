@@ -12,6 +12,7 @@ import { aiErrorMessage, refreshAiStatus, useAiStatus } from '../../../features/
 import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { useWorkData } from '../../../features/works/workData';
 import { DEFAULT_RATIO, buildImagePrompt, numberReferences, type ImagePurpose, type ImageRatio } from '../../../../supabase/functions/_shared/imagePrompt';
+import { useSession } from '../../../features/auth/SessionProvider';
 import s from './studio.module.css';
 
 export type StudioPrefill = { purpose: ImagePurpose; itemIds: string[]; referencePath?: string; nonce?: number };
@@ -33,6 +34,7 @@ export function StudioFormSection({ workId, prefill, onCreated }: { workId: stri
   const { work } = useWork(workId);
   const canWrite = useCanWrite(work);
   const ai = useAiStatus();
+  const { session } = useSession();
   const [purpose, setPurpose] = useState<ImagePurpose>('illustration');
   const [ratio, setRatio] = useState<ImageRatio>(DEFAULT_RATIO.illustration);
   const [picked, setPicked] = useState<string[]>([]);
@@ -163,6 +165,7 @@ export function StudioFormSection({ workId, prefill, onCreated }: { workId: stri
         {busy ? copy.studio.creating : copy.studio.create}
       </Button>
       {reason && <p className={s.muted}>{reason}</p>}
+      {canWrite && st?.imageRestricted && session?.user.email && <p className={s.muted}>{copy.studio.restrictedAccount(session.user.email)}</p>}
     </Card>
   );
 }

@@ -333,7 +333,7 @@ describe('AI 회차 나누기(자르는 위치만)', () => {
   });
 });
 
-import { emailAllowed } from './allow.ts';
+import { emailAllowed, parseEmailList } from './allow.ts';
 
 describe('삽화 사용 제한(IMAGE_ALLOWED_EMAILS)', () => {
   it('목록이 비면 모두, 있으면 목록의 이메일만(대소문자·공백 무시)', () => {
@@ -342,5 +342,14 @@ describe('삽화 사용 제한(IMAGE_ALLOWED_EMAILS)', () => {
     expect(emailAllowed(' Me@Mail.com , you@mail.com', 'me@mail.com')).toBe(true);
     expect(emailAllowed('me@mail.com', 'other@mail.com')).toBe(false);
     expect(emailAllowed('me@mail.com', null)).toBe(false);
+  });
+  it('손으로 적은 값을 너그럽게: 따옴표·꺾쇠·mailto·이름=·세미콜론·줄바꿈', () => {
+    expect(parseEmailList('IMAGE_ALLOWED_EMAILS="me@mail.com"; <you@mail.com>\nmailto:him@mail.com.')).toEqual(['me@mail.com', 'you@mail.com', 'him@mail.com']);
+    expect(emailAllowed("'me@mail.com'", 'me@mail.com')).toBe(true);
+  });
+  it('지메일은 점·+태그·googlemail을 같은 계정으로, 다른 주소의 점은 그대로', () => {
+    expect(emailAllowed('kimhj@gmail.com', 'kim.hj@gmail.com')).toBe(true);
+    expect(emailAllowed('Kim.HJ+test@googlemail.com', 'kimhj@gmail.com')).toBe(true);
+    expect(emailAllowed('kimhj@naver.com', 'kim.hj@naver.com')).toBe(false);
   });
 });
