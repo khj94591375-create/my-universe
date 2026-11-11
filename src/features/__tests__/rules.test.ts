@@ -200,6 +200,30 @@ describe('같은 두 별 사이의 선 두 개', () => {
 
 import { parseManuscript } from '../manuscript/parse';
 
+describe('7.5 회차 나누기: "N화"가 아닌 표시', () => {
+  const body = (t: string) => `${t} 본문이다. `.repeat(20);
+  it('"1장", "Chapter 1", "#1", "1." 줄로 나누고 제목은 원래 표시 줄', () => {
+    for (const [a, b] of [['1장', '2장'], ['Chapter 1', 'Chapter 2'], ['#1', '#2'], ['1.', '2.'], ['[1]', '[2]'], ['1', '2']]) {
+      const r = parseManuscript('모음.txt', `${a}\n${body('첫')}\n\n${b}\n${body('둘')}`);
+      expect(r.map((e) => [e.no, e.title])).toEqual([[1, a], [2, b]]);
+      expect(r[1].body.startsWith('둘 본문이다.')).toBe(true);
+    }
+  });
+  it('프롤로그가 있으면 순서대로 번호(1=프롤로그)', () => {
+    const r = parseManuscript('모음.txt', `프롤로그\n${body('처음')}\n1장 만남\n${body('하나')}\n2장 이별\n${body('둘')}\n에필로그\n${body('끝')}`);
+    expect(r.map((e) => [e.no, e.title])).toEqual([[1, '프롤로그'], [2, '1장 만남'], [3, '2장 이별'], [4, '에필로그']]);
+  });
+  it('본문 속 번호 목록(짧은 항목)은 회차로 나누지 않는다', () => {
+    const r = parseManuscript('3화.txt', `그는 목록을 적었다.\n1. 사과\n2. 우유\n3. 빵\n${body('이어서')}`);
+    expect(r).toHaveLength(1);
+    expect(r[0].no).toBe(3);
+  });
+  it('"N화"가 있으면 예전처럼 그것만 쓴다', () => {
+    const r = parseManuscript('모음.txt', `1화 시작\n${body('a')}\n1장\n${body('b')}\n2화 다음\n${body('c')}`);
+    expect(r.map((e) => e.no)).toEqual([1, 2]);
+  });
+});
+
 describe('7.5 회차 번호와 여러 회차 나누기', () => {
   it('파일명의 N화를 먼저 쓴다', () => {
     const [e] = parseManuscript('별의도서관_3화.txt', '본문 첫 줄이다.\n둘째 줄.');

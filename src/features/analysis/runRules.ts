@@ -2,6 +2,8 @@ import type { Episode, ItemView } from '../../data/types';
 import {
   deleteEpisode,
   fetchChunkItems,
+  fetchWorkChunks,
+  replaceRuleAppearancesForItem,
   findEpisodeByNo,
   insertAppearances,
   insertEpisode,
@@ -12,7 +14,7 @@ import {
 import { setItemStatus } from '../../data/items';
 import { toMessage } from '../../data/errors';
 import { computeCoOccur } from './cooccur';
-import { detectAppearances, findInText } from './detect';
+import { detectAppearances, findInText, type DetectItem } from './detect';
 import { splitScenes, splitSentences } from './split';
 
 /*
@@ -108,6 +110,23 @@ export async function reanalyzeAll(workId: string, episodes: Episode[], items: I
   }
   onProgress(episodes.length, episodes.length);
   await recomputeCoOccur(workId);
+}
+
+/**
+ * 설정집에서 항목을 넣거나 이름·별칭을 고친 뒤: 이미 올린 원고의 장면에서 그 항목만 다시 찾는다.
+ * 장면은 다시 나누지 않고(빠름), 그 항목의 규칙 등장 기록만 바꾼다. 찾은 회차 수를 돌려준다.
+ */
+export async function researchItem(workId: string, item: DetectItem): Promise<number> {
+  const chunks = await fetchWorkChunks(workId);
+  if (chunks.length === 0) return 0;
+  const epOf = new Map(chunks.map((c) => [c.id, c.episode_id]));
+  const found = detectAppearances(chunks, [item]);
+  await replaceRuleAppearancesForItem(
+    item.id,
+    found.map((f) => ({ item_id: item.id, episode_id: epOf.get(f.chunkId)!, chunk_id: f.chunkId, evidence: f.evidence })),
+  );
+  await recomputeCoOccur(workId);
+  return new Set(found.map((f) => epOf.get(f.chunkId))).size;
 }
 
 /** 회차 다시 정리(규칙). */

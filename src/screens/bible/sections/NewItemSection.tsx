@@ -6,6 +6,8 @@ import { copy } from '../../../config/copy';
 import { createItem } from '../../../data/items';
 import type { ItemKind } from '../../../data/types';
 import { save } from '../../../features/works/save';
+import { researchItem } from '../../../features/analysis/runRules';
+import { showToast } from '../../../components/Toast';
 import { useWorkData } from '../../../features/works/workData';
 import s from './bible.module.css';
 
@@ -29,7 +31,18 @@ export function NewItemSection({ workId, onClose }: { workId: string; onClose: (
     if (!name.trim()) return setError(copy.bible.nameRequired);
     if (data?.items.some((i) => i.name === name.trim())) return setError(copy.bible.duplicate);
     setBusy(true);
-    const ok = await save(workId, () => createItem(workId, { kind, name, note }));
+    // 넣은 뒤 이미 올린 원고에서 그 이름을 바로 찾는다(원고가 있을 때만 알림을 바꿈)
+    const hasEpisodes = Boolean(data?.episodes.length);
+    let msg: string = copy.toast.saved;
+    const ok = await save(
+      workId,
+      async () => {
+        const created = await createItem(workId, { kind, name, note });
+        if (hasEpisodes) msg = copy.bible.researched(created.name, await researchItem(workId, { id: created.id, name: created.name, aliases: [] }));
+      },
+      '',
+    );
+    if (ok) showToast(msg);
     setBusy(false);
     if (ok) onClose();
   };
@@ -41,6 +54,7 @@ export function NewItemSection({ workId, onClose }: { workId: string; onClose: (
           <SelectField label={copy.bible.kind} value={kind} onChange={(e) => setKind(e.target.value as ItemKind)} options={kindOptions} />
           <TextField label={copy.bible.name} value={name} onChange={(e) => setName(e.target.value)} autoFocus maxLength={60} />
         </div>
+        <p className={s.muted}>{copy.labels.kindHelp[kind]}</p>
         <TextArea label={copy.bible.note} value={note} onChange={(e) => setNote(e.target.value)} rows={2} />
         {error && <p className={s.error} role="alert">{error}</p>}
         <div className={s.formActions}>

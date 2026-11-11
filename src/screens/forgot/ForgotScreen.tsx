@@ -8,6 +8,7 @@ import { SlumpButton } from '../shared/SlumpButton';
 import { WorkDataGate } from '../shared/WorkDataGate';
 import { ForgotListSection } from './sections/ForgotListSection';
 import { GuidePanelSection } from './sections/GuidePanelSection';
+import s from './sections/forgot.module.css';
 
 /** 잊힌 복선 찾기(BUILD_SPEC 6.6). 왼쪽 목록 + 오른쪽 가이드. 선택한 항목은 주소의 ?item= 으로 기억한다. */
 export default function ForgotScreen() {
@@ -22,6 +23,7 @@ export default function ForgotScreen() {
   const { data } = useWorkData(workId);
   return (
     <ScreenLayout tip="forgot" eyebrow={copy.forgot.eyebrow} title={copy.forgot.title} action={<SlumpButton workId={workId} size="md" />}>
+      <p className={s.lead}>{copy.forgot.lead}</p>
       <WorkDataGate workId={workId}>
         {() =>
           data && data.items.length === 0 ? (

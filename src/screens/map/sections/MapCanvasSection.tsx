@@ -262,6 +262,27 @@ export function MapCanvasSection({
           onView={setView}
         />
 
+        {/* 별 두 개를 고르면 지도 위에서 바로 잇기·지우기(오른쪽 창까지 가지 않아도 되게) */}
+        {canWrite && !from && !relation && selected.length === 2 && (() => {
+          const [a, b] = selected.map((id) => data.itemById.get(id));
+          if (!a || !b) return null;
+          const between = data.links.filter((l) => l.kind !== 'co_occur' && ((l.a === a.id && l.b === b.id) || (l.a === b.id && l.b === a.id)));
+          return (
+            <div className={s.linkBar} role="group" aria-label={copy.map.info.pairHint}>
+              <span>{copy.map.info.pairTitle(a.name, b.name)}</span>
+              <Button size="sm" onClick={() => { setLinkFrom(a.id); setLinkTo(b.id); }}>
+                {copy.map.info.pairConnect}
+              </Button>
+              {between.map((l) => (
+                <Button key={l.id} variant="ghost" size="sm" onClick={() => setRemoving(l.id)}>
+                  {copy.map.info.pairRemove(l.label)}
+                </Button>
+              ))}
+              {between.map((l) => <span key={`c-${l.id}`}>{removeConfirm(l, a.name, b.name)}</span>)}
+            </div>
+          );
+        })()}
+
         {from && (
           <div className={s.linkBar} role="status">
             {to ? (

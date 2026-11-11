@@ -108,3 +108,20 @@ export async function deleteAppearance(id: string) {
   const { error } = await db().from('appearances').delete().eq('id', id);
   if (error) throw error;
 }
+
+/** 작품의 모든 장면(장면 글자 포함). 설정집을 고친 뒤 그 항목만 다시 찾을 때 쓴다. */
+export async function fetchWorkChunks(workId: string): Promise<{ id: string; episode_id: string; text: string }[]> {
+  const { data, error } = await db().from('chunks').select('id, episode_id, text').eq('work_id', workId);
+  if (error) throw error;
+  return (data ?? []) as { id: string; episode_id: string; text: string }[];
+}
+
+/** 한 항목의 규칙 등장 기록만 새로 바꾼다(AI·작가가 넣은 기록은 그대로). */
+export async function replaceRuleAppearancesForItem(itemId: string, rows: { item_id: string; episode_id: string; chunk_id: string; evidence: string }[]) {
+  const c = db();
+  const { error: e1 } = await c.from('appearances').delete().eq('item_id', itemId).eq('source', 'rule');
+  if (e1) throw e1;
+  if (rows.length === 0) return;
+  const { error: e2 } = await c.from('appearances').insert(rows.map((r) => ({ ...r, source: 'rule' })));
+  if (e2) throw e2;
+}

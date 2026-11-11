@@ -93,6 +93,7 @@ export function ItemListSection({ workId }: { workId: string }) {
         if (items.length === 0) return null;
         return (
           <Card key={k} title={`${copy.labels.kindPlural[k]} · ${copy.bible.count(items.length)}`}>
+            <p className={s.muted}>{copy.labels.kindHelp[k]}</p>
             <ul className={s.list}>
               {items.map((i) => (
                 <ItemRow key={i.id} workId={workId} item={i} />

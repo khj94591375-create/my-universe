@@ -6,12 +6,13 @@ import { SelectField, TextArea, TextField } from '../../../components/TextField'
 import { copy } from '../../../config/copy';
 import { addAlias, deleteItem, mergeItems, removeAlias, updateItem } from '../../../data/items';
 import type { ItemKind, ItemStatus, ItemView } from '../../../data/types';
-import { recomputeCoOccur } from '../../../features/analysis/runRules';
+import { recomputeCoOccur, researchItem } from '../../../features/analysis/runRules';
 import { save } from '../../../features/works/save';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { useWorkData } from '../../../features/works/workData';
 import { kindOptions } from './NewItemSection';
 import { SheetImage } from './SheetImage';
+import { showToast } from '../../../components/Toast';
 import { ProfileDraft } from './ProfileDraft';
 import { useAiStatus } from '../../../features/ai/aiStatus';
 import type { ProfileResult } from '../../../data/ai';
@@ -56,7 +57,19 @@ export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
     if (!draft.name.trim()) return setError(copy.bible.nameRequired);
     if (data?.items.some((i) => i.id !== item.id && i.name === draft.name.trim())) return setError(copy.bible.duplicate);
     setBusy(true);
-    const ok = await save(workId, () => updateItem(item.id, { ...draft, note: draft.note || null, look: draft.look || null }));
+    // 이름이 바뀌면 이미 올린 원고에서 새 이름으로 다시 찾는다
+    const renamed = draft.name.trim() !== item.name && Boolean(data?.episodes.length);
+    const newName = draft.name.trim();
+    let msg: string = copy.toast.saved;
+    const ok = await save(
+      workId,
+      async () => {
+        await updateItem(item.id, { ...draft, note: draft.note || null, look: draft.look || null });
+        if (renamed) msg = copy.bible.researched(newName, await researchItem(workId, { id: item.id, name: newName, aliases: item.aliases }));
+      },
+      '',
+    );
+    if (ok) showToast(msg);
     setBusy(false);
     if (ok) setMode('view');
   };
@@ -64,7 +77,20 @@ export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
   const submitAlias = async (e: FormEvent) => {
     e.preventDefault();
     if (!alias.trim()) return;
-    if (await save(workId, () => addAlias(item.id, alias))) setAlias('');
+    const a = alias.trim();
+    let msg: string = copy.toast.saved;
+    const ok = await save(
+      workId,
+      async () => {
+        await addAlias(item.id, a);
+        if (data?.episodes.length) msg = copy.bible.researched(a, await researchItem(workId, { id: item.id, name: item.name, aliases: [...item.aliases, a] }));
+      },
+      '',
+    );
+    if (ok) {
+      setAlias('');
+      showToast(msg);
+    }
   };
 
   const run = async (fn: () => Promise<unknown>, done?: string) => {
@@ -125,7 +151,15 @@ export function ItemRow({ workId, item }: { workId: string; item: ItemView }) {
       <div className={s.aliases}>
         <span className={s.muted}>{copy.bible.aliases}</span>
         {item.aliases.map((a) => (
-          <Chip key={a} onRemove={canWrite ? () => save(workId, () => removeAlias(item.id, a)) : undefined}>
+          <Chip key={a} onRemove={
+              canWrite
+                ? () =>
+                    save(workId, async () => {
+                      await removeAlias(item.id, a);
+                      if (data?.episodes.length) await researchItem(workId, { id: item.id, name: item.name, aliases: item.aliases.filter((x) => x !== a) });
+                    })
+                : undefined
+            }>
             {a}
           </Chip>
         ))}

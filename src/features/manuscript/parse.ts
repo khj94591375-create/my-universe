@@ -20,6 +20,55 @@ function headerOf(line: string): { no: number; title: string } | null {
   return m ? { no: Number(m[1]), title: m[2].trim() } : null;
 }
 
+/**
+ * "N화"가 없을 때 쓰는 다른 회차 표시(짧은 한 줄일 때만):
+ * "1장", "제1장", "Chapter 1", "Ch. 1", "Episode 1", "EP.1", "#1", "1.", "[1]", "<1>", "1" 하나만, "프롤로그"·"에필로그"·"외전"
+ */
+const ALT_HEADERS: RegExp[] = [
+  /^\s*(?:제\s*)?(\d+)\s*장(?![가-힣])\s*[.\-:·)\]]?\s*(.*)$/,
+  /^\s*(?:chapter|ch\.?|episode|ep\.?)\s*(\d+)\s*[.\-:)\]]?\s*(.*)$/i,
+  /^\s*#\s*(\d+)\s*[.\-:)]?\s*(.*)$/,
+  /^\s*[[<〈《【(]\s*(\d+)\s*[\]>〉》】)]\s*(.*)$/,
+  /^\s*(\d+)\s*[.)]\s*(.{0,30})$/,
+  /^\s*(\d+)\s*$/,
+];
+const SPECIAL = /^\s*(프롤로그|에필로그|외전|prologue|epilogue)\s*[.\-:·]?\s*(.*)$/i;
+const MAX_ALT_HEADER = 40;
+/** 다른 표시로 나눌 때 회차 본문이 이보다 짧은 게 있으면 목록 번호 등으로 보고 쓰지 않는다 */
+const MIN_ALT_BODY = 100;
+
+type Head = { i: number; no: number | null; title: string; raw?: string };
+
+function altHeads(lines: string[]): Head[] | null {
+  for (const re of ALT_HEADERS) {
+    const heads: Head[] = [];
+    lines.forEach((l, i) => {
+      if (l.trim().length > MAX_ALT_HEADER) return;
+      const m = re.exec(l);
+      if (m) heads.push({ i, no: Number(m[1]), title: (m[2] ?? '').trim(), raw: l.trim() });
+      else {
+        const sp = SPECIAL.exec(l);
+        if (sp) heads.push({ i, no: null, title: '', raw: l.trim() });
+      }
+    });
+    if (heads.filter((h) => h.no != null).length < 2) continue;
+    // 회차마다 본문이 충분히 길어야 한다(본문 속 번호 목록 오인 방지)
+    const ok = heads.every((h, k) => {
+      const end = k + 1 < heads.length ? heads[k + 1].i : lines.length;
+      return lines.slice(h.i + 1, end).join('\n').trim().length >= MIN_ALT_BODY;
+    });
+    if (ok) return heads;
+  }
+  return null;
+}
+
+/** 번호가 늘어나기만 하면 그 번호로, 아니면(프롤로그가 있거나 번호가 겹치면) 순서대로 1, 2, 3 … 제목은 원래 표시 줄("1장", "프롤로그") */
+function numberHeads(heads: Head[]): Head[] {
+  const nums = heads.map((h) => h.no);
+  const increasing = nums.every((n) => n != null) && nums.every((n, k) => k === 0 || n! > nums[k - 1]!);
+  return heads.map((h, k) => ({ ...h, no: increasing ? h.no : k + 1, title: h.raw ?? h.title }));
+}
+
 function clean(text: string): string {
   return text
     .replace(/\r\n?/g, '\n')
@@ -35,16 +84,20 @@ export function parseManuscript(fileName: string, rawText: string): ParsedEpisod
   const lines = text.split('\n');
   const heads = lines.map((l, i) => ({ i, h: headerOf(l) })).filter((x) => x.h);
 
-  // 회차 표시 줄이 2개 이상이면 그 줄을 기준으로 나눈다
-  if (heads.length >= 2) {
+  // 회차 표시 줄("N화")이 2개 이상이면 그 줄을 기준으로, 없으면 다른 표시("1장", "Chapter 1", "#1", "프롤로그" …)로 나눈다
+  const split: Head[] | null = heads.length >= 2 ? heads.map((x) => ({ i: x.i, no: x.h!.no, title: x.h!.title })) : (() => {
+    const alt = altHeads(lines);
+    return alt ? numberHeads(alt) : null;
+  })();
+  if (split) {
     const out: ParsedEpisode[] = [];
-    const preamble = lines.slice(0, heads[0].i).join('\n').trim();
-    heads.forEach((x, k) => {
-      const end = k + 1 < heads.length ? heads[k + 1].i : lines.length;
+    const preamble = lines.slice(0, split[0].i).join('\n').trim();
+    split.forEach((x, k) => {
+      const end = k + 1 < split.length ? split[k + 1].i : lines.length;
       let body = lines.slice(x.i + 1, end).join('\n').trim();
       // 첫 회차 앞 글이 길면(작품 소개가 아니라 본문이면) 버리지 않고 첫 회차에 붙인다
       if (k === 0 && preamble.length > 100) body = `${preamble}\n\n${body}`;
-      out.push({ no: x.h!.no, title: x.h!.title, body });
+      out.push({ no: x.no, title: x.title, body });
     });
     return out.filter((e) => e.body);
   }
