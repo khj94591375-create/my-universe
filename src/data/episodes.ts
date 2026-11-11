@@ -91,7 +91,10 @@ export async function replaceCoOccurLinks(workId: string, pairs: { a: string; b:
   const { error: e1 } = await c.from('links').delete().eq('work_id', workId).eq('kind', 'co_occur');
   if (e1) throw e1;
   if (pairs.length === 0) return;
-  const { error } = await c.from('links').insert(pairs.map((p) => ({ work_id: workId, a: p.a, b: p.b, kind: 'co_occur', weight: p.weight })));
+  // 다른 계산이 거의 동시에 같은 선을 넣었어도 실패하지 않게(있으면 굵기만 갱신)
+  const { error } = await c
+    .from('links')
+    .upsert(pairs.map((p) => ({ work_id: workId, a: p.a, b: p.b, kind: 'co_occur', weight: p.weight, direction: 'none' })), { onConflict: 'a,b,kind,direction' });
   if (error) throw error;
 }
 

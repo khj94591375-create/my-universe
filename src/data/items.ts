@@ -135,7 +135,26 @@ export async function confirmAlias(itemId: string, alias: string) {
 
 /** AI가 찾은 관계를 확정: 작가가 이은 선으로 바꾼다. */
 export async function confirmAiLink(id: string) {
-  const { error } = await db().from('links').update({ kind: 'manual' }).eq('id', id);
+  const c = db();
+  const { data: ai, error: e1 } = await c.from('links').select('*').eq('id', id).maybeSingle();
+  if (e1) throw e1;
+  if (!ai) return;
+  // 같은 두 별·방향에 작가가 이은 선이 이미 있으면: 비어 있는 관계 이름·근거만 채우고 AI 선은 지운다(겹쳐 저장할 수 없음)
+  const { data: same, error: e2 } = await c.from('links').select('*').eq('a', ai.a).eq('b', ai.b).eq('kind', 'manual').eq('direction', ai.direction ?? 'none').maybeSingle();
+  if (e2) throw e2;
+  if (same) {
+    const patch: Record<string, unknown> = {};
+    if (!same.label && ai.label) patch.label = ai.label;
+    if (!same.evidence && ai.evidence) patch.evidence = ai.evidence;
+    if (Object.keys(patch).length) {
+      const { error } = await c.from('links').update(patch).eq('id', same.id);
+      if (error) throw error;
+    }
+    const { error } = await c.from('links').delete().eq('id', id);
+    if (error) throw error;
+    return;
+  }
+  const { error } = await c.from('links').update({ kind: 'manual' }).eq('id', id);
   if (error) throw error;
 }
 
@@ -155,8 +174,10 @@ export async function confirmAllAi(workId: string, itemIds: string[]) {
     const r2 = await c.from('item_aliases').update({ source: 'manual' }).in('item_id', itemIds).eq('source', 'ai');
     if (r2.error) throw r2.error;
   }
-  const r3 = await c.from('links').update({ kind: 'manual' }).eq('work_id', workId).eq('kind', 'ai');
-  if (r3.error) throw r3.error;
+  // 관계: 하나씩(작가 선과 겹치는 것이 있어도 전체가 실패하지 않게)
+  const { data: aiLinks, error: e3 } = await c.from('links').select('id').eq('work_id', workId).eq('kind', 'ai');
+  if (e3) throw e3;
+  for (const l of aiLinks ?? []) await confirmAiLink(l.id as string);
 }
 
 /** 설정 충돌을 닫는다: 무시(ignored) 또는 수정함(fixed). */

@@ -59,10 +59,18 @@ export async function analyzeEpisodeByRules(episode: Episode, items: ItemView[],
   await updateEpisode(episode.id, { analyzed_at: new Date().toISOString() });
 }
 
+/** 작품마다 한 번에 하나씩: 계산이 겹치면(체크를 빠르게 여러 번 누름 등) 앞 계산이 끝난 뒤 다음 계산 */
+const coOccurQueue = new Map<string, Promise<void>>();
+
 /** 작품 전체의 같은 장면 연결선을 다시 계산한다. */
-export async function recomputeCoOccur(workId: string) {
-  const { total, map } = await fetchChunkItems(workId);
-  await replaceCoOccurLinks(workId, computeCoOccur(map, total));
+export function recomputeCoOccur(workId: string): Promise<void> {
+  const run = async () => {
+    const { total, map } = await fetchChunkItems(workId);
+    await replaceCoOccurLinks(workId, computeCoOccur(map, total));
+  };
+  const next = (coOccurQueue.get(workId) ?? Promise.resolve()).catch(() => undefined).then(run);
+  coOccurQueue.set(workId, next);
+  return next;
 }
 
 export type PasteInput = { no: number; title: string; body: string; /** AI가 나눈 장면(없으면 규칙) */ scenes?: string[] };

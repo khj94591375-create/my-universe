@@ -15,5 +15,7 @@ export function toMessage(e: unknown): string {
   if (err.code === 'PGRST204' || err.code === '42P10' || /column .*direction/.test(message) || message.includes('no unique or exclusion constraint')) {
     return copy.common.dbUpdate;
   }
+  // 같은 내용이 이미 저장됨(두 번 눌렀거나 다른 탭에서 먼저 저장) — 영어 원문 대신 쉬운 말로
+  if (err.code === '23505' || message.includes('duplicate key value')) return copy.common.duplicate;
   return message || copy.common.unknownError;
 }

@@ -944,6 +944,7 @@ export const copy = {
     close: '닫기',
   },
   common: {
+    duplicate: '이미 같은 내용이 저장되어 있어요. 화면을 새로고침한 뒤 확인해 주세요.',
     comingSoon: '이 기능은 다음 단계에서 만들어져요.',
     back: '작품 목록으로',
     notFound: '페이지를 찾을 수 없어요.',
