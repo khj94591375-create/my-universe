@@ -24,7 +24,9 @@ const STOP = new Set(['그리고', '하지만', '그러나', '그래서', '그�
 export function narrationSentences(text: string): string[] {
   const noDialogue = text.replace(DIALOGUE, '\n');
   return noDialogue
-    .split(/(?<=[.!?…])\s+|\n+/)
+    // 뒤쪽 확인(lookbehind) 정규식은 Safari 16.4 미만에서 앱 전체를 멈추게 해서 쓰지 않는다
+    .replace(/([.!?…])\s+/g, '$1\n')
+    .split(/\n+/)
     .map((s) => s.trim())
     .filter((s) => s.length >= 2 && !QUOTES.test(s));
 }
