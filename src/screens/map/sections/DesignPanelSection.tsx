@@ -262,6 +262,23 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
             <p className={s.pending} role="note">
               {isDemo ? copy.map.demo.note : copy.map.panel.pending}
             </p>
+            {shown.ending && (
+              <div className={s.ending}>
+                <h4 className={s.endingHead}>{copy.map.panel.endingTitle(shown.targetEp - 1)}</h4>
+                <dl className={s.endingList}>
+                  {(['place', 'time', 'pov', 'people', 'last_moment', 'tension'] as const).map((k) =>
+                    shown.ending![k] ? (
+                      <div key={k}>
+                        <dt>{copy.map.panel.endingFields[k]}</dt>
+                        <dd>{shown.ending![k]}</dd>
+                      </div>
+                    ) : null,
+                  )}
+                </dl>
+                {shown.ending.evidence ? <EvidenceQuote text={shown.ending.evidence} ep={epOf(shown.ending.tag)} /> : <p className={s.muted}>{copy.map.panel.endingNoEvidence}</p>}
+                <p className={s.muted}>{copy.map.panel.endingHint}</p>
+              </div>
+            )}
             <ol className={s.scenes}>
               {shown.scenes.map((sc) => (
                 <li key={sc.no}>

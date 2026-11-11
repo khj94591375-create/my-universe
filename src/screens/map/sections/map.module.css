@@ -545,3 +545,33 @@
   gap: 6px;
   min-height: 32px;
 }
+
+/* 직전 회차 끝 상황(AI가 읽은 것): 다음 회차가 여기서 이어진다 */
+.ending {
+  display: grid;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  background: var(--c-card);
+}
+.endingHead {
+  margin: 0;
+  font-size: var(--fs-sm);
+}
+.endingList {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px var(--sp-3);
+  margin: 0;
+  font-size: var(--fs-sm);
+}
+.endingList > div {
+  display: contents;
+}
+.endingList dt {
+  color: var(--c-sub);
+}
+.endingList dd {
+  margin: 0;
+}

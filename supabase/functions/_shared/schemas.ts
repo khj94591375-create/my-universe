@@ -37,6 +37,18 @@ export const guideSchema = z.object({
 });
 
 export const designSchema = z.object({
+  ending: z
+    .object({
+      place: z.string().describe('직전 회차가 끝난 장소'),
+      time: z.string().describe('직전 회차가 끝난 때(시간대·날짜 등, 원고에서 알 수 있는 만큼)'),
+      pov: z.string().describe('시점(1인칭/3인칭)과 시점 인물'),
+      people: z.string().describe('그 자리에 있는 인물들'),
+      last_moment: z.string().describe('직전 회차가 끝난 순간(마지막 행동·대사) 1문장'),
+      tension: z.string().describe('다음 회차가 이어받을 긴장·풀리지 않은 질문·하던 일 1문장'),
+      evidence: z.string().describe('직전 회차 마지막 장면에서 글자 그대로 옮긴 문장 1개'),
+      tag: z.string().describe('그 문장의 장면 꼬리표'),
+    })
+    .describe('"직전 회차의 마지막 장면"이 주어졌을 때만 채운다. 없으면 모든 칸을 빈 문자열로'),
   scenes: z.array(
     z.object({
       no: z.number(),

@@ -3,7 +3,7 @@
  * RAG v2(임베딩)로 바꿀 때는 장면 검색 부분만 바꾸면 된다.
  */
 import type { SupabaseClient } from './deps.ts';
-import { buildContext, pickScenes, trimItems, type BuiltContext, type CtxItem, type CtxScene } from './context.ts';
+import { buildContext, pickEnding, pickScenes, trimItems, type BuiltContext, type CtxEnding, type CtxItem, type CtxScene } from './context.ts';
 
 type Row = Record<string, unknown>;
 
@@ -65,8 +65,21 @@ async function chunksByIds(admin: SupabaseClient, ids: string[], epNo: Map<strin
     .map((c) => ({ ep: epNo.get(c.episode_id as string) ?? 0, seq: c.seq as number, text: c.text as string }));
 }
 
-/** 설정집 요약 + 회차 요약(최근 5개 + 선택 항목이 나온 회차) + 장면(선택 항목 등장 → 비슷한 장면) */
-export async function retrieve(admin: SupabaseClient, workId: string, query: string, itemIds: string[], snap?: WorkSnapshot): Promise<BuiltContext> {
+/** 직전(마지막) 회차의 마지막 장면들. 회차가 없거나 장면이 없으면 undefined */
+export async function loadEnding(admin: SupabaseClient, snap: WorkSnapshot): Promise<CtxEnding | undefined> {
+  const last = snap.episodes.at(-1);
+  if (!last) return undefined;
+  const { data, error } = await admin.from('chunks').select('seq, text').eq('episode_id', last.id).order('seq');
+  if (error) throw error;
+  const scenes = pickEnding(((data ?? []) as { seq: number; text: string }[]).map((c) => ({ ep: last.no, seq: c.seq, text: c.text })));
+  return scenes.length ? { ep: last.no, title: last.title, scenes } : undefined;
+}
+
+/**
+ * 설정집 요약 + 회차 요약(최근 5개 + 선택 항목이 나온 회차) + 장면(선택 항목 등장 → 비슷한 장면).
+ * withEnding이면 직전 회차의 마지막 장면을 맨 앞에(다음 회차 설계·대화가 매끄럽게 이어지게).
+ */
+export async function retrieve(admin: SupabaseClient, workId: string, query: string, itemIds: string[], snap?: WorkSnapshot, opts: { withEnding?: boolean } = {}): Promise<BuiltContext> {
   const s = snap ?? (await loadSnapshot(admin, workId));
   const focus = new Set(itemIds);
   const linked = new Set(s.links.flatMap((l) => (focus.has(l.a) ? [l.b] : focus.has(l.b) ? [l.a] : [])));
@@ -87,5 +100,6 @@ export async function retrieve(admin: SupabaseClient, workId: string, query: str
     const { data } = await admin.rpc('search_chunks', { wid: workId, q: query, lim: 8 });
     scenes = scenes.concat(((data ?? []) as Row[]).map((c) => ({ ep: epNo.get(c.episode_id as string) ?? 0, seq: c.seq as number, text: c.text as string })));
   }
-  return buildContext(trimItems(s.items, focus, linked), summaries, pickScenes(scenes));
+  const ending = opts.withEnding ? await loadEnding(admin, s) : undefined;
+  return buildContext(trimItems(s.items, focus, linked), summaries, pickScenes(scenes), ending);
 }

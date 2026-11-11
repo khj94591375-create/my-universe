@@ -47,11 +47,45 @@ export function pickScenes(scenes: CtxScene[], maxScenes: number = LIMITS.maxSce
   return out;
 }
 
-export type BuiltContext = { text: string; scenes: Map<string, string> };
+/** hasEnding: 직전 회차의 마지막 장면을 넣었는지 */
+export type BuiltContext = { text: string; scenes: Map<string, string>; hasEnding?: boolean };
+
+/** 직전 회차의 끝부분: 다음 회차가 매끄럽게 이어지도록 항상 함께 보낸다. */
+export type CtxEnding = { ep: number; title: string | null; scenes: CtxScene[] };
+
+/**
+ * 직전 회차의 마지막 장면 n개(장면 순서대로), 합계 maxChars 이내.
+ * 넘치면 앞 장면부터 빼고, 마지막 장면 하나만으로도 넘치면 그 장면의 끝부분만(문장 경계에서 시작) 쓴다.
+ * 끝부분도 원래 장면 글자의 일부라서 근거 검증(글자 그대로)이 그대로 통한다.
+ */
+export function pickEnding(scenes: CtxScene[], n = 2, maxChars = 2500): CtxScene[] {
+  const last = [...scenes].sort((a, b) => a.seq - b.seq).slice(-n);
+  while (last.length > 1 && last.reduce((s, x) => s + x.text.length, 0) > maxChars) last.shift();
+  if (last.length === 1 && last[0].text.length > maxChars) {
+    const t = last[0].text;
+    let tail = t.slice(t.length - maxChars);
+    const cut = tail.search(/[.!?…]["'”’」』)]*\s/);
+    if (cut >= 0 && cut < tail.length / 2) tail = tail.slice(cut).replace(/^[.!?…"'”’」』)\s]+/, '');
+    last[0] = { ...last[0], text: tail };
+  }
+  return last;
+}
 
 /** AI에게 넣을 글: 설정집 요약 + 회차 요약 + 꼬리표 붙은 장면. scenes는 근거 검증용. */
-export function buildContext(items: CtxItem[], summaries: CtxSummary[], scenes: CtxScene[]): BuiltContext {
-  const lines: string[] = ['## 설정집'];
+export function buildContext(items: CtxItem[], summaries: CtxSummary[], scenes: CtxScene[], ending?: CtxEnding): BuiltContext {
+  const map = new Map<string, string>();
+  const lines: string[] = [];
+  // 직전 회차의 끝부분을 맨 앞에(다음 회차는 여기서 이어진다)
+  if (ending && ending.scenes.length) {
+    lines.push(`## 직전 회차(${ending.ep}화${ending.title ? ` 「${ending.title}」` : ''})의 마지막 장면 — 다음 회차는 여기서 이어진다`);
+    for (const s of ending.scenes) {
+      const tag = makeTag(s.ep, s.seq);
+      map.set(tag, s.text);
+      lines.push('', `[${tag}]`, s.text);
+    }
+    lines.push('');
+  }
+  lines.push('## 설정집');
   if (items.length === 0) lines.push('(아직 없음)');
   for (const i of items) {
     const parts = [`- [${KIND[i.kind]}] ${i.name}`];
@@ -66,7 +100,7 @@ export function buildContext(items: CtxItem[], summaries: CtxSummary[], scenes: 
     lines.push('', '## 회차 요약');
     for (const s of [...withSummary].sort((a, b) => a.no - b.no)) lines.push(`- ${s.no}화${s.title ? ` 「${s.title}」` : ''}: ${s.summary}`);
   }
-  const map = new Map<string, string>();
+  scenes = scenes.filter((s) => !map.has(makeTag(s.ep, s.seq))); // 직전 회차 끝 장면과 겹치면 한 번만
   if (scenes.length) {
     lines.push('', '## 원고 장면 (근거는 이 장면의 문장을 글자 그대로 옮기고, 꼬리표를 함께 적는다)');
     for (const s of scenes) {
@@ -75,7 +109,7 @@ export function buildContext(items: CtxItem[], summaries: CtxSummary[], scenes: 
       lines.push('', `[${tag}]`, s.text);
     }
   }
-  return { text: lines.join('\n'), scenes: map };
+  return { text: lines.join('\n'), scenes: map, hasEnding: Boolean(ending && ending.scenes.length) };
 }
 
 /** 문장 나누기(화면 쪽 features/analysis/split.ts와 같은 규칙). */

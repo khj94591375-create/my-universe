@@ -34,7 +34,11 @@ export type GuideResult = {
   reuse_reason: string | null;
 };
 
+export type DesignEnding = { place: string; time: string; pov: string; people: string; last_moment: string; tension: string; evidence: string | null; tag: string };
+
 export type DesignResult = {
+  /** 직전 회차가 끝난 상황(AI가 읽은 것). 직전 회차가 없으면 없음 */
+  ending?: DesignEnding | null;
   sessionId: string;
   targetEp: number;
   scenes: { no: number; text: string; uses: { item: string; evidence: string | null; tag: string }[] }[];

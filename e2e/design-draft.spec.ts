@@ -18,7 +18,7 @@ for (const theme of ['light', 'dark'] as const)
       if (name === 'ai-status') return ok({ ok: true, enabled: true, limits: { text: 50, image: 8 }, usage: { text: 0, image: 0 } });
       if (name === 'design-next') sent.push(req.postDataJSON());
       if (name === 'design-next')
-        return ok({ ok: true, sessionId: 's1', targetEp: 2, missing: [], draft: '밤이 깊어도 개구리들은 움직이지 않았다. 달빛 아래 수만 개의 눈이 한곳을 향하고 있었다.', scenes: [
+        return ok({ ok: true, sessionId: 's1', targetEp: 2, missing: [], ending: { place: '달빛 서고', time: '자정', pov: '3인칭, 세린', people: '세린, 리안', last_moment: '세린이 등불을 끄고 문을 닫는다.', tension: '노인이 남긴 편지의 뜻', evidence: '세린은 등불을 끄고 서고를 나섰다.', tag: 'E1-S4' }, draft: '밤이 깊어도 개구리들은 움직이지 않았다. 달빛 아래 수만 개의 눈이 한곳을 향하고 있었다.', scenes: [
           { no: 1, text: '리안이 서고에 들어선다.', uses: [{ item: '리안', evidence: '리안은 서고에 들어섰다.', tag: 'E1-S1' }] },
           { no: 2, text: '세린이 단서를 건넨다.', uses: [{ item: '세린', evidence: '세린은 쪽지를 내밀었다.', tag: 'E1-S2' }] },
           { no: 3, text: '둘은 강 쪽으로 향한다.', uses: [{ item: '세린', evidence: '쇠붙이로는 설명할 수 없는 일이었다.', tag: 'E1-S3' }] },
@@ -33,6 +33,11 @@ for (const theme of ['light', 'dark'] as const)
     await page.getByRole('button', { name: /다음 회차 설계/ }).first().click();
     await expect.poll(() => sent.length).toBe(1);
     expect(sent[0]).toMatchObject({ includeDraft: true, draftLength: 800 });
+    // 직전 회차 끝 상황(AI가 읽은 내용)이 설계 결과 맨 위에
+    const ending = page.getByRole('heading', { name: /1화는 이렇게 끝났어요/ }).locator('..');
+    await expect(ending).toBeVisible();
+    await expect(ending.getByText('노인이 남긴 편지의 뜻')).toBeVisible();
+    await expect(ending.locator('blockquote', { hasText: '세린은 등불을 끄고 서고를 나섰다.' })).toBeVisible();
     const draft = page.locator('[class*=draft]').filter({ hasText: '본문 초안(AI 제안)' });
     await expect(draft).toBeVisible();
     const quote = page.locator('blockquote', { hasText: '쇠붙이로는 설명할 수 없는 일이었다.' });

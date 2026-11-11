@@ -369,3 +369,37 @@ describe('본문 초안 길이(문장 중간에서 자르지 않음)', () => {
     expect(finishDesign(out, false, new Map(), 800).draft).toBeNull();
   });
 });
+
+import { pickEnding, buildContext as buildCtx2 } from './context.ts';
+import { finishEnding } from './rules.ts';
+
+describe('직전 회차에서 이어 쓰기', () => {
+  const sc = (seq: number, text: string) => ({ ep: 1, seq, text });
+  it('마지막 장면 2개를 순서대로, 합계가 넘치면 앞 장면을 빼고, 한 장면이 너무 길면 끝부분만(문장 경계부터)', () => {
+    expect(pickEnding([sc(3, 'c'), sc(1, 'a'), sc(2, 'b')]).map((x) => x.seq)).toEqual([2, 3]);
+    expect(pickEnding([sc(1, 'a'.repeat(2000)), sc(2, 'b'.repeat(1000))]).map((x) => x.seq)).toEqual([2]);
+    const long = '앞 문장이다. '.repeat(400) + '마지막 문장이다.';
+    const [tail] = pickEnding([sc(1, long)], 2, 300);
+    expect(long.includes(tail.text)).toBe(true); // 원래 글자의 일부(근거 검증이 통함)
+    expect(tail.text.length).toBeLessThanOrEqual(300);
+    expect(tail.text.endsWith('마지막 문장이다.')).toBe(true);
+    expect(tail.text.startsWith('앞 문장이다.')).toBe(true); // 문장 중간부터 시작하지 않음
+    expect(pickEnding([])).toEqual([]);
+  });
+  it('직전 회차 끝 장면은 자료 맨 앞에, 같은 장면은 한 번만, 근거 검증용으로도', () => {
+    const ctx = buildCtx2([], [], [sc(2, '가운데'), sc(1, '처음')], { ep: 1, title: '등불', scenes: [sc(2, '가운데')] });
+    expect(ctx.text.startsWith('## 직전 회차(1화 「등불」)의 마지막 장면')).toBe(true);
+    expect(ctx.text.split('[E1-S2]').length - 1).toBe(1);
+    expect(ctx.hasEnding).toBe(true);
+    expect(ctx.scenes.get('E1-S2')).toBe('가운데');
+    expect(buildCtx2([], [], []).hasEnding).toBe(false);
+  });
+  it('끝 상황: 직전 회차가 없으면 null, 근거는 원고에 있을 때만', () => {
+    const scenes = new Map([['E1-S2', '세린은 등불을 끄고 서고를 나섰다.']]);
+    const e = { place: '서고', time: '밤', pov: '3인칭 세린', people: '세린', last_moment: '등불을 끄고 나섬', tension: '노인의 정체', evidence: '세린은 등불을 끄고 서고를 나섰다.', tag: 'E1-S2' };
+    expect(finishEnding(e, true, scenes)?.evidence).toBe('세린은 등불을 끄고 서고를 나섰다.');
+    expect(finishEnding({ ...e, evidence: '지어낸 문장이다.' }, true, scenes)?.evidence).toBeNull();
+    expect(finishEnding(e, false, scenes)).toBeNull();
+    expect(finishEnding({ place: '', time: '', pov: '', people: '', last_moment: '', tension: '', evidence: '', tag: '' }, true, scenes)).toBeNull();
+  });
+});

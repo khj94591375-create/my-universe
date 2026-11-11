@@ -18,7 +18,7 @@ serve(async (ctx) => {
   if (!session) throw new HttpError('not_found', '설계 기록을 찾을 수 없어요.');
   await requireOwnWork(admin, userId, session.work_id);
   await checkLimit(admin, userId, 'text');
-  const context = await retrieve(admin, session.work_id, message, session.selected_item_ids ?? []);
+  const context = await retrieve(admin, session.work_id, message, session.selected_item_ids ?? [], undefined, { withEnding: true });
   const history = ((session.messages ?? []) as Msg[])
     .slice(-12)
     .map((m) => `${m.role === 'user' ? '작가' : '보조'}: ${typeof m.content === 'string' ? m.content : JSON.stringify(m.content)}`)

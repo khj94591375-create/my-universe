@@ -4,7 +4,7 @@ import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/h
 import { askJson } from '../_shared/claude.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { loadSnapshot, retrieve } from '../_shared/retrieval.ts';
-import { finishDesign } from '../_shared/rules.ts';
+import { finishDesign, finishEnding } from '../_shared/rules.ts';
 import { designSchema } from '../_shared/schemas.ts';
 import { DESIGN_SYSTEM } from '../_shared/prompts.ts';
 
@@ -23,14 +23,15 @@ serve(async (ctx) => {
   const chosen = snap.items.filter((i) => itemIds.includes(i.id));
   if (chosen.length === 0) throw new HttpError('not_found', '고른 항목을 찾을 수 없어요.');
   const targetEp = Number(ctx.body.targetEp) || (snap.episodes.at(-1)?.no ?? 0) + 1;
-  const context = await retrieve(admin, workId, chosen.map((i) => i.name).join(' '), itemIds, snap);
+  // 직전 회차의 마지막 장면을 항상 함께(다음 회차가 매끄럽게 이어지게)
+  const context = await retrieve(admin, workId, chosen.map((i) => i.name).join(' '), itemIds, snap, { withEnding: true });
   const out = await askJson({
     tier: 'main',
     system: DESIGN_SYSTEM,
     user: `${context.text}\n\n${targetEp}화를 설계한다. 고른 항목: ${chosen.map((i) => `「${i.name}」`).join(', ')}.\n본문 초안 요청: ${includeDraft ? `있음(장면 1의 시작 부분, ${draftLength}자 이내)` : '없음(draft는 빈 문자열)'}\n장면 3개를 JSON으로 답하라.`,
     schema: designSchema,
   });
-  const result = finishDesign({ ...out, scenes: out.scenes.slice(0, 3) }, includeDraft, context.scenes, draftLength);
+  const result = { ending: finishEnding(out.ending, Boolean(context.hasEnding), context.scenes), ...finishDesign({ ...out, scenes: out.scenes.slice(0, 3) }, includeDraft, context.scenes, draftLength) };
   const missing = chosen.filter((i) => !result.scenes.some((s) => s.uses.some((u) => u.item === i.name))).map((i) => i.name);
   const { data: session, error } = await admin
     .from('design_sessions')

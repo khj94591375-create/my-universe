@@ -45,6 +45,18 @@ export function trimAtSentence(text: string, max: number): string {
   return cut > 0 ? head.slice(0, cut).trim() : `${chars.slice(0, max - 1).join('').trim()}…`;
 }
 
+export type EndingIn = { place: string; time: string; pov: string; people: string; last_moment: string; tension: string; evidence: string; tag: string };
+export type EndingOut = Omit<EndingIn, 'evidence'> & { evidence: string | null };
+
+/** 직전 회차 끝 상황: 직전 회차 자료가 있을 때만, 근거 문장은 원고에 글자 그대로 있을 때만 */
+export function finishEnding(e: EndingIn | null | undefined, hasEnding: boolean, scenes: Map<string, string>): EndingOut | null {
+  if (!hasEnding || !e) return null;
+  const t = (s: string) => (s ?? '').trim();
+  const out = { place: t(e.place), time: t(e.time), pov: t(e.pov), people: t(e.people), last_moment: t(e.last_moment), tension: t(e.tension), tag: t(e.tag) };
+  if (!Object.values(out).some(Boolean)) return null;
+  return { ...out, evidence: verifyEvidence(e.evidence, e.tag, scenes) ? t(e.evidence) : null };
+}
+
 export function finishDesign<T extends { scenes: { no: number; text: string; uses: (Ev & { item: string })[] }[]; draft?: string | null }>(
   out: T,
   includeDraft: boolean,
