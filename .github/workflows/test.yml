@@ -25,9 +25,10 @@ jobs:
           npm run typecheck
           npm test
       - name: 화면 테스트용 브라우저 설치
-        # 우분투 패키지 서버에 잠깐 닿지 않을 때가 있어(DNS 오류) 한 번 더 시도하고, 그래도 안 되면 브라우저만 설치한다(실행 컴퓨터에 필요한 라이브러리는 대부분 이미 있음)
+        # 우분투 패키지 서버에 닿지 않을 때가 있어(DNS 오류) 시스템 패키지 설치는 5분까지만 기다리고,
+        # 안 되면 브라우저만 설치한다(실행 컴퓨터에 필요한 라이브러리는 대부분 이미 있음). 작업 전체 제한(20분) 안에 끝나게
         run: |
-          npx playwright install --with-deps chromium || (sleep 30 && npx playwright install --with-deps chromium) || npx playwright install chromium
+          timeout 300 npx playwright install --with-deps chromium || npx playwright install chromium
       - name: 화면 테스트(e2e)
         run: npm run e2e
         env:
