@@ -357,8 +357,13 @@ export const copy = {
       endingNoEvidence: '원고 문장으로는 확인하지 못했어요.',
       focusTitle: '이번 회차를 이끄는 별',
       focusHint: '고른 별이 많으면 직전 장면과 최근 회차에 나온 별을 먼저 중심에 둬요(이야기가 자연스럽게 이어지게).',
-      focusWhy: (why: 'ending' | 'latest' | 'recent' | 'none', ago: number | null) =>
-        why === 'ending' ? '직전 장면에 나옴' : why === 'latest' ? '최근 회차에 나옴' : why === 'recent' ? `${ago}화 전에 나옴` : '아직 등장 기록 없음',
+      focusWhy: (why: 'ending' | 'latest' | 'recent' | 'none', ago: number | null, ep?: number | null, seq?: number | null) => {
+        const where = ep != null ? `${ep}화${seq ? ` 장면 ${seq}` : ''}` : '';
+        if (why === 'ending') return '직전 장면에 나옴';
+        if (why === 'latest') return where ? `${where}에 나옴` : '최근 회차에 나옴';
+        if (why === 'recent') return `${ago}화 전${where ? `(${where})` : ''}에 나옴`;
+        return '아직 등장 기록 없음';
+      },
       laterTitle: '이번엔 미룬 별',
       laterNoReason: '이번 흐름에 자연스럽게 넣지 못했어요.',
       missing: (names: string[]) => `${names.map((n) => `「${n}」`).join(', ')}은(는) 장면에 들어가지 못했어요. 다시 설계해 보세요.`,

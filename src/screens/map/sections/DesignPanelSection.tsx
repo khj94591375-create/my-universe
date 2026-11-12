@@ -285,7 +285,7 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
                 <ul className={s.focusList}>
                   {shown.focus.map((f) => (
                     <li key={f.name}>
-                      <strong>{f.name}</strong> <span className={s.muted}>{copy.map.panel.focusWhy(f.why, f.agoEp)}</span>
+                      <strong>{f.name}</strong> <span className={s.muted}>{copy.map.panel.focusWhy(f.why, f.agoEp, f.lastEp, f.lastSeq)}</span>
                     </li>
                   ))}
                 </ul>

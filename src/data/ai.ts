@@ -40,7 +40,7 @@ export type DesignResult = {
   /** 직전 회차가 끝난 상황(AI가 읽은 것). 직전 회차가 없으면 없음 */
   ending?: DesignEnding | null;
   /** 이번 회차를 이끄는 별(직전 장면·최근 회차와 이어진 순). 별을 많이 고르면 앞의 3개 */
-  focus?: { name: string; why: 'ending' | 'latest' | 'recent' | 'none'; agoEp: number | null }[];
+  focus?: { name: string; why: 'ending' | 'latest' | 'recent' | 'none'; agoEp: number | null; lastEp?: number | null; lastSeq?: number | null }[];
   /** 곁들일 별 중 이번에 쓰지 않고 미룬 별 */
   later?: { item: string; reason: string }[];
   sessionId: string;

@@ -5,7 +5,7 @@ import { askJson } from '../_shared/claude.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { loadSnapshot, retrieve } from '../_shared/retrieval.ts';
 import { finishDesign, finishEnding } from '../_shared/rules.ts';
-import { rankFocus } from '../_shared/focus.ts';
+import { lastPositions, rankFocus } from '../_shared/focus.ts';
 import { designSchema } from '../_shared/schemas.ts';
 import { DESIGN_SYSTEM } from '../_shared/prompts.ts';
 
@@ -28,7 +28,17 @@ serve(async (ctx) => {
   const context = await retrieve(admin, workId, chosen.map((i) => i.name).join(' '), itemIds, snap, { withEnding: true });
   // 별을 많이 고르면 직전 장면·최근 회차와 이어진 별을 중심으로(개연성), 나머지는 곁들이거나 다음으로
   const latestEp = snap.episodes.at(-1)?.no ?? null;
-  const { core, side } = rankFocus(chosen, context.endingTexts ?? [], latestEp);
+  // 같은 회차 안에서도 더 뒤 장면에 나온 별을 먼저: 고른 별의 등장 기록으로 마지막 장면 번호를 구한다
+  const chosenApps = snap.appearances.filter((a) => itemIds.includes(a.item_id));
+  const chunkIds = [...new Set(chosenApps.map((a) => a.chunk_id).filter((c): c is string => Boolean(c)))];
+  const { data: seqRows } = chunkIds.length ? await admin.from('chunks').select('id, seq').in('id', chunkIds) : { data: [] };
+  const seqOf = new Map(((seqRows ?? []) as { id: string; seq: number }[]).map((c) => [c.id, c.seq]));
+  const pos = lastPositions(chosenApps, new Map(snap.episodes.map((e) => [e.id, e.no])), seqOf);
+  const { core, side } = rankFocus(
+    chosen.map((i) => ({ ...i, lastSeq: pos.get(i.id)?.seq ?? null, count: pos.get(i.id)?.count ?? 0 })),
+    context.endingTexts ?? [],
+    latestEp,
+  );
   const pick = `중심 별: ${core.map((i) => `「${i.name}」`).join(', ')}${side.length ? `\n곁들일 별: ${side.map((i) => `「${i.name}」`).join(', ')}` : ''}`;
   const out = await askJson({
     tier: 'main',
@@ -45,7 +55,7 @@ serve(async (ctx) => {
     ...(out.later ?? []).filter((l) => sideNames.has(l.item.trim()) && !used.has(l.item.trim())).map((l) => ({ item: l.item.trim(), reason: l.reason.trim() })),
     ...side.filter((i) => !used.has(i.name) && !(out.later ?? []).some((l) => l.item.trim() === i.name)).map((i) => ({ item: i.name, reason: '' })),
   ];
-  const focus = core.map((i) => ({ name: i.name, why: i.why, agoEp: i.agoEp }));
+  const focus = core.map((i) => ({ name: i.name, why: i.why, agoEp: i.agoEp, lastEp: i.last_ep, lastSeq: i.lastSeq ?? null }));
   const { data: session, error } = await admin
     .from('design_sessions')
     .insert({ work_id: workId, target_ep: targetEp, selected_item_ids: itemIds, include_draft: includeDraft, messages: [{ role: 'design', content: { ...result, focus, later } }] })

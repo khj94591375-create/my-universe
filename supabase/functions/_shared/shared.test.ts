@@ -404,7 +404,7 @@ describe('직전 회차에서 이어 쓰기', () => {
   });
 });
 
-import { rankFocus } from './focus.ts';
+import { lastPositions, rankFocus } from './focus.ts';
 
 describe('중심 별 고르기(개연성: 직전 장면 → 최근 회차 → 최근 순)', () => {
   const mk = (id: string, name: string, last_ep: number | null, aliases: string[] = []) => ({ id, name, aliases, last_ep });
@@ -422,5 +422,35 @@ describe('중심 별 고르기(개연성: 직전 장면 → 최근 회차 → �
   });
   it('원고가 아직 없으면 고른 순서대로', () => {
     expect(rankFocus(items.slice(3), [], null).core.map((x) => [x.id, x.why])).toEqual([['d', 'none'], ['e', 'none']]);
+  });
+});
+
+describe('같은 회차 안에서도 뒤 장면에 나온 별을 먼저', () => {
+  const mk = (id: string, last_ep: number | null, lastSeq: number | null, count = 1, aliases: string[] = []) => ({ id, name: id, aliases, last_ep, lastSeq, count });
+  it('같은 회차면 더 뒤 장면, 장면이 같으면 더 자주 나온 별, 장면 정보가 없으면 회차만으로', () => {
+    const r = rankFocus([mk('앞장면별', 5, 1), mk('뒷장면별', 5, 4), mk('자주나온별', 5, 1, 3), mk('옛회차별', 3, 9)], [], 5);
+    expect(r.core.map((x) => x.id)).toEqual(['뒷장면별', '자주나온별', '앞장면별']);
+    expect(r.side.map((x) => x.id)).toEqual(['옛회차별']);
+    expect(rankFocus([mk('가', 4, null), mk('나', 5, null)], [], 5).core.map((x) => x.id)).toEqual(['나', '가']);
+  });
+  it('직전 장면에 나온 별끼리도 더 뒤 장면이 먼저', () => {
+    const r = rankFocus([mk('은서', 5, 6), mk('도윤', 5, 7), mk('하람', 5, 3)], ['은서와 도윤이 함께 있었다.'], 5);
+    expect(r.core.map((x) => [x.id, x.why])).toEqual([['도윤', 'ending'], ['은서', 'ending'], ['하람', 'latest']]);
+  });
+  it('lastPositions: 가장 최근 회차 안의 가장 뒤 장면과 장면 수, 장면 칸이 빈 기록은 장면 0', () => {
+    const epNo = new Map([['e1', 1], ['e2', 2]]);
+    const seqOf = new Map([['c1', 1], ['c2', 2], ['c3', 5]]);
+    const p = lastPositions(
+      [
+        { item_id: 'a', episode_id: 'e1', chunk_id: 'c3' },
+        { item_id: 'a', episode_id: 'e2', chunk_id: 'c1' },
+        { item_id: 'a', episode_id: 'e2', chunk_id: 'c2' },
+        { item_id: 'b', episode_id: 'e2', chunk_id: null },
+      ],
+      epNo,
+      seqOf,
+    );
+    expect(p.get('a')).toEqual({ ep: 2, seq: 2, count: 2 });
+    expect(p.get('b')).toEqual({ ep: 2, seq: 0, count: 1 });
   });
 });

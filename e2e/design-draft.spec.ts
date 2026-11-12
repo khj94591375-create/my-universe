@@ -18,7 +18,7 @@ for (const theme of ['light', 'dark'] as const)
       if (name === 'ai-status') return ok({ ok: true, enabled: true, limits: { text: 50, image: 8 }, usage: { text: 0, image: 0 } });
       if (name === 'design-next') sent.push(req.postDataJSON());
       if (name === 'design-next')
-        return ok({ ok: true, sessionId: 's1', targetEp: 2, missing: [], focus: [{ name: '세린', why: 'ending', agoEp: 0 }, { name: '리안', why: 'recent', agoEp: 2 }], later: [{ item: '책갈피 등불', reason: '서고 밖 장면이라 등불이 나올 자리가 없어요.' }], ending: { place: '달빛 서고', time: '자정', pov: '3인칭, 세린', people: '세린, 리안', last_moment: '세린이 등불을 끄고 문을 닫는다.', tension: '노인이 남긴 편지의 뜻', evidence: '세린은 등불을 끄고 서고를 나섰다.', tag: 'E1-S4' }, draft: '밤이 깊어도 개구리들은 움직이지 않았다. 달빛 아래 수만 개의 눈이 한곳을 향하고 있었다.', scenes: [
+        return ok({ ok: true, sessionId: 's1', targetEp: 2, missing: [], focus: [{ name: '세린', why: 'ending', agoEp: 0 }, { name: '노인', why: 'latest', agoEp: 0, lastEp: 1, lastSeq: 4 }, { name: '리안', why: 'recent', agoEp: 2 }], later: [{ item: '책갈피 등불', reason: '서고 밖 장면이라 등불이 나올 자리가 없어요.' }], ending: { place: '달빛 서고', time: '자정', pov: '3인칭, 세린', people: '세린, 리안', last_moment: '세린이 등불을 끄고 문을 닫는다.', tension: '노인이 남긴 편지의 뜻', evidence: '세린은 등불을 끄고 서고를 나섰다.', tag: 'E1-S4' }, draft: '밤이 깊어도 개구리들은 움직이지 않았다. 달빛 아래 수만 개의 눈이 한곳을 향하고 있었다.', scenes: [
           { no: 1, text: '리안이 서고에 들어선다.', uses: [{ item: '리안', evidence: '리안은 서고에 들어섰다.', tag: 'E1-S1' }] },
           { no: 2, text: '세린이 단서를 건넨다.', uses: [{ item: '세린', evidence: '세린은 쪽지를 내밀었다.', tag: 'E1-S2' }] },
           { no: 3, text: '둘은 강 쪽으로 향한다.', uses: [{ item: '세린', evidence: '쇠붙이로는 설명할 수 없는 일이었다.', tag: 'E1-S3' }] },
@@ -41,6 +41,7 @@ for (const theme of ['light', 'dark'] as const)
     // 이번 회차를 이끄는 별 / 미룬 별
     const focus = page.getByRole('heading', { name: '이번 회차를 이끄는 별' }).locator('..');
     await expect(focus.getByText('직전 장면에 나옴')).toBeVisible();
+    await expect(focus.getByText('1화 장면 4에 나옴')).toBeVisible();
     await expect(focus.getByText('2화 전에 나옴')).toBeVisible();
     await expect(focus.getByText('서고 밖 장면이라 등불이 나올 자리가 없어요.')).toBeVisible();
     const draft = page.locator('[class*=draft]').filter({ hasText: '본문 초안(AI 제안)' });
