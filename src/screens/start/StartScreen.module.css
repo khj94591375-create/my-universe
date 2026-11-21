@@ -44,9 +44,9 @@
   border-radius: 22px;
 }
 .lead {
-  color: var(--c-gold-ink);
+  color: var(--c-ink);
+  font-size: var(--fs-lg);
   font-weight: 600;
-  letter-spacing: 0.02em;
 }
 .name {
   font-family: var(--f-display);
@@ -168,17 +168,12 @@
   text-align: center;
 }
 
-/* ── 대표 카드: 나의 우주 지도 ── */
+/* ── 대표 영역: 나의 우주 지도(바깥 상자 없이 그림 + 글) ── */
 .mapFeature {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   gap: var(--sp-5);
   align-items: center;
-  background: var(--c-hero-card);
-  border: 2px solid var(--c-accent);
-  border-radius: var(--r-lg);
-  padding: var(--sp-4);
-  box-shadow: var(--shadow-card);
 }
 .mapFeature .constellation {
   width: 100%;
@@ -191,13 +186,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
-}
-.mapEyebrow,
-.feature .role {
-  color: var(--c-gold-ink);
-  font-weight: 700;
-  font-size: var(--fs-xs);
-  letter-spacing: 0.03em;
 }
 .mapTitle {
   font-family: var(--f-display);

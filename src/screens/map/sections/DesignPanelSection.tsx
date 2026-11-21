@@ -211,7 +211,7 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
             )}
             <p className={s.muted}>{copy.map.idea.note}</p>
             <Link to={`/w/${workId}/forgot?item=${chosen[0].id}`} className={s.ideaLink}>
-              {copy.map.idea.more} →
+              {copy.map.idea.more}
             </Link>
           </div>
         )}

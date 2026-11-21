@@ -158,7 +158,7 @@ export default function SettingsScreen() {
       </Card>
 
       <Card title={copy.eval.toolsTitle}>
-        <Link to="/eval">{copy.eval.toolLink} →</Link>
+        <Link to="/eval">{copy.eval.toolLink}</Link>
       </Card>
 
       <Card title={copy.settings.connection}>

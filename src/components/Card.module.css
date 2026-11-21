@@ -6,7 +6,7 @@
   min-width: 0;
 }
 .highlight {
-  border: 2px solid var(--c-gold);
+  border-color: var(--c-gold);
 }
 .navy {
   background: var(--c-navy);

@@ -9,13 +9,12 @@ import s from './ScreenLayout.module.css';
  * 모든 작품 화면의 공통 틀. 화면 = 제목 + 오른쪽 위 행동(action) + 섹션들.
  * 버튼을 "오른쪽 위로" 옮기려면 action에 넣기만 하면 된다. (BUILD_SPEC 4.5)
  */
-export function ScreenLayout({ eyebrow, title, action, tip, children }: { eyebrow?: string; title: ReactNode; action?: ReactNode; tip?: TipId; children: ReactNode }) {
-  usePageTitle(eyebrow ?? (typeof title === 'string' ? title : null), useContext(WorkTitleContext));
+export function ScreenLayout({ pageName, title, action, tip, children }: { /** 브라우저 탭 제목에만 쓰는 화면 이름(제목 위에 따로 보이지 않는다) */ pageName?: string; title: ReactNode; action?: ReactNode; tip?: TipId; children: ReactNode }) {
+  usePageTitle(pageName ?? (typeof title === 'string' ? title : null), useContext(WorkTitleContext));
   return (
     <div className={s.screen}>
       <header className={s.top}>
         <h1 className={s.title}>
-          {eyebrow && <small className={s.eyebrow}>{eyebrow}</small>}
           {title}
         </h1>
         {action && <div className={s.action}>{action}</div>}

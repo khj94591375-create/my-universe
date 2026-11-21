@@ -15,7 +15,7 @@ export function TodaySuggestionSection({ workId }: { workId: string }) {
         <>
           <p className={s.suggestion}>{copy.home.suggestion(a.name, a.last_ep ?? 0, b.name, b.last_ep ?? 0)}</p>
           <Link to={`/w/${workId}/map?sel=${a.id},${b.id}`} className={s.rowLink}>
-            {copy.home.toMap} →
+            {copy.home.toMap}
           </Link>
         </>
       ) : (

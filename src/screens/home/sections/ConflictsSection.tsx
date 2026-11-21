@@ -13,7 +13,7 @@ export function ConflictsSection({ workId }: { workId: string }) {
     <Card title={copy.home.conflictsTitle}>
       <p className={s.note}>{copy.home.conflictsOpen(open)}</p>
       <Link to={`/w/${workId}/bible#conflicts`} className={s.rowLink}>
-        {copy.home.conflictsLink} →
+        {copy.home.conflictsLink}
       </Link>
     </Card>
   );

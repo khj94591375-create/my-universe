@@ -18,7 +18,7 @@ export default function ReviewScreen() {
   return (
     <ScreenLayout
       tip="review"
-      eyebrow={copy.review.eyebrow}
+      pageName={copy.review.pageName}
       title={copy.review.title}
       action={<ConfirmAllButton workId={workId} />}
     >

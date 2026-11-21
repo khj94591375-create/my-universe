@@ -16,7 +16,7 @@ export default function BibleScreen() {
   return (
     <ScreenLayout
       tip="bible"
-      eyebrow={copy.bible.eyebrow}
+      pageName={copy.bible.pageName}
       title={copy.bible.title}
       action={
         !adding && (

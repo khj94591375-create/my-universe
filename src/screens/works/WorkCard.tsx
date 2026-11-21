@@ -94,7 +94,7 @@ export function WorkCard({ work, onChanged, onDeleted }: { work: WorkWithStats; 
         mode === 'view' && (
           <div className={s.cardActions}>
             <Link to={`/w/${work.id}/home`} className={s.openLink}>
-              {copy.works.open} →
+              {copy.works.open}
             </Link>
             {editable && (
               <>

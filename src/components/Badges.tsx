@@ -3,24 +3,35 @@ import { copy } from '../config/copy';
 import type { ItemKind, ItemStatus } from '../data/types';
 import { gapLabel } from '../features/foreshadow/gap';
 import { Tag, type TagTone } from './Tag';
+import { StarShape } from './StarShape';
 import s from './Badges.module.css';
 
-/** 미등장 회차 수 태그. gap으로 문구·색이 자동으로 정해진다(BUILD_SPEC 7.1). */
+/** 미등장 회차 수 태그. gap으로 문구·색이 자동으로 정해진다(BUILD_SPEC 7.1). 오래 잊힌 경고만 알약 모양, 나머지는 글자만. */
 export function GapTag({ gap }: { gap: number | null }) {
   if (gap == null) return null;
   const { text, tone } = gapLabel(gap);
-  return <Tag tone={tone}>{text}</Tag>;
+  return (
+    <Tag tone={tone} plain={tone !== 'warn'}>
+      {text}
+    </Tag>
+  );
 }
 
 const statusTone: Record<ItemStatus, TagTone> = { open: 'neutral', resolved: 'ok', reuse_planned: 'info', reused: 'gold' };
 
-/** 복선 상태 4단계 태그. */
+/** 복선 상태 4단계(글자만). */
 export function StatusTag({ status }: { status: ItemStatus }) {
-  return <Tag tone={statusTone[status]}>{copy.labels.status[status]}</Tag>;
+  return <Tag tone={statusTone[status]} plain>{copy.labels.status[status]}</Tag>;
 }
 
+/** 종류: 우주 지도와 같은 별 모양 + 글자(알약 테두리 없이). */
 export function KindTag({ kind }: { kind: ItemKind }) {
-  return <span className={`${s.kind} ${s[kind]}`}>{copy.labels.kind[kind]}</span>;
+  return (
+    <span className={`${s.kind} ${s[kind]}`}>
+      <StarShape kind={kind} size={11} />
+      {copy.labels.kind[kind]}
+    </span>
+  );
 }
 
 /** "AI 추정" 표시 + 설명(근거가 있으면 함께). */

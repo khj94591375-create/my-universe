@@ -45,8 +45,8 @@ export default function StartScreen() {
       <section className={s.hero}>
         <div className={s.intro}>
           <img src={`${import.meta.env.BASE_URL}logo.png`} alt="My Universe 로고" className={s.logo} />
-          <p className={s.lead}>{copy.start.lead}</p>
           <h1 className={s.name}>{copy.brand.name}</h1>
+          <p className={s.lead}>{copy.start.lead}</p>
           <p className={s.message}>{copy.brand.message}</p>
           <div className={s.actions}>
             <Button
@@ -85,7 +85,6 @@ export default function StartScreen() {
         <article className={s.mapFeature} aria-labelledby="start-map">
           <ConstellationArt />
           <div className={s.mapText}>
-            <p className={s.mapEyebrow}>{copy.start.mapFeature.eyebrow}</p>
             <h3 id="start-map" className={s.mapTitle}>
               {copy.start.mapFeature.title}
             </h3>
@@ -104,7 +103,6 @@ export default function StartScreen() {
             <li key={k} className={s.feature}>
               <ArtImage art={art.feature[k]} className={s.featureArt} />
               <div className={s.featureText}>
-                <p className={s.role}>{copy.start.features[k].role}</p>
                 <h4>{copy.start.features[k].title}</h4>
                 <p>{copy.start.features[k].body}</p>
               </div>

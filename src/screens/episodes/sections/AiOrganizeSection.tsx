@@ -112,7 +112,7 @@ export function AiOrganizeSection({ workId, single }: { workId: string; single?:
               </li>
             ))}
           </ul>
-          {found > 0 && <Link to={`/w/${workId}/review`}>{copy.organize.toReview} →</Link>}
+          {found > 0 && <Link to={`/w/${workId}/review`}>{copy.organize.toReview}</Link>}
         </div>
       )}
     </>

@@ -28,7 +28,7 @@ export default function HomeScreen() {
       {(data) => (
         <ScreenLayout
           tip="home"
-          eyebrow={copy.home.eyebrow}
+          pageName={copy.home.pageName}
           title={copy.home.nextTitle(data.next)}
           action={data.episodes.length > 0 ? <SlumpButton workId={workId} /> : undefined}
         >

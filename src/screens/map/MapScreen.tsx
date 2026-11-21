@@ -95,7 +95,7 @@ export default function MapScreen() {
   }, [expanded]);
 
   return (
-    <ScreenLayout tip="map" eyebrow={copy.map.eyebrow} title={copy.map.title}>
+    <ScreenLayout tip="map" pageName={copy.map.pageName} title={copy.map.title}>
       <WorkDataGate workId={workId}>
         {() =>
           data && data.items.length === 0 ? (

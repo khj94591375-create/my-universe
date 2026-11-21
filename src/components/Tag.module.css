@@ -30,3 +30,19 @@
   background: var(--c-ai-bg);
   color: var(--c-ai);
 }
+/* 바탕 없는 글자 표시: 같은 줄의 앞 내용과 가운뎃점으로 나눈다 */
+.plain {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  background: none !important;
+}
+.plain:not(:first-child)::before {
+  content: '·' / '';
+  margin-right: var(--sp-2);
+  color: var(--c-sub);
+  font-weight: 400;
+}
+.plain.neutral {
+  color: var(--c-sub);
+}

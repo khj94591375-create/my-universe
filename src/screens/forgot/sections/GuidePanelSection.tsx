@@ -148,7 +148,7 @@ export function GuidePanelSection({ workId, itemId }: { workId: string; itemId: 
           </Button>
         )}
         <Link to={`/w/${workId}/map?sel=${item.id}`} className={s.linkBtn}>
-          {copy.forgot.toMap} →
+          {copy.forgot.toMap}
         </Link>
         {canWrite && (aiGuide ? (
           <Button variant="ghost" onClick={() => setShowBasic(true)}>
@@ -160,7 +160,7 @@ export function GuidePanelSection({ workId, itemId }: { workId: string; itemId: 
           </Button>
         ))}
         <Link to={`/w/${workId}/map?sel=${item.id}`} className={s.linkBtn}>
-          {copy.forgot.aiChat} →
+          {copy.forgot.aiChat}
         </Link>
       </div>
       {!canWrite && <p className={s.muted}>{copy.shell.loginToWrite}</p>}

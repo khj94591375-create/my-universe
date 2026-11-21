@@ -303,7 +303,7 @@ export function SpellCheckSection({ workId, episode, onClose }: { workId: string
                   ← {copy.spell.prev}
                 </Button>
                 <Button size="sm" variant="ghost" disabled={list.indexOf(cur) >= list.length - 1} onClick={() => setIdx(list.indexOf(cur) + 1)}>
-                  {copy.spell.next} →
+                  {copy.spell.next}
                 </Button>
               </div>
             </div>

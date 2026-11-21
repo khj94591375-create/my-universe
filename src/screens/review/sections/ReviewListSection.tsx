@@ -48,7 +48,7 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
         <Card tone="highlight">
           <p>{copy.review.emptyBible}</p>
           <Link to={`/w/${workId}/bible`} className={s.link}>
-            {copy.review.toBible} →
+            {copy.review.toBible}
           </Link>
         </Card>
       )}
@@ -72,7 +72,7 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
             {/* 맞춤법 검사는 선택(하지 않아도 등록·정리는 끝남) */}
             <p className={s.muted}>
               <Link to={`/w/${workId}/episodes?open=${ep.no}&check=1`} className={s.link}>
-                {copy.spell.afterUpload} →
+                {copy.spell.afterUpload}
               </Link>{' '}
               {copy.spell.afterUploadHint}
             </p>

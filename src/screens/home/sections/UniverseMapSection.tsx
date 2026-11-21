@@ -26,7 +26,6 @@ export function UniverseMapSection({ workId }: { workId: string }) {
     return (
       <section className={`${s.hero} ${s.empty}`} aria-labelledby="universe-title">
         <div className={s.text}>
-          <p className={s.eyebrow}>{copy.universe.eyebrow}</p>
           <h2 id="universe-title" className={s.title}>
             {copy.universe.emptyTitle}
           </h2>
@@ -58,7 +57,6 @@ export function UniverseMapSection({ workId }: { workId: string }) {
   return (
     <section className={s.hero} aria-labelledby="universe-title">
       <div className={s.text}>
-        <p className={s.eyebrow}>{copy.universe.eyebrow}</p>
         <h2 id="universe-title" className={s.title}>
           {copy.universe.title(work?.title ?? '')}
         </h2>
@@ -76,7 +74,7 @@ export function UniverseMapSection({ workId }: { workId: string }) {
         </ul>
         <div className={s.actions}>
           <ButtonLink to={mapUrl} size="lg">
-            {copy.universe.explore} →
+            {copy.universe.explore}
           </ButtonLink>
         </div>
       </div>
