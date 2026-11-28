@@ -2,7 +2,7 @@
   background: var(--c-card);
   border: 1px solid var(--c-line);
   border-radius: var(--r-md);
-  padding: var(--sp-4) 18px;
+  padding: var(--sp-4) var(--sp-5);
   min-width: 0;
 }
 .highlight {
@@ -15,5 +15,5 @@
 }
 .title {
   font-size: 15.5px;
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-3);
 }

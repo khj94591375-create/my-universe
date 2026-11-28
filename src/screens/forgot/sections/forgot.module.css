@@ -5,7 +5,7 @@
 }
 .filters {
   display: flex;
-  gap: 6px;
+  gap: var(--sp-1-5);
   flex-wrap: wrap;
 }
 .filter {
@@ -35,7 +35,7 @@
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--sp-1-5);
   background: var(--c-card);
   border: 1px solid var(--c-line);
   border-radius: var(--r-md);

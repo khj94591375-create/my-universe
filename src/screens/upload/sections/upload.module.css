@@ -6,7 +6,7 @@
 .tab {
   border: 0;
   background: transparent;
-  padding: 10px 16px;
+  padding: var(--sp-3) var(--sp-4);
   font-weight: 700;
   color: var(--c-sub);
   border-bottom: 3px solid transparent;
@@ -158,7 +158,7 @@
 }
 .bar {
   height: 8px;
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   background: var(--c-neutral-bg);
   overflow: hidden;
 }

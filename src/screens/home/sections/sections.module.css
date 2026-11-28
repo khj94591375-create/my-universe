@@ -15,10 +15,10 @@
 }
 .bar {
   height: 8px;
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   background: var(--c-neutral-bg);
   overflow: hidden;
-  margin: var(--sp-2) 0 10px;
+  margin: var(--sp-2) 0 var(--sp-3);
 }
 .bar span {
   display: block;
@@ -42,7 +42,7 @@
   justify-content: space-between;
   align-items: center;
   gap: var(--sp-3);
-  padding: 10px 0;
+  padding: var(--sp-3) 0;
   border-top: 1px solid var(--c-line);
 }
 .row:first-child {

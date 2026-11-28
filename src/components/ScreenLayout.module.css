@@ -1,7 +1,7 @@
 .screen {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--sp-5);
 }
 .top {
   display: flex;

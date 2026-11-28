@@ -57,7 +57,7 @@
 .universe {
   position: relative;
   aspect-ratio: 1.6 / 1;
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   overflow: hidden;
   isolation: isolate;
   background: #17192d url('../../../assets/art/map-nebula.webp') center / cover no-repeat;
@@ -82,7 +82,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-3);
-  padding: 14px 20px;
+  padding: var(--sp-4) var(--sp-5);
 }
 .universeTop {
   top: 0;
@@ -93,7 +93,7 @@
 .universeTitle {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--sp-3);
   font-family: var(--f-display);
   font-size: 20px;
   font-weight: 700;
@@ -127,7 +127,7 @@
 .legend li {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--sp-1-5);
 }
 
 /* ── 최근 원고: 넓은 줄과 얇은 구분선 ── */
@@ -236,7 +236,7 @@
 .story {
   display: flex;
   gap: var(--sp-3);
-  padding: var(--sp-3) 2px;
+  padding: var(--sp-3) 0;
   color: var(--c-ink);
   text-decoration: none;
 }
@@ -357,8 +357,8 @@
   .universeBottom {
     flex-direction: column;
     align-items: flex-start;
-    gap: 6px;
-    padding: 10px 16px;
+    gap: var(--sp-1-5);
+    padding: var(--sp-3) var(--sp-4);
   }
   .recentDate {
     display: none;

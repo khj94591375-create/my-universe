@@ -66,7 +66,7 @@
   margin: 0;
   padding: 0;
   display: flex;
-  gap: 6px;
+  gap: var(--sp-1-5);
   justify-content: center;
 }
 .dot,

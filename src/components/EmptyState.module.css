@@ -4,7 +4,7 @@
   align-items: center;
   gap: var(--sp-3);
   text-align: center;
-  padding: 48px var(--sp-5);
+  padding: var(--sp-7) var(--sp-5);
   background: var(--c-card);
   border: 1px dashed var(--c-line);
   border-radius: var(--r-md);

@@ -63,7 +63,7 @@
 .logo {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
 }
 .center {
   flex: 1;
@@ -192,7 +192,7 @@
 .slides {
   width: 100%;
   max-width: 1160px;
-  padding: var(--sp-6) 24px;
+  padding: var(--sp-6) var(--sp-5);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -214,7 +214,7 @@
 
 /* ── 맨 아래 ── */
 .footer {
-  padding: var(--sp-4) 24px var(--sp-6);
+  padding: var(--sp-4) var(--sp-5) var(--sp-6);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -250,6 +250,6 @@
     width: 100%;
   }
   .slides {
-    padding: var(--sp-5) 16px;
+    padding: var(--sp-5) var(--sp-4);
   }
 }

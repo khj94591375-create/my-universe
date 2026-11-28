@@ -1,7 +1,7 @@
 /* 시작 화면 기능 소개 넘기기. 지금 장면은 칸의 78%, 오른쪽에 다음 장면이 살짝 보인다 */
 .carousel {
   --slide-w: 78%;
-  --gap: 20px;
+  --gap: var(--sp-5);
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);

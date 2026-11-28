@@ -6,8 +6,8 @@
 .row {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 14px 0;
+  gap: var(--sp-1-5);
+  padding: var(--sp-4) 0;
   border-top: 1px solid var(--c-line);
   font-size: var(--fs-sm);
 }
@@ -30,20 +30,20 @@
 }
 .aliases {
   display: flex;
-  gap: 6px;
+  gap: var(--sp-1-5);
   align-items: center;
   flex-wrap: wrap;
 }
 .aliasForm {
   display: flex;
-  gap: 6px;
+  gap: var(--sp-1-5);
   align-items: center;
   flex: 1 1 220px;
   max-width: 340px;
 }
 .rowActions {
   display: flex;
-  gap: 6px;
+  gap: var(--sp-1-5);
   flex-wrap: wrap;
 }
 .form {
@@ -83,7 +83,7 @@
 }
 .sheetActions {
   display: flex;
-  gap: 6px;
+  gap: var(--sp-1-5);
   align-items: center;
   flex-wrap: wrap;
 }
@@ -145,7 +145,7 @@
 .filterGroup {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--sp-1-5);
 }
 .filterLabel {
   font-size: var(--fs-sm);
@@ -154,7 +154,7 @@
 .filterButtons {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--sp-1-5);
 }
 .chip {
   min-height: 40px;
@@ -259,7 +259,7 @@
 .indexHead {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--sp-1-5);
   font-size: var(--fs-xs);
   font-weight: 700;
   color: var(--c-sub);

@@ -72,13 +72,13 @@
 .checks {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--sp-1-5);
   margin-top: var(--sp-2);
 }
 .check {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--sp-1-5);
   border: 1px solid var(--c-line);
   border-radius: var(--r-pill);
   padding: 4px 10px;

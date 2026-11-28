@@ -11,7 +11,7 @@
   border-radius: var(--r-sm);
   padding: var(--sp-2) var(--sp-3);
   display: flex;
-  gap: 6px;
+  gap: var(--sp-1-5);
   flex-wrap: wrap;
   margin: 0;
 }
@@ -94,7 +94,7 @@
   padding: var(--sp-2);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--sp-1-5);
   background: var(--c-field);
 }
 .fresh {
@@ -127,7 +127,7 @@
 }
 .sheetPick {
   display: flex;
-  gap: 6px;
+  gap: var(--sp-1-5);
   align-items: flex-end;
   flex-wrap: wrap;
 }
