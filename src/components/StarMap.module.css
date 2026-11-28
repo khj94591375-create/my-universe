@@ -21,6 +21,10 @@
 :global([data-theme='dark']) .sky {
   --map-sky-image: url('../assets/art/map-sky-dark.webp');
 }
+/* 작업 공간: 별·선이 없는 남색 안개(디자인 키트). 실제 별·이름·선은 코드로 그린다 */
+:global([data-mu-workspace]) .sky {
+  --map-sky-image: url('../assets/art/kit-map-atmosphere.webp');
+}
 .svg:active {
   cursor: grabbing;
 }

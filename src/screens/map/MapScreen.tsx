@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { Column, Columns, ScreenLayout } from '../../components/ScreenLayout';
+import { ScreenLayout } from '../../components/ScreenLayout';
 import { EmptyState } from '../../components/EmptyState';
 import { copy } from '../../config/copy';
 import { showToast } from '../../components/Toast';
@@ -10,6 +10,7 @@ import { useWorkData } from '../../features/works/workData';
 import { WorkDataGate } from '../shared/WorkDataGate';
 import { MapCanvasSection, type MapFocus } from './sections/MapCanvasSection';
 import { DesignPanelSection } from './sections/DesignPanelSection';
+import { SelectionStrip } from './sections/SelectionStrip';
 
 /** 우주 지도(BUILD_SPEC 6.7). 고른 별은 주소의 ?sel=id,id 로 기억해 다른 화면에서 바로 넘어올 수 있다. 가리킨 별·관계선·연결 추가 상태는 지도와 패널이 함께 쓴다. */
 export default function MapScreen() {
@@ -101,8 +102,8 @@ export default function MapScreen() {
           data && data.items.length === 0 ? (
             <EmptyState art={art.emptyCollection} title={copy.map.empty} />
           ) : (
-            <Columns ratio="1.75fr 1fr">
-              <Column>
+            <div className={s.layout}>
+              <div className={s.mapCol}>
                 <div
                   ref={mapArea}
                   className={expanded ? s.expanded : undefined}
@@ -112,13 +113,12 @@ export default function MapScreen() {
                 >
                   <MapCanvasSection workId={workId} selected={selected} onToggle={toggle} onClear={clearAll} focus={focus} expanded={expanded} onExpand={setExpanded} />
                 </div>
-              </Column>
-              <Column>
-                <div className={s.sticky} hidden={expanded}>
+                {!expanded && <SelectionStrip workId={workId} selected={selected} onRemove={toggle} onClear={clearAll} />}
+              </div>
+              <div className={s.sticky} hidden={expanded}>
                 <DesignPanelSection workId={workId} selected={selected} onRemove={toggle} onClear={clearAll} focus={focus} />
-                </div>
-              </Column>
-            </Columns>
+              </div>
+            </div>
           )
         }
       </WorkDataGate>

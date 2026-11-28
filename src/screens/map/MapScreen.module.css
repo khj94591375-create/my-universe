@@ -1,3 +1,25 @@
+/* 지도 화면: 넓은 지도 + 오른쪽 정보 패널(약 340px, 설계 결과가 나오면 넓게). 860px 이하에서는 지도 아래로 */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--sp-4);
+  align-items: start;
+}
+.layout:has([data-design-result]) {
+  grid-template-columns: minmax(0, 1fr) min(480px, 40%);
+}
+.mapCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+@media (max-width: 860px) {
+  .layout,
+  .layout:has([data-design-result]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 /* 넓은 화면: 오른쪽 창이 지도 옆에 붙어 따라오고, 길면 창 안에서만 스크롤 */
 @media (min-width: 861px) {
   .sticky {

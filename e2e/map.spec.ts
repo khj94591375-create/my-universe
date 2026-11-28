@@ -24,7 +24,7 @@ test.describe('우주 지도', () => {
     await expect(page.getByText('고른 별 사이의 관계')).toBeVisible();
     await expect(page.locator('[data-star][class*=dim]').first()).toBeAttached();
     const box = (await page.locator('svg[role=group]').boundingBox())!;
-    await page.mouse.click(box.x + 15, box.y + box.height - 15);
+    await page.mouse.click(box.x + box.width - 15, box.y + 15); // 빈 곳(왼쪽 아래는 확대·축소 버튼)
     await expect(page.locator('[data-star][class*=dim]')).toHaveCount(0);
     await expect(page.getByText('고른 별 2개를 비웠어요.')).toBeVisible();
     await page.getByRole('button', { name: '되돌리기' }).click();

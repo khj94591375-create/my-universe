@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { EvidenceWithContext } from '../../shared/EvidenceWithContext';
 import { Button } from '../../../components/Button';
 import { MAP_HOME, StarMap, viewFocusing, type MapView } from '../../../components/StarMap';
@@ -228,20 +229,14 @@ export function MapCanvasSection({
           </Button>
         </form>
         <div className={s.zoom}>
+          <Link to={`/w/${workId}/forgot`} className={s.forgotLink}>
+            {copy.map.forgotLink}
+          </Link>
           {onExpand && (
             <Button id="map-expand" variant={expanded ? 'primary' : 'ghost'} size="sm" onClick={() => onExpand(!expanded)} aria-pressed={expanded}>
               {expanded ? copy.map.expand.exit : copy.map.expand.enter}
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={() => zoom(1.25)} aria-label={copy.map.zoomIn}>
-            ＋
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => zoom(0.8)} aria-label={copy.map.zoomOut}>
-            −
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setView(MAP_HOME)}>
-            {copy.map.reset}
-          </Button>
         </div>
       </div>
 
@@ -263,6 +258,18 @@ export function MapCanvasSection({
           view={view}
           onView={setView}
         />
+        {/* 확대·축소·처음 크기: 지도 아래쪽에 */}
+        <div className={s.zoomDock} role="group" aria-label={copy.map.zoomGroup}>
+          <button type="button" onClick={() => zoom(0.8)} aria-label={copy.map.zoomOut}>
+            −
+          </button>
+          <button type="button" onClick={() => setView(MAP_HOME)}>
+            {copy.map.reset}
+          </button>
+          <button type="button" onClick={() => zoom(1.25)} aria-label={copy.map.zoomIn}>
+            ＋
+          </button>
+        </div>
 
         {/* 별 두 개를 고르면 지도 위에서 바로 잇기·지우기(오른쪽 창까지 가지 않아도 되게) */}
         {canWrite && !from && !relation && selected.length === 2 && (() => {

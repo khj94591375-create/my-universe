@@ -256,7 +256,7 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
         )}
 
         {shown && (
-          <div className={`${s.panelBlock} ${s.resultBlock}`}>
+          <div className={`${s.panelBlock} ${s.resultBlock}`} data-design-result="">
             <h3 className={s.panelHead}>
               {copy.map.panel.resultTitle(shown.targetEp)} <Tag tone={isDemo ? 'neutral' : 'ai'}>{isDemo ? copy.map.demo.tag : copy.ai.suggestion}</Tag>
             </h3>

@@ -34,8 +34,9 @@
   display: flex;
   gap: 6px;
   align-items: center;
-  flex: 1 1 200px;
-  max-width: 320px;
+  flex: 1 1 240px;
+  min-width: 200px;
+  max-width: 360px;
 }
 .zoom {
   display: flex;
@@ -591,4 +592,128 @@
   display: grid;
   gap: 4px;
   font-size: var(--fs-sm);
+}
+
+/* ── 2026-11-28 재디자인: 지도는 넓게, 확대·축소는 지도 아래쪽, 선택 띠는 지도 밑 ── */
+.canvas {
+  height: min(74vh, 720px);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.forgotLink {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--c-strong);
+  margin-right: var(--sp-2);
+  align-self: center;
+}
+.zoomDock {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--r-pill);
+  background: rgba(24, 27, 49, 0.82);
+  border: 1px solid rgba(246, 241, 232, 0.25);
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+}
+.zoomDock button {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  background: none;
+  color: #f6f1e8;
+  font: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+.zoomDock button:hover {
+  background: rgba(246, 241, 232, 0.12);
+}
+.zoomDock button + button {
+  border-left: 1px solid rgba(246, 241, 232, 0.2);
+}
+/* 크게 보기의 간단 정보 카드가 확대 버튼과 겹치지 않게 */
+.wrapExpanded .zoomDock {
+  left: auto;
+  right: 12px;
+}
+
+.strip {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 52px;
+  padding: 6px 12px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-card);
+}
+.stripHint {
+  font-size: var(--fs-sm);
+  color: var(--c-sub);
+}
+.stripCount {
+  flex: none;
+  font-size: var(--fs-sm);
+}
+.stripList {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 2px 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.stripChip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+  padding: 2px 4px 2px 10px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background: var(--c-paper);
+  font-size: var(--fs-sm);
+}
+.stripChip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stripChip button {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--c-sub);
+  cursor: pointer;
+}
+.stripChip button:hover {
+  background: var(--c-highlight);
+}
+.stripClear {
+  flex: none;
+  border: 0;
+  background: none;
+  color: var(--c-strong);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+@media (max-width: 860px) {
+  .canvas {
+    height: min(60vh, 520px);
+    min-height: 320px;
+  }
 }
