@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react';
+import { EvidenceWithContext } from '../../shared/EvidenceWithContext';
 import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
-import { EvidenceQuote } from '../../../components/Badges';
+
 import { Tag } from '../../../components/Tag';
 import { TextField } from '../../../components/TextField';
 import { copy } from '../../../config/copy';
@@ -77,7 +78,7 @@ export function AskWorldSection({ workId }: { workId: string }) {
                   {state === 'noQuote' && <p className={s.muted}>{copy.ask.noQuoteHint}</p>}
                   {state === 'notFound' && <p className={s.muted}>{copy.ask.notFoundHint}</p>}
                   {r.evidence.map((ev) => (
-                    <EvidenceQuote key={`${ev.tag}-${ev.text}`} text={ev.text} ep={ev.ep} />
+                    <EvidenceWithContext workId={workId} key={`${ev.tag}-${ev.text}`} text={ev.text} ep={ev.ep} />
                   ))}
                   {r.dropped > 0 && <p className={s.muted}>{copy.ask.dropped(r.dropped)}</p>}
                 </li>

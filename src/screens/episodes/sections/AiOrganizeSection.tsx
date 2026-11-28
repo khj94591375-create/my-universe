@@ -5,10 +5,11 @@ import { Card } from '../../../components/Card';
 import { ConfirmBar } from '../../../components/ConfirmBar';
 import { SelectField } from '../../../components/TextField';
 import { copy } from '../../../config/copy';
-import { aiAnalyzeEpisodes, type AiAnalyzeResult } from '../../../features/ai/analyze';
+import type { AiAnalyzeResult } from '../../../features/ai/analyze';
+import { startAnalyze, useAnalyzeRun } from '../../../features/ai/analyzeTracker';
 import { useAiStatus } from '../../../features/ai/aiStatus';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
-import { refreshWorkData, useWorkData } from '../../../features/works/workData';
+import { useWorkData } from '../../../features/works/workData';
 import s from './episodes.module.css';
 
 /**
@@ -24,8 +25,8 @@ export function AiOrganizeSection({ workId, single }: { workId: string; single?:
   const [from, setFrom] = useState<number | null>(null);
   const [to, setTo] = useState<number | null>(null);
   const [phase, setPhase] = useState<'idle' | 'confirm' | 'running'>('idle');
-  const [progress, setProgress] = useState<string | null>(null);
   const [results, setResults] = useState<AiAnalyzeResult[] | null>(null);
+  const run = useAnalyzeRun(workId);
   const [stopping, setStopping] = useState(false);
   const stopRef = useRef(false);
   if (!data || eps.length === 0 || !canWrite || !ai.on) return null;
@@ -36,22 +37,21 @@ export function AiOrganizeSection({ workId, single }: { workId: string; single?:
   const st = ai.status;
   const left = st?.usage ? Math.max(0, st.limits.text - st.usage.text) : null;
 
-  const run = async () => {
+  const start = async () => {
     setPhase('running');
     setResults(null);
     stopRef.current = false;
     setStopping(false);
-    const r = await aiAnalyzeEpisodes(
+    // 진행 상태는 작품별 저장소가 기억(다른 화면으로 가도 이어지고, 끝나면 데이터가 자동 갱신)
+    const r = await startAnalyze(
       workId,
       chosen.map((e) => ({ id: e.id, no: e.no })),
-      (done, total, no) => setProgress(copy.ai.analyzing(done, total, no)),
       () => stopRef.current,
-    );
+    ).catch(() => [] as AiAnalyzeResult[]);
     setResults(r);
-    setProgress(null);
     setPhase('idle');
-    refreshWorkData(workId);
   };
+  const progress = run?.running ? copy.ai.analyzing(run.done, run.total, run.no) : null;
 
   const ok = results?.filter((r) => r.ok) ?? [];
   const found = ok.reduce((n, r) => n + r.found, 0);
@@ -83,9 +83,9 @@ export function AiOrganizeSection({ workId, single }: { workId: string; single?:
           cancelLabel={copy.organize.cancel}
           danger={false}
           onCancel={() => setPhase('idle')}
-          onConfirm={run}
+          onConfirm={start}
         />
-      ) : phase === 'running' ? (
+      ) : phase === 'running' || run?.running ? (
         <div className={s.formActions}>
           <span role="status">{stopping ? copy.organize.stopping : progress}</span>
           {chosen.length > 1 && (

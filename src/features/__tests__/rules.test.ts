@@ -13,12 +13,13 @@ describe('7.1 미등장 회차 수', () => {
     expect(nextEp([1, 2, 6, 3])).toBe(7);
     expect(nextEp([])).toBe(1);
   });
-  it('gap = 다음 회차 − 마지막 등장, 등장 없으면 null', () => {
-    expect(gapOf(7, 2)).toBe(5);
-    expect(gapOf(7, null)).toBeNull();
+  it('gap = 가장 최근 회차 − 마지막 등장(최근 회차에 나오면 0), 등장 없으면 null', () => {
+    expect(gapOf(6, 2)).toBe(4);
+    expect(gapOf(6, 6)).toBe(0);
+    expect(gapOf(6, null)).toBeNull();
   });
   it('GapTag 문구와 색', () => {
-    expect(gapLabel(0)).toEqual({ text: '이번 화 등장', tone: 'ok' });
+    expect(gapLabel(0)).toEqual({ text: '최근 회차에 등장', tone: 'ok' });
     expect(gapLabel(2)).toEqual({ text: '2화째 미등장', tone: 'neutral' });
     expect(gapLabel(3).tone).toBe('warn');
   });

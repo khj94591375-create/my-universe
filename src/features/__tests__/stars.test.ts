@@ -68,6 +68,11 @@ describe('기본 이야기 방향', () => {
   it('기록된 관계 이름이 있으면 그 관계로 제안한다', () => {
     const idea = basicStoryIdea([a, b], [{ a: 'a', b: 'b', kind: 'manual', label: '열쇠의 주인', weight: 1 }], [], []);
     expect(idea?.lines[0]).toContain('열쇠의 주인');
+    expect(idea?.lines[0]).not.toContain('AI 추정');
+  });
+  it('작가가 확인하지 않은 AI 관계는 "AI 추정"이라고 밝힌다', () => {
+    const idea = basicStoryIdea([a, b], [{ a: 'b', b: 'a', kind: 'ai', label: '스승과 제자', weight: 1 }], [], []);
+    expect(idea?.lines[0]).toContain('「스승과 제자」 관계(AI 추정·작가 확인 전)');
   });
   it('관계가 없으면 이어져 있다고 말하지 않는다', () => {
     const idea = basicStoryIdea([a, b], [], [], []);

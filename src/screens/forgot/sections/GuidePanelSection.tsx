@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { EvidenceWithContext } from '../../shared/EvidenceWithContext';
 import { Link } from 'react-router-dom';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
-import { AiBadge, EvidenceQuote, GapTag, KindTag, StatusTag } from '../../../components/Badges';
+import {AiBadge, GapTag, KindTag, StatusTag} from '../../../components/Badges';
 import { Tag } from '../../../components/Tag';
 import { copy } from '../../../config/copy';
 import { setItemStatus } from '../../../data/items';
@@ -90,7 +91,7 @@ export function GuidePanelSection({ workId, itemId }: { workId: string; itemId: 
                 <li key={idx}>
                   <strong>{d.type}</strong>
                   <p>{d.text}</p>
-                  <EvidenceQuote text={d.evidence!} ep={Number(/E(\d+)/.exec(d.tag)?.[1]) || null} />
+                  <EvidenceWithContext workId={workId} text={d.evidence!} ep={Number(/E(\d+)/.exec(d.tag)?.[1]) || null} />
                 </li>
               ))}
             </ol>
@@ -118,7 +119,7 @@ export function GuidePanelSection({ workId, itemId }: { workId: string; itemId: 
                 <li key={d.title}>
                   <strong>{d.title}</strong>
                   <p>{d.body}</p>
-                  {ev ? <EvidenceQuote text={ev.text} ep={ev.ep} /> : <p className={s.muted}>{copy.forgot.noEvidence}</p>}
+                  {ev ? <EvidenceWithContext workId={workId} text={ev.text} ep={ev.ep} /> : <p className={s.muted}>{copy.forgot.noEvidence}</p>}
                 </li>
               );
             })}

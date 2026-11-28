@@ -9,10 +9,9 @@ import { savePastedEpisode } from '../../../features/analysis/runRules';
 import { callAi, type SplitResult } from '../../../data/ai';
 import { scenesOf } from '../../../features/manuscript/parse';
 import { save } from '../../../features/works/save';
-import { refreshWorkData, useWorkData } from '../../../features/works/workData';
-import { aiAnalyzeEpisodes } from '../../../features/ai/analyze';
-import { useAiStatus } from '../../../features/ai/aiStatus';
-import { showToast } from '../../../components/Toast';
+import { useWorkData } from '../../../features/works/workData';
+import { startAnalyze } from '../../../features/ai/analyzeTracker';
+import { aiReady, useAiStatus } from '../../../features/ai/aiStatus';
 import s from './upload.module.css';
 
 /** 붙여 넣기: 회차 번호, 제목, 본문 → 저장 → 규칙 정리(장면 나누기, 재등장, 연결선). */
@@ -25,7 +24,6 @@ export function PasteSection({ workId }: { workId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [aiLabel, setAiLabel] = useState<string | null>(null);
   const ai = useAiStatus();
 
   // 회차 번호 기본값 = 다음 회차
@@ -38,6 +36,8 @@ export function PasteSection({ workId }: { workId: string }) {
     if (!data) return;
     setBusy(true);
     setConfirm(false);
+    // AI 켜짐 여부를 확실히 안 다음에 시작(불러오는 중이라 조용히 건너뛰지 않게)
+    const aiOn = await aiReady();
     let saved: { id: string; no: number } | null = null;
     const ok = await save(
       workId,
@@ -45,7 +45,7 @@ export function PasteSection({ workId }: { workId: string }) {
         // AI가 켜져 있으면 문맥으로 장면을 나눈다(회차 하나이므로 AI가 고른 회차 경계도 장면 경계로). 실패하면 규칙으로
         const text = body.replace(/\r\n?/g, '\n').trim();
         let scenes: string[] | undefined;
-        if (ai.on) {
+        if (aiOn) {
           try {
             const r = await callAi<SplitResult>('split-episodes', { workId, text });
             const cuts = r.starts.flatMap((st, k) => [...(k > 0 ? [st.line] : []), ...(st.scenes ?? [])]);
@@ -57,19 +57,10 @@ export function PasteSection({ workId }: { workId: string }) {
         const ep = await savePastedEpisode(workId, { no: n, title, body: text, scenes }, data.items, overwrite);
         saved = { id: ep.id, no: ep.no };
       },
-      copy.upload.done(n),
+      aiOn ? copy.upload.savedAi(1) : copy.upload.savedNoAi(1),
     );
-    if (ok && saved) {
-      if (ai.on) {
-        const [r] = await aiAnalyzeEpisodes(workId, [saved], (done, total, no) => setAiLabel(copy.ai.analyzing(done, total, no)));
-        setAiLabel(null);
-        refreshWorkData(workId);
-        if (!r.ok) showToast(r.error ?? copy.ai.failed, 'error');
-        else if (r.found) showToast(copy.ai.analyzed(r.found));
-      } else {
-        showToast(copy.ai.analyzeOff);
-      }
-    }
+    // AI 정리는 뒤에서 계속(검토 화면이 "AI 정리 중"과 결과를 보여 준다)
+    if (ok && saved && aiOn) void startAnalyze(workId, [saved]).catch(() => undefined);
     setBusy(false);
     if (ok) nav(`/w/${workId}/review?eps=${n}`);
   };
@@ -106,7 +97,7 @@ export function PasteSection({ workId }: { workId: string }) {
         ) : (
           <div className={s.actions}>
             <WriteButton workId={workId} type="submit" variant="accent" loading={busy}>
-              {aiLabel ?? (busy ? copy.upload.saving : copy.upload.submit)}
+              {busy ? copy.upload.saving : copy.upload.submit}
             </WriteButton>
           </div>
         )}

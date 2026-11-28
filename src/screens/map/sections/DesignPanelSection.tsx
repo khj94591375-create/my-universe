@@ -1,7 +1,8 @@
 import { useMemo, useState, type FormEvent } from 'react';
+import { EvidenceWithContext } from '../../shared/EvidenceWithContext';
 import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
-import { Chip, EvidenceQuote } from '../../../components/Badges';
+import {Chip} from '../../../components/Badges';
 import { Tag } from '../../../components/Tag';
 import { TextField } from '../../../components/TextField';
 import { showToast } from '../../../components/Toast';
@@ -200,9 +201,9 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
             ))}
             <h4 className={s.ideaSub}>{copy.map.idea.evidence}</h4>
             {idea.evidence.map((ev) => (
-              <EvidenceQuote key={ev.itemId} text={ev.text} ep={ev.ep}>
+              <EvidenceWithContext workId={workId} key={ev.itemId} text={ev.text} ep={ev.ep}>
                 <span>{ev.item}</span>
-              </EvidenceQuote>
+              </EvidenceWithContext>
             ))}
             {idea.missing.length > 0 && (
               <p className={s.muted}>
@@ -275,7 +276,7 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
                     ) : null,
                   )}
                 </dl>
-                {shown.ending.evidence ? <EvidenceQuote text={shown.ending.evidence} ep={epOf(shown.ending.tag)} /> : <p className={s.muted}>{copy.map.panel.endingNoEvidence}</p>}
+                {shown.ending.evidence ? <EvidenceWithContext workId={workId} text={shown.ending.evidence} ep={epOf(shown.ending.tag)} /> : <p className={s.muted}>{copy.map.panel.endingNoEvidence}</p>}
                 <p className={s.muted}>{copy.map.panel.endingHint}</p>
               </div>
             )}
@@ -311,9 +312,9 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
                   <p>{sc.text}</p>
                   {sc.uses.map((u, k) =>
                     u.evidence ? (
-                      <EvidenceQuote key={k} text={u.evidence} ep={epOf(u.tag)}>
+                      <EvidenceWithContext workId={workId} key={k} text={u.evidence} ep={epOf(u.tag)}>
                         <span>{u.item}</span>
-                      </EvidenceQuote>
+                      </EvidenceWithContext>
                     ) : (
                       <p key={k} className={s.muted}>
                         {u.item} · {copy.ai.noEvidenceShort}
@@ -344,7 +345,7 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
                   <span className={s.chatWho}>{m.role === 'user' ? copy.map.panel.you : copy.map.panel.assistant}</span>
                   <p>{m.content}</p>
                   {m.evidence?.map((ev, k) =>
-                    ev.text ? <EvidenceQuote key={k} text={ev.text} ep={epOf(ev.tag)} /> : <p key={k} className={s.muted}>{copy.ai.noEvidenceShort}</p>,
+                    ev.text ? <EvidenceWithContext workId={workId} key={k} text={ev.text} ep={epOf(ev.tag)} /> : <p key={k} className={s.muted}>{copy.ai.noEvidenceShort}</p>,
                   )}
                 </li>
               ))}

@@ -392,7 +392,7 @@ left join episodes e on e.id = a.episode_id
 group by i.id;
 ```
 - `next_ep(work) = max(episodes.no) + 1` (회차가 없으면 1)
-- `gap = next_ep − last_ep` (등장 기록이 없으면 표시하지 않음)
+- `gap = latest_ep − last_ep` (최근 회차에 나오면 0, 등장 기록이 없으면 표시하지 않음)
 
 ### 5.3 행 단위 보안(RLS) [고정]
 - 모든 테이블 RLS 켜기.
@@ -498,7 +498,7 @@ group by i.id;
 ## 7. 핵심 로직 (AI 없이 동작) [고정]
 
 ### 7.1 미등장 회차 수
-`gap(item) = next_ep(work) − last_ep(item)`. 등장 기록이 없으면 gap 없음. GapTag: gap ≤ 0 → "이번 화 등장", 1~2 → "N화째 미등장"(중립), 3 이상 → "N화째 미등장"(경고색).
+`gap(item) = latest_ep(work) − last_ep(item)`(가장 최근 회차에 나오면 0; 2026-11-28에 next_ep 기준에서 바꿈). 등장 기록이 없으면 gap 없음. GapTag: gap 0 → "최근 회차에 등장", 1~2 → "N화째 미등장"(중립), 3 이상 → "N화째 미등장"(경고색).
 
 ### 7.2 막혔어요 선택
 1. 후보 = 상태가 `open` 또는 `reuse_planned`이고 gap이 있는 항목.

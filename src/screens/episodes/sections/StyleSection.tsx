@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
+import { EvidenceWithContext } from '../../shared/EvidenceWithContext';
 import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
-import { EvidenceQuote } from '../../../components/Badges';
+
 import { copy } from '../../../config/copy';
 import { callAi, type StyleResult } from '../../../data/ai';
 import { aiErrorMessage, refreshAiStatus, useAiStatus } from '../../../features/ai/aiStatus';
@@ -110,7 +111,7 @@ export function StyleSection({ workId }: { workId: string }) {
                       <strong>{t.name}</strong>
                       <p>{t.description}</p>
                       {t.examples.map((ex) => (
-                        <EvidenceQuote key={ex} text={ex} />
+                        <EvidenceWithContext workId={workId} key={ex} text={ex} />
                       ))}
                     </li>
                   ))}

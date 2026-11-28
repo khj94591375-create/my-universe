@@ -3,7 +3,7 @@
  * RAG v2(임베딩)로 바꿀 때는 장면 검색 부분만 바꾸면 된다.
  */
 import type { SupabaseClient } from './deps.ts';
-import { buildContext, pickEnding, pickScenes, trimItems, type BuiltContext, type CtxEnding, type CtxItem, type CtxScene } from './context.ts';
+import { buildContext, pickEnding, pickScenes, trimItems, type BuiltContext, type CtxEnding, type CtxItem, type CtxRelation, type CtxScene } from './context.ts';
 
 type Row = Record<string, unknown>;
 
@@ -11,16 +11,25 @@ export type WorkSnapshot = {
   items: CtxItem[];
   episodes: { id: string; no: number; title: string | null; summary: string | null }[];
   appearances: { item_id: string; episode_id: string; chunk_id: string | null }[];
-  links: { a: string; b: string }[];
+  links: { a: string; b: string; kind: string; label: string | null }[];
 };
+
+/** 고른 항목이 들어간 이름 붙은 관계(같은 장면 연결은 빼고). AI 관계는 확인 전 표시 */
+export function relationsFor(s: WorkSnapshot, focus: Set<string>, max = 20): CtxRelation[] {
+  const name = new Map(s.items.map((i) => [i.id, i.name]));
+  return s.links
+    .filter((l) => l.kind !== 'co_occur' && l.label && (focus.has(l.a) || focus.has(l.b)) && name.has(l.a) && name.has(l.b))
+    .slice(0, max)
+    .map((l) => ({ a: name.get(l.a)!, b: name.get(l.b)!, label: l.label!, ai: l.kind === 'ai' }));
+}
 
 /** 작품의 설정집·회차·등장·연결을 한 번에 읽고 처음·마지막 등장과 gap을 계산한다. */
 export async function loadSnapshot(admin: SupabaseClient, workId: string): Promise<WorkSnapshot> {
   const [items, episodes, apps, links] = await Promise.all([
-    admin.from('items').select('id, kind, name, note, status, item_aliases(alias)').eq('work_id', workId),
+    admin.from('items').select('id, kind, name, note, status, confirmed, item_aliases(alias)').eq('work_id', workId),
     admin.from('episodes').select('id, no, title, summary').eq('work_id', workId).order('no'),
     admin.from('appearances').select('item_id, episode_id, chunk_id, items!inner(work_id)').eq('items.work_id', workId),
-    admin.from('links').select('a, b').eq('work_id', workId),
+    admin.from('links').select('a, b, kind, label').eq('work_id', workId),
   ]);
   for (const r of [items, episodes, apps, links]) if (r.error) throw r.error;
   const eps = (episodes.data ?? []) as WorkSnapshot['episodes'];
@@ -45,7 +54,9 @@ export async function loadSnapshot(admin: SupabaseClient, workId: string): Promi
         status: i.status as string,
         first_ep: r?.[0] ?? null,
         last_ep: r?.[1] ?? null,
-        gap: r ? next - r[1] : null,
+        // 미등장 = 가장 최근 회차(next - 1) − 마지막 등장(최근 회차에 나오면 0)
+        gap: r ? Math.max(0, next - 1 - r[1]) : null,
+        confirmed: i.confirmed !== false,
       };
     }),
     episodes: eps,
@@ -101,5 +112,5 @@ export async function retrieve(admin: SupabaseClient, workId: string, query: str
     scenes = scenes.concat(((data ?? []) as Row[]).map((c) => ({ ep: epNo.get(c.episode_id as string) ?? 0, seq: c.seq as number, text: c.text as string })));
   }
   const ending = opts.withEnding ? await loadEnding(admin, s) : undefined;
-  return buildContext(trimItems(s.items, focus, linked), summaries, pickScenes(scenes), ending);
+  return buildContext(trimItems(s.items, focus, linked), summaries, pickScenes(scenes), ending, relationsFor(s, focus));
 }

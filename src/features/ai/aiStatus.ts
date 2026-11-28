@@ -40,6 +40,20 @@ export function refreshAiStatus() {
   );
 }
 
+/** AI가 켜져 있는지 확실히 알 때까지 기다린다(불러오는 중에 저장해서 AI를 조용히 건너뛰지 않게). */
+export function aiReady(): Promise<boolean> {
+  if (state.phase === 'ready') return Promise.resolve(state.on);
+  if (state.phase === 'idle') refreshAiStatus();
+  return new Promise((resolve) => {
+    const f = () => {
+      if (state.phase !== 'ready') return;
+      subs.delete(f);
+      resolve(state.on);
+    };
+    subs.add(f);
+  });
+}
+
 /** { on, reason, status }. 처음 쓸 때 한 번만 물어본다. */
 export function useAiStatus() {
   const s = useSyncExternalStore(

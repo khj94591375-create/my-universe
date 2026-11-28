@@ -474,3 +474,26 @@ describe('글 AI 공급자 고르기', () => {
     expect(openaiModels('main', 'gpt-5')).toEqual(['gpt-5', 'gpt-5.5']);
   });
 });
+
+describe('AI 추정 표시가 AI 맥락에도 들어간다', () => {
+  const base = { aliases: [], note: null, status: 'open', first_ep: 1, last_ep: 2, gap: 0 };
+  it('확인 전 항목과 AI 관계에 표시, 확인된 것·작가 관계에는 없음', () => {
+    const ctx = buildContext(
+      [
+        { ...base, id: 'a', kind: 'character', name: '리안', confirmed: true },
+        { ...base, id: 'b', kind: 'character', name: '하람', confirmed: false },
+      ],
+      [],
+      [],
+      undefined,
+      [
+        { a: '리안', b: '세린', label: '스승과 제자', ai: true },
+        { a: '리안', b: '하람', label: '친구', ai: false },
+      ],
+    );
+    expect(ctx.text).toContain('[캐릭터] 하람 · 1~2화 (AI 추정, 작가 확인 전)');
+    expect(ctx.text).not.toContain('[캐릭터] 리안 · 1~2화 (AI');
+    expect(ctx.text).toContain('- 리안 – 세린: 「스승과 제자」 (AI 추정, 작가 확인 전)');
+    expect(ctx.text.split('\n')).toContain('- 리안 – 하람: 「친구」');
+  });
+});

@@ -1,6 +1,7 @@
 import { Button } from '../../../components/Button';
+import { EvidenceWithContext } from '../../shared/EvidenceWithContext';
 import { Card } from '../../../components/Card';
-import { AiBadge, EvidenceQuote } from '../../../components/Badges';
+import {AiBadge} from '../../../components/Badges';
 import { copy } from '../../../config/copy';
 import { confirmAiLink, confirmAlias, deleteLink, removeAlias } from '../../../data/items';
 import { save } from '../../../features/works/save';
@@ -63,7 +64,7 @@ export function AiSuggestionsSection({ workId }: { workId: string }) {
                     </span>
                   )}
                 </div>
-                {l.evidence && <EvidenceQuote text={l.evidence} />}
+                {l.evidence && <EvidenceWithContext workId={workId} text={l.evidence} />}
               </li>
             ))}
           </ul>

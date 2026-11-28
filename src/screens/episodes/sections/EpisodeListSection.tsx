@@ -4,11 +4,13 @@ import { Tag } from '../../../components/Tag';
 import { copy } from '../../../config/copy';
 import { art } from '../../../config/art';
 import { useWorkData } from '../../../features/works/workData';
+import { useAnalyzeRun } from '../../../features/ai/analyzeTracker';
 import s from './episodes.module.css';
 
 /** 회차 목록: 번호, 제목, 요약, 등장 항목, 글자 수, 정리 상태. */
 export function EpisodeListSection({ workId, openNo, onOpen }: { workId: string; openNo: number | null; onOpen: (no: number) => void }) {
   const { data } = useWorkData(workId);
+  const run = useAnalyzeRun(workId);
   if (!data) return null;
   if (data.episodes.length === 0) return <EmptyState art={art.emptyAnalysis} title={copy.episodes.empty} />;
   return (
@@ -32,7 +34,11 @@ export function EpisodeListSection({ workId, openNo, onOpen }: { workId: string;
                 </span>
                 <span className={s.side}>
                   <span className={s.muted}>{copy.episodes.chars(e.body.replace(/\n/g, '').length)}</span>
-                  <Tag tone={e.analyzed_at ? 'ok' : 'neutral'}>{e.analyzed_at ? copy.episodes.analyzed : copy.episodes.notAnalyzed}</Tag>
+                  {run?.running && run.nos.indexOf(e.no) >= run.done ? (
+                    <Tag tone="ai">{copy.ai.episodeRunning}</Tag>
+                  ) : (
+                    <Tag tone={e.analyzed_at ? 'ok' : 'neutral'}>{e.analyzed_at ? copy.episodes.analyzed : copy.episodes.notAnalyzed}</Tag>
+                  )}
                 </span>
               </button>
             </li>

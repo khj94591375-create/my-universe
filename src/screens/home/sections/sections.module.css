@@ -104,3 +104,19 @@
   color: var(--c-warn);
   margin: 0;
 }
+/* 예시 작품 홈: 핵심 체험 버튼 줄 */
+.demo {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  background: var(--c-highlight);
+}
+.demo p {
+  flex: 1;
+  min-width: 220px;
+  font-size: var(--fs-sm);
+  color: var(--c-ink);
+}

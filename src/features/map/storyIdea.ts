@@ -26,7 +26,8 @@ export function basicStoryIdea(
     const between = links.filter((l) => (l.a === a.id && l.b === b.id) || (l.a === b.id && l.b === a.id));
     const named = between.find((l) => l.kind !== 'co_occur' && l.label);
     const co = between.find((l) => l.kind === 'co_occur');
-    if (named?.label) lines.push(copy.map.idea.withRelation(a.name, b.name, named.label));
+    // 작가가 확인하지 않은 AI 관계는 "AI 추정"이라고 밝힌다
+    if (named?.label) lines.push(copy.map.idea.withRelation(a.name, b.name, named.label, named.kind === 'ai'));
     else if (co) lines.push(copy.map.idea.sharedScene(a.name, b.name, co.weight));
     else lines.push(copy.map.idea.pair(a.name, b.name));
   }

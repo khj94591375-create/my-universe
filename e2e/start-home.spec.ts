@@ -64,3 +64,20 @@ test('화면 모드 전환이 기억된다', async ({ page }) => {
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
+
+test('예시 작품 홈: 최근 회차 등장 표시, 회수 숫자 일치, 설계 체험 버튼 → 서가·은열쇠가 고른 지도', async ({ page }) => {
+  await prepare(page);
+  await page.goto(`#/w/${SAMPLE}/forgot`);
+  // 6화(최신)에 나온 리안은 "최근 회차에 등장"(예전에는 "1화째 미등장")
+  const row = page.locator('li', { hasText: '리안' }).first();
+  await expect(row.getByText('최근 회차에 등장')).toBeVisible();
+  await expect(row.getByText(/화째 미등장/)).toHaveCount(0);
+  await page.goto(`#/w/${SAMPLE}/home`);
+  // 지도 칸의 "회수한 복선"과 회수 현황 카드가 같은 수(회수 완료 + 재사용됨)
+  await expect(page.getByText('회수한 복선 1개')).toBeVisible();
+  await expect(page.getByText('/ 4개 회수')).toBeVisible();
+  await expect(page.locator('p', { hasText: '/ 4개 회수' })).toContainText('1');
+  await page.getByRole('link', { name: '복선 두 개로 7화 설계 체험' }).click();
+  await expect(page).toHaveURL(/\/map\?sel=00000000-0000-4000-8001-000000000008,00000000-0000-4000-8001-000000000006/);
+  await expect(page.getByRole('button', { name: '설계 체험하기' })).toBeVisible();
+});

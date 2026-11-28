@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import { EvidenceWithContext } from '../../shared/EvidenceWithContext';
 import { useLocation } from 'react-router-dom';
 import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
-import { EvidenceQuote } from '../../../components/Badges';
+
 import { Tag } from '../../../components/Tag';
 import { showToast } from '../../../components/Toast';
 import { copy } from '../../../config/copy';
@@ -75,8 +76,8 @@ export function ConflictSection({ workId }: { workId: string }) {
                   <Tag tone={i.status === 'open' ? 'warn' : 'neutral'}>{copy.bible.conflictStatus[i.status]}</Tag>
                 </div>
                 <div className={s.conflictPair}>
-                  <EvidenceQuote text={i.evidence_a} ep={i.episode_a} />
-                  <EvidenceQuote text={i.evidence_b} ep={i.episode_b} />
+                  <EvidenceWithContext workId={workId} text={i.evidence_a} ep={i.episode_a} />
+                  <EvidenceWithContext workId={workId} text={i.evidence_b} ep={i.episode_b} />
                 </div>
                 {canWrite && (
                   <div className={s.rowActions}>

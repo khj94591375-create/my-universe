@@ -15,6 +15,7 @@ import { RecentUploadsSection } from './sections/RecentUploadsSection';
 import { ConflictsSection } from './sections/ConflictsSection';
 import { UniverseMapSection } from './sections/UniverseMapSection';
 import { StuckSceneSection } from './sections/StuckSceneSection';
+import { SampleDemoSection } from './sections/SampleDemoSection';
 
 /**
  * 내 우주 홈(BUILD_SPEC 6.3). 배너 → 나의 우주 지도(대표 영역) → 기존 카드들.
@@ -32,6 +33,8 @@ export default function HomeScreen() {
           title={copy.home.nextTitle(data.next)}
           action={data.episodes.length > 0 ? <SlumpButton workId={workId} /> : undefined}
         >
+          {/* 예시 작품이면 핵심 체험으로 바로 */}
+          <SampleDemoSection workId={workId} />
           <div className={s.banner}>
             <ThemedArtImage art={art.dashboard} />
           </div>

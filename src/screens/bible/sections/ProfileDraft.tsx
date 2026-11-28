@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { EvidenceWithContext } from '../../shared/EvidenceWithContext';
 import { Button } from '../../../components/Button';
-import { EvidenceQuote } from '../../../components/Badges';
+
 import { copy } from '../../../config/copy';
 import { callAi, type ProfileResult } from '../../../data/ai';
 import type { ItemView } from '../../../data/types';
@@ -47,7 +48,7 @@ export function ProfileDraft({ workId, item, onUse, onClose }: { workId: string;
               <dd>
                 {result[f].text ? <p>{result[f].text}</p> : <p className={s.muted}>{copy.profile.unknown}</p>}
                 {result[f].evidence.map((ev) => (
-                  <EvidenceQuote key={`${ev.tag}-${ev.text}`} text={ev.text} ep={ev.ep} />
+                  <EvidenceWithContext workId={workId} key={`${ev.tag}-${ev.text}`} text={ev.text} ep={ev.ep} />
                 ))}
               </dd>
             </div>

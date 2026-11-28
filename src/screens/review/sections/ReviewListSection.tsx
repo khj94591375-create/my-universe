@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
+import { EvidenceWithContext } from '../../shared/EvidenceWithContext';
 import { Link } from 'react-router-dom';
 import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
 import { ConfirmBar } from '../../../components/ConfirmBar';
-import { AiBadge, EvidenceQuote, KindTag } from '../../../components/Badges';
+import {AiBadge, KindTag} from '../../../components/Badges';
 import { EmptyState } from '../../../components/EmptyState';
 import { Tag } from '../../../components/Tag';
 import { copy } from '../../../config/copy';
@@ -16,6 +17,7 @@ import { save } from '../../../features/works/save';
 import { isUnconfirmedAi } from '../../../features/ai/review';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
 import { useWorkData } from '../../../features/works/workData';
+import { useAnalyzeRun } from '../../../features/ai/analyzeTracker';
 import s from './review.module.css';
 
 /** 회차별 정리 결과: 이름, 종류, 출처, 근거 문장, 회차·장면 + 맞아요/고치기/지우기. */
@@ -25,6 +27,7 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
   const canWrite = useCanWrite(work);
   const [seqs, setSeqs] = useState<Map<string, number>>(new Map());
   const [removing, setRemoving] = useState<string | null>(null);
+  const run = useAnalyzeRun(workId);
 
   const episodes = data ? data.episodes.filter((e) => nos.length === 0 || nos.includes(e.no)) : [];
   const epKey = episodes.map((e) => `${e.id}:${e.analyzed_at}`).join(',');
@@ -77,7 +80,7 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
               {copy.spell.afterUploadHint}
             </p>
             {apps.length === 0 ? (
-              <p className={s.muted}>{copy.review.noneFound}</p>
+              <p className={s.muted}>{run?.running && run.nos.includes(ep.no) ? copy.ai.stillRunning : copy.review.noneFound}</p>
             ) : (
               <ul className={s.rows}>
                 {/* 같은 회차 안에서는 항목마다 한 줄로 묶는다(장면 번호는 함께 표시) */}
@@ -113,7 +116,7 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
                           </span>
                         )}
                       </div>
-                      <EvidenceQuote text={first.evidence} />
+                      <EvidenceWithContext workId={workId} text={first.evidence} ep={ep.no} />
                       {removing === key && (
                         <ConfirmBar
                           message={copy.review.removeConfirm(item.name, ep.no)}
@@ -162,7 +165,7 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
                             </span>
                           )}
                         </div>
-                        <EvidenceQuote text={r.evidence} />
+                        <EvidenceWithContext workId={workId} text={r.evidence} ep={ep.no} />
                       </li>
                     );
                   })}

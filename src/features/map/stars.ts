@@ -1,5 +1,6 @@
 import type { Appearance, Episode, ItemKind, ItemView } from '../../data/types';
 import { starOpacity } from './layout';
+import { isResolved } from '../foreshadow/resolved';
 
 /*
  * 별 하나의 모양·크기·밝기·상태(BUILD_SPEC 6.7). 지도와 홈 미리보기가 함께 쓴다.
@@ -51,7 +52,7 @@ export type StarState = {
 };
 
 export function starState(item: ItemView, maxGap: number, aiResolveEp: number | null = null): StarState {
-  const done = item.kind === 'foreshadow' && (item.status === 'resolved' || item.status === 'reused');
+  const done = isResolved(item);
   const planned = item.status === 'reuse_planned';
   const waiting = item.status === 'open' || planned;
   return {

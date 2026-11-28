@@ -2,6 +2,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { ScreenLayout } from '../../components/ScreenLayout';
 import { copy } from '../../config/copy';
 import { WorkDataGate } from '../shared/WorkDataGate';
+import { AnalyzeRunBanner } from '../shared/AnalyzeRunBanner';
 import { EpisodeListSection } from './sections/EpisodeListSection';
 import { EpisodeDetailSection } from './sections/EpisodeDetailSection';
 import { ReanalyzeAllButton } from './sections/ReanalyzeAllButton';
@@ -22,10 +23,11 @@ export default function EpisodesScreen() {
     });
   return (
     <ScreenLayout tip="episodes" pageName={copy.episodes.pageName} title={copy.episodes.title} action={<ReanalyzeAllButton workId={workId} />}>
+      <AnalyzeRunBanner workId={workId} />
       <WorkDataGate workId={workId}>
         {() => (
           <>
-            {open && <EpisodeDetailSection key={open} workId={workId} no={Number(open)} onClose={() => setOpen(null)} autoCheck={params.get('check') === '1'} />}
+            {open &&<EpisodeDetailSection key={open} workId={workId} no={Number(open)} onClose={() => setOpen(null)} autoCheck={params.get('check') === '1'} />}
             <AiOrganizeSection workId={workId} />
             <EpisodeListSection workId={workId} openNo={open ? Number(open) : null} onOpen={setOpen} />
             <StyleSection workId={workId} />

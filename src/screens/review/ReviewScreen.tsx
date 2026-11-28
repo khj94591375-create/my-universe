@@ -2,6 +2,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ScreenLayout } from '../../components/ScreenLayout';
 import { copy } from '../../config/copy';
 import { WorkDataGate } from '../shared/WorkDataGate';
+import { AnalyzeRunBanner } from '../shared/AnalyzeRunBanner';
 import { ReviewListSection } from './sections/ReviewListSection';
 import { AiSuggestionsSection } from './sections/AiSuggestionsSection';
 import { ConfirmAllButton } from './sections/ConfirmAllButton';
@@ -23,6 +24,7 @@ export default function ReviewScreen() {
       action={<ConfirmAllButton workId={workId} />}
     >
       <p className={s.lead}>{copy.review.lead}</p>
+      <AnalyzeRunBanner workId={workId} />
       <WorkDataGate workId={workId}>
         {() => (
           <>

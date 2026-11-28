@@ -107,6 +107,9 @@ export const copy = {
   home: {
     pageName: '내 우주 홈',
     slumpButton: '막혔어요! 하나 골라주세요',
+    /** 예시 작품 홈: 핵심 체험으로 바로 */
+    demoButton: (next: number) => `복선 두 개로 ${next}화 설계 체험`,
+    demoHint: '「사라진 13번째 서가」와 「반쪽짜리 은열쇠」를 고른 우주 지도로 가요. 오른쪽의 [설계 체험하기]를 눌러 보세요.',
     emptyTitle: '원고를 올리면 잊힌 별이 여기에 나타나요',
     emptyAction: '원고 올리기',
     newEpisode: '새 회차 원고 올리기',
@@ -199,7 +202,9 @@ export const copy = {
     exists: (no: number) => `${no}화가 이미 있어요. 새 원고로 덮어쓸까요?`,
     overwrite: '덮어쓰기',
     skip: '건너뛰기',
-    done: (no: number) => `${no}화를 저장하고 정리했어요.`,
+    /** 저장 직후 안내: AI 정리는 뒤에서 이어지고 검토 화면이 진행을 보여 준다 */
+    savedAi: (n: number) => `${n}개 회차를 저장했어요. AI가 정리하는 중이에요.`,
+    savedNoAi: (n: number) => `${n}개 회차를 저장하고 규칙으로 정리했어요(AI 꺼짐).`,
     aiNotice: `AI가 켜져 있으면 저장할 때 원고가 AI 회사(${TEXT_AI}) 서버로 전송돼, 문맥을 보고 장면을 나누고 인물·설정·복선을 정리해요. 원고 글자는 바뀌지 않아요.`,
     aiNoticeOff: 'AI가 꺼져 있어 이름·별칭이 나온 곳을 규칙으로 찾아요.',
     count: (n: number) => `${n.toLocaleString('ko-KR')}자(공백 포함)`,
@@ -404,7 +409,8 @@ export const copy = {
       title: '이 별들로 이어 쓸 방향',
       tag: '기본 제안',
       note: '원고와 설정집에 있는 내용으로만 만든 제안이에요(인용은 실제 원고 문장).',
-      withRelation: (a: string, b: string, rel: string) => `「${a}」과(와) 「${b}」는 「${rel}」 관계로 이어져 있어요. 이 관계가 흔들리거나 드러나는 장면을 다음 회차에 넣어 보세요.`,
+      withRelation: (a: string, b: string, rel: string, ai = false) =>
+        `「${a}」과(와) 「${b}」는 「${rel}」 관계${ai ? '(AI 추정·작가 확인 전)' : ''}로 이어져 있어요. ${ai ? '맞는 관계라면 ' : ''}이 관계가 흔들리거나 드러나는 장면을 다음 회차에 넣어 보세요.`,
       sharedScene: (a: string, b: string, n: number) => `「${a}」과(와) 「${b}」는 같은 장면에 ${n}번 함께 나왔어요. 둘이 다시 마주치는 장면에서 새 사건을 시작해 보세요.`,
       pair: (a: string, b: string) => `아직 이어진 적 없는 「${a}」과(와) 「${b}」를 한 장면에 불러, 둘 사이의 관계를 처음 만들어 보세요.`,
       resolve: (name: string, gap: number | null) => `「${name}」는 ${gap ? `${gap}화째 나오지 않은 ` : ''}미회수 복선이에요. 이번 회차에서 회수하거나 새 단서를 하나 더해 보세요.`,
@@ -948,6 +954,13 @@ export const copy = {
     aiConfirmed: 'AI가 찾음 · 확정',
     aiTip: '원고에서 AI가 찾은 내용이에요. 맞는지 확인해 주세요.',
     evidenceAt: (ep: number) => `${ep}화`,
+    contextShow: '앞뒤 원문 보기',
+    contextHide: '앞뒤 원문 접기',
+    contextLabel: (ep: number) => `${ep}화 원문에서 근거 앞뒤`,
+    contextOpen: (ep: number) => `${ep}화 회차 기록에서 보기`,
+    /** 미등장 표시: 가장 최근 회차에 나왔으면 */
+    gapLatest: '최근 회차에 등장',
+    gapMissing: (n: number) => `${n}화째 미등장`,
     epRange: (first: number, last: number) => (first === last ? `${first}화` : `${first}화 ~ ${last}화`),
     noAppearance: '아직 등장 기록 없음',
     remove: '빼기',
@@ -968,6 +981,12 @@ export const copy = {
     analyzeRetry: 'AI 다시 정리',
     analyzeOff: 'AI 정리는 키를 넣으면 켜져요. 지금은 규칙으로 찾은 결과만 저장했어요.',
     analyzed: (n: number) => `AI가 ${n}개를 더 찾았어요. 검토 화면에서 확인해 주세요.`,
+    /** 검토 화면 위 진행 띠 */
+    runningHint: '끝나면 결과가 이 화면에 자동으로 나타나요.',
+    runDone: (n: number) => (n > 0 ? `AI 정리를 마쳤어요 · 새로 찾은 것 ${n}개` : 'AI 정리를 마쳤어요 · 새로 찾은 것은 없어요'),
+    runClose: '닫기',
+    stillRunning: 'AI가 아직 이 회차를 정리하는 중이에요.',
+    episodeRunning: 'AI 정리 중',
   },
   toast: {
     saved: '저장했어요.',

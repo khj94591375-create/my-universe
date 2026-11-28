@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react';
+import { EvidenceWithContext } from '../../shared/EvidenceWithContext';
 import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
-import { EvidenceQuote } from '../../../components/Badges';
+
 import { Tag } from '../../../components/Tag';
 import { TextArea } from '../../../components/TextField';
 import { copy } from '../../../config/copy';
@@ -74,10 +75,10 @@ export function StuckSceneSection({ workId }: { workId: string }) {
                       <span className={s.note}>{copy.unstick.uses}</span>
                       {o.uses.map((u) =>
                         u.evidence ? (
-                          <EvidenceQuote key={u.item} text={u.evidence} ep={u.ep}>
+                          <EvidenceWithContext workId={workId} key={u.item} text={u.evidence} ep={u.ep}>
                             {' · '}
                             {u.item}
-                          </EvidenceQuote>
+                          </EvidenceWithContext>
                         ) : (
                           <p key={u.item} className={s.note}>
                             {u.item} — {copy.unstick.noEvidence}

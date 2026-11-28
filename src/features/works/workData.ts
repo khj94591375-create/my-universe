@@ -73,7 +73,7 @@ export function deriveWorkData(raw: WorkRaw): WorkData {
   const items: ItemView[] = raw.items.map((i) => {
     const s = stats.get(i.id);
     const last = s?.last ?? null;
-    return { ...i, first_ep: s?.first ?? null, last_ep: last, mention_count: s?.count ?? 0, gap: gapOf(next, last) };
+    return { ...i, first_ep: s?.first ?? null, last_ep: last, mention_count: s?.count ?? 0, gap: gapOf(next - 1, last) };
   });
   return {
     items,

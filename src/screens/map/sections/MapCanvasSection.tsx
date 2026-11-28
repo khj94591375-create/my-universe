@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { EvidenceWithContext } from '../../shared/EvidenceWithContext';
 import { Button } from '../../../components/Button';
 import { MAP_HOME, StarMap, viewFocusing, type MapView } from '../../../components/StarMap';
 import { StarShape } from '../../../components/StarShape';
 import { SelectField, TextField } from '../../../components/TextField';
 import { ConfirmBar } from '../../../components/ConfirmBar';
-import { AiBadge, EvidenceQuote, GapTag, KindTag, StatusTag } from '../../../components/Badges';
+import {AiBadge, GapTag, KindTag, StatusTag} from '../../../components/Badges';
 import { showToast } from '../../../components/Toast';
 import { copy } from '../../../config/copy';
 import { limits } from '../../../config/limits';
@@ -353,7 +354,7 @@ export function MapCanvasSection({
               <p className={s.muted}>
                 {copy.map.relation.sharedEps}: {both.length ? both.map((n) => `${n}화`).join(', ') : copy.map.info.none}
               </p>
-              {relation.evidence ? <EvidenceQuote text={relation.evidence} /> : relation.kind !== 'co_occur' && <p className={s.muted}>{copy.map.relation.noEvidence}</p>}
+              {relation.evidence ? <EvidenceWithContext workId={workId} text={relation.evidence} /> : relation.kind !== 'co_occur' && <p className={s.muted}>{copy.map.relation.noEvidence}</p>}
               {canWrite && relation.kind !== 'co_occur' && (
                 <div className={s.infoActions}>
                   <Button variant="ghost" size="sm" onClick={() => setRemoving(relation.id)}>

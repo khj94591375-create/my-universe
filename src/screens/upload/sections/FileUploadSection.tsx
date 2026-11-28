@@ -13,10 +13,10 @@ import { saveEpisodes, type BatchResult, type BatchRow } from '../../../features
 import { cleanText, parseManuscript, scenesOf, splitByStarts, type ParsedEpisode } from '../../../features/manuscript/parse';
 import { mergeRows, renumberFrom, splitRowAt } from '../../../features/manuscript/edit';
 import { callAi, type SplitResult } from '../../../data/ai';
-import { aiErrorMessage, refreshAiStatus, useAiStatus } from '../../../features/ai/aiStatus';
+import { aiErrorMessage, aiReady, refreshAiStatus, useAiStatus } from '../../../features/ai/aiStatus';
 import { ACCEPT, ManuscriptError, extractText } from '../../../features/manuscript/readFile';
 import { useCanWrite, useWork } from '../../../features/works/useWork';
-import { aiAnalyzeEpisodes, type AiAnalyzeResult } from '../../../features/ai/analyze';
+import { startAnalyze } from '../../../features/ai/analyzeTracker';
 import { showToast } from '../../../components/Toast';
 import { refreshWorkData, useWorkData } from '../../../features/works/workData';
 import s from './upload.module.css';
@@ -64,8 +64,6 @@ export function FileUploadSection({ workId }: { workId: string }) {
   const [results, setResults] = useState<BatchResult[] | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   const [limitNote, setLimitNote] = useState<string | null>(null);
-  const [aiProgress, setAiProgress] = useState<string | null>(null);
-  const [aiFailed, setAiFailed] = useState<AiAnalyzeResult[]>([]);
   const [sources, setSources] = useState<Source[]>([]);
   // 목록을 비우면 올라가는 번호: 그 전에 시작한 AI 나누기 결과는 버린다
   const listGen = useRef(0);
@@ -214,26 +212,14 @@ export function FileUploadSection({ workId }: { workId: string }) {
     setRows((old) => old.filter((r) => !okKeys.has(r.key)));
     const merged = [...(results ?? []).filter((r) => !res.some((x) => x.key === r.key)), ...res];
     setResults(merged);
-    // 규칙 정리 다음 AI 정리(켜져 있을 때만). 실패한 회차는 "AI 다시 정리"
+    // 규칙 정리 다음 AI 정리(켜져 있을 때만). AI는 뒤에서 계속 돌고, 검토 화면이 진행·결과를 보여 준다
     const saved = res.filter((r) => r.ok && r.episodeId).map((r) => ({ id: r.episodeId!, no: r.no }));
-    let aiOk = true;
-    if (saved.length && ai.on) {
-      const aiRes = await runAi(saved);
-      aiOk = aiRes.every((r) => r.ok);
-    } else if (saved.length) {
-      showToast(copy.ai.analyzeOff);
+    if (saved.length) {
+      const aiOn = await aiReady();
+      if (aiOn) void startAnalyze(workId, saved).catch(() => undefined);
+      showToast(aiOn ? copy.upload.savedAi(saved.length) : copy.upload.savedNoAi(saved.length));
     }
-    if (res.every((r) => r.ok) && aiOk) nav(`/w/${workId}/review?eps=${merged.filter((r) => r.ok).map((r) => r.no).sort((a, b) => a - b).join(',')}`);
-  };
-
-  const runAi = async (eps: { id: string; no: number }[]) => {
-    const aiRes = await aiAnalyzeEpisodes(workId, eps, (done, total, no) => setAiProgress(copy.ai.analyzing(done, total, no)));
-    setAiProgress(null);
-    refreshWorkData(workId);
-    setAiFailed((old) => [...old.filter((f) => !aiRes.some((r) => r.episodeId === f.episodeId)), ...aiRes.filter((r) => !r.ok)]);
-    const found = aiRes.reduce((n, r) => n + r.found, 0);
-    if (found) showToast(copy.ai.analyzed(found));
-    return aiRes;
+    if (res.every((r) => r.ok)) nav(`/w/${workId}/review?eps=${merged.filter((r) => r.ok).map((r) => r.no).sort((a, b) => a - b).join(',')}`);
   };
 
   const failed = (results ?? []).filter((r) => !r.ok);
@@ -421,34 +407,6 @@ export function FileUploadSection({ workId }: { workId: string }) {
                 {splittingAny && <span className={s.muted} role="status">{copy.upload.splitWait}</span>}
               </div>
             )}
-          </div>
-        )}
-
-        {aiProgress && (
-          <div className={s.waiting}>
-            <ArtImage art={art.loading} className={s.waitingArt} />
-            <p className={s.progress} role="status" aria-live="polite">
-              {aiProgress}
-            </p>
-          </div>
-        )}
-
-        {aiFailed.length > 0 && !aiProgress && (
-          <div className={s.failed} role="alert">
-            <h3>{copy.ai.analyzeFailed}</h3>
-            <ul>
-              {aiFailed.map((f) => (
-                <li key={f.episodeId}>
-                  <span>
-                    <strong>{f.no}화</strong> — {f.error}
-                  </span>
-                  <Button size="sm" variant="ghost" onClick={() => runAi([{ id: f.episodeId, no: f.no }])}>
-                    {copy.ai.analyzeRetry}
-                  </Button>
-                </li>
-              ))}
-            </ul>
-            {okNos.length > 0 && <Button onClick={() => nav(`/w/${workId}/review?eps=${okNos.join(',')}`)}>{copy.upload.toReview}</Button>}
           </div>
         )}
 
