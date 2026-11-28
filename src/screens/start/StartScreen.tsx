@@ -39,7 +39,8 @@ export default function StartScreen() {
     }
   };
 
-  const message = !isSupabaseConfigured ? copy.start.notConfigured : error ?? (loginError ? copy.start.loginError : copy.start.loginHint);
+  // 오류·설정 없음은 늘 보이게, 평소 안내(loginHint)는 버튼에 마우스를 올리면 말풍선으로(휴대폰은 버튼 아래에 그대로)
+  const problem = !isSupabaseConfigured ? copy.start.notConfigured : error ?? (loginError ? copy.start.loginError : null);
   const loginDisabled = !isSupabaseConfigured || loading || redirecting;
   const loginText = redirecting ? copy.start.loggingIn : copy.start.login;
 
@@ -64,13 +65,24 @@ export default function StartScreen() {
               <StarShape kind="foreshadow" size={16} />
               <span>{copy.start.sampleLong}</span>
             </button>
-            <Button variant="accent" size="lg" className={s.login} onClick={login} disabled={loginDisabled}>
-              {loginText}
-            </Button>
+            <span className={s.loginWrap}>
+              <Button variant="accent" size="lg" className={s.login} onClick={login} disabled={loginDisabled} aria-describedby="login-hint">
+                {loginText}
+              </Button>
+              <span id="login-hint" role="tooltip" className={problem ? `${s.tip} ${s.tipOff}` : s.tip}>
+                {copy.start.loginHint}
+              </span>
+            </span>
           </div>
-          <p className={s.note} role={error || loginError ? 'alert' : undefined}>
-            {message}
-          </p>
+          {problem ? (
+            <p className={s.note} role={error || loginError ? 'alert' : undefined}>
+              {problem}
+            </p>
+          ) : (
+            <p className={`${s.note} ${s.touchOnly}`} aria-hidden="true">
+              {copy.start.loginHint}
+            </p>
+          )}
         </div>
       </section>
 

@@ -120,12 +120,72 @@
   text-decoration: underline;
 }
 .login {
-  flex: none;
   border-radius: var(--r-pill);
 }
 .note {
   font-size: var(--fs-xs);
   color: var(--c-sub);
+}
+/* 구글로 시작하기에 마우스를 올리거나 키보드로 고르면 안내 말풍선 */
+.loginWrap {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+}
+.tip {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: max-content;
+  max-width: 260px;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  background: var(--c-ink);
+  color: var(--c-paper);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  text-align: left;
+  box-shadow: var(--shadow-float);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  pointer-events: none;
+  z-index: 2;
+}
+.tip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  right: 28px;
+  border: 6px solid transparent;
+  border-bottom-color: var(--c-ink);
+}
+.loginWrap:hover .tip,
+.loginWrap:focus-within .tip {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+.tipOff {
+  display: none;
+}
+/* 마우스가 있는 기기에서는 아래 줄 대신 말풍선 */
+.touchOnly {
+  visibility: hidden;
+}
+@media (hover: none) {
+  .touchOnly {
+    visibility: visible;
+  }
+  .tip {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tip {
+    transition: none;
+  }
 }
 
 /* ── 기능 소개 ── */
@@ -184,6 +244,10 @@
   .sample {
     justify-content: center;
     text-align: center;
+  }
+  .loginWrap,
+  .login {
+    width: 100%;
   }
   .slides {
     padding: var(--sp-5) 16px;

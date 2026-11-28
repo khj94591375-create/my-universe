@@ -6,6 +6,10 @@ test('시작 화면: 제목·버튼·기능 소개 넘기기·개인정보처리
   await page.goto('#/');
   await expect(page.getByRole('heading', { level: 1, name: '잊었던 별을 다시 찾는 곳' })).toBeVisible();
   await expect(page.getByRole('button', { name: '구글로 시작하기' }).first()).toBeVisible();
+  // 안내 문장은 평소엔 숨고, 버튼에 마우스를 올리면 말풍선으로
+  await expect(page.getByRole('tooltip')).toBeHidden();
+  await page.getByRole('button', { name: '구글로 시작하기' }).first().hover();
+  await expect(page.getByRole('tooltip')).toHaveText('구글 계정 하나로 바로 시작해요. 원고는 나만 볼 수 있어요.');
   // 기능 소개 넘기기: 화살표·점·키보드
   const region = page.getByRole('region', { name: '기능 소개' });
   await expect(region.getByRole('heading', { name: '원고를 올려요' })).toBeVisible();
