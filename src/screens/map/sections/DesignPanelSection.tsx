@@ -104,7 +104,6 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
       {/* ① 별 고르기 */}
       <section className={s.step} aria-labelledby="step1">
         <h2 id="step1" className={s.stepHead}>
-          <span className={s.stepNo} aria-hidden="true">1</span>
           {copy.map.panel.step1}
         </h2>
         {chosen.length ? (
@@ -130,7 +129,6 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
       {/* ② 관계 확인 */}
       <section className={s.step} aria-labelledby="step2">
         <h2 id="step2" className={s.stepHead} tabIndex={-1}>
-          <span className={s.stepNo} aria-hidden="true">2</span>
           {copy.map.panel.step2}
         </h2>
         {chosen.length === 0 ? (
@@ -188,7 +186,6 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
       {/* ③ 이야기 설계 */}
       <section className={s.step} aria-labelledby="step3">
         <h2 id="step3" className={s.stepHead}>
-          <span className={s.stepNo} aria-hidden="true">3</span>
           {copy.map.panel.step3}
         </h2>
         {idea && (
@@ -220,14 +217,19 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
           <h3 className={s.panelHead}>{copy.map.panel.continueFrom}</h3>
           <p>{last ? copy.map.panel.continueText(last.no, last.title ?? `${last.no}화`) : copy.map.panel.continueFirst}</p>
         </div>
-        <label className={s.switch}>
-          <input type="checkbox" role="switch" checked={includeDraft} disabled={!usable} onChange={(e) => setIncludeDraft(e.target.checked)} aria-describedby="draft-hint" />
-          <span>{copy.map.panel.draftSwitch}</span>
-        </label>
-        <p id="draft-hint" className={s.muted}>
-          {copy.map.panel.draftHint}
-        </p>
-        {includeDraft && (
+        {/* 예시 작품은 AI 설계를 쓸 수 없으므로 초안 스위치·꺼진 금색 버튼을 늘어놓지 않고 [설계 체험하기] 하나만 */}
+        {!isSample && (
+          <>
+            <label className={s.switch}>
+              <input type="checkbox" role="switch" checked={includeDraft} disabled={!usable} onChange={(e) => setIncludeDraft(e.target.checked)} aria-describedby="draft-hint" />
+              <span>{copy.map.panel.draftSwitch}</span>
+            </label>
+            <p id="draft-hint" className={s.muted}>
+              {copy.map.panel.draftHint}
+            </p>
+          </>
+        )}
+        {!isSample && includeDraft && (
           <div className={s.draftLength} role="radiogroup" aria-label={copy.map.panel.draftLength}>
             {([300, 800] as const).map((n) => (
               <label key={n}>
@@ -237,12 +239,14 @@ export function DesignPanelSection({ workId, selected, onRemove, onClear, focus 
             ))}
           </div>
         )}
-        <Button variant="accent" block disabled={!usable || chosen.length === 0} loading={designing} title={reason ?? undefined} onClick={design}>
-          {designing ? copy.map.panel.designing : result ? copy.map.panel.again : copy.map.panel.design}
-        </Button>
+        {!isSample && (
+          <Button variant="accent" block disabled={!usable || chosen.length === 0} loading={designing} title={reason ?? undefined} onClick={design}>
+            {designing ? copy.map.panel.designing : result ? copy.map.panel.again : copy.map.panel.design}
+          </Button>
+        )}
         {isSample ? (
           <>
-            <Button variant={chosen.length ? 'primary' : 'ghost'} block disabled={chosen.length === 0} onClick={() => setDemo(true)}>
+            <Button variant="accent" block disabled={chosen.length === 0} onClick={() => setDemo(true)}>
               {copy.map.demo.button}
             </Button>
             {/* 예시 작품: 읽기 전용·체험·저장 안 됨을 한 줄로(로그인 안내와 겹치지 않게) */}

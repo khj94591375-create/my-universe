@@ -4,18 +4,18 @@
   align-items: center;
   gap: var(--sp-3);
   text-align: center;
-  padding: var(--sp-7) var(--sp-5);
-  background: var(--c-card);
-  border: 1px dashed var(--c-line);
-  border-radius: var(--r-md);
+  /* 점선 상자 없이 그림과 글만(대개 카드 안에 놓이므로 상자를 겹치지 않는다) */
+  padding: var(--sp-6) var(--sp-4);
 }
 .star {
   fill: var(--c-gold);
   opacity: 0.45;
 }
 .title {
-  font-weight: 700;
-  font-size: var(--fs-lg);
+  font-weight: 600;
+  font-size: var(--fs-md);
+  color: var(--c-ink);
+  max-width: 40ch;
 }
 .body {
   color: var(--c-sub);

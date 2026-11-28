@@ -6,24 +6,20 @@
   font-weight: 700;
   white-space: nowrap;
 }
-.character {
-  color: var(--c-info);
-}
-.setting {
-  color: var(--c-ok);
-}
+/* 종류는 별 모양만 색을 두고 글자는 보조색(무지개 글자를 피한다) */
+.character,
+.setting,
 .foreshadow {
-  color: var(--c-gold-ink);
+  color: var(--c-sub);
 }
 .ai {
   cursor: help;
 }
 .quote {
   margin: 0;
-  padding: var(--sp-2) var(--sp-3);
-  border-left: 3px solid var(--c-gold);
-  background: var(--c-paper);
-  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  /* 상자 대신 왼쪽 가는 선 하나(카드 안에 또 상자를 만들지 않는다) */
+  padding: var(--sp-1) 0 var(--sp-1) var(--sp-3);
+  border-left: 2px solid var(--c-gold);
   font-size: var(--fs-sm);
 }
 .quote footer {

@@ -87,8 +87,8 @@ test.describe('지도 크게 보기', () => {
 test('안내문: 짧은 한 문장, 예시 작품 안내는 한 번만', async ({ page }) => {
   await prepare(page);
   await page.goto(`#/w/${SAMPLE}/map`);
-  await expect(page.getByText('지도에서 별을 선택해 정보를 확인하세요. 두 개 이상 선택하면 관계를 살펴보고 다음 이야기를 설계할 수 있습니다.')).toBeVisible();
-  await expect(page.getByText('별을 선택하면 정보와 관계가 여기에 나와요.')).toBeVisible();
+  await expect(page.getByText('지도에서 별을 눌러 담아 보세요.')).toBeVisible();
+  await expect(page.getByText('별을 담으면 정보와 관계가 나와요.')).toBeVisible();
   const panel = page.locator('section[aria-labelledby=step3]');
   await expect(panel.getByText('예시 작품은 읽기 전용이에요', { exact: false })).toHaveCount(1);
   await expect(panel.getByText('로그인하면', { exact: false })).toHaveCount(0);

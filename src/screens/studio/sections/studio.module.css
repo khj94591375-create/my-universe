@@ -7,19 +7,20 @@
   flex: none;
 }
 .group {
-  border: 1px solid var(--c-line);
-  border-radius: var(--r-sm);
-  padding: var(--sp-2) var(--sp-3);
+  /* 묶음 테두리 없이 제목 + 칩(폼 카드 안에 상자를 겹치지 않는다) */
+  border: 0;
+  padding: 0;
   display: flex;
   gap: var(--sp-1-5);
   flex-wrap: wrap;
   margin: 0;
 }
 .group legend {
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   font-weight: 700;
-  color: var(--c-sub);
-  padding: 0 4px;
+  color: var(--c-ink);
+  padding: 0;
+  margin-bottom: var(--sp-1-5);
 }
 .pick {
   display: inline-flex;

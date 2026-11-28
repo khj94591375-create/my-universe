@@ -3,7 +3,7 @@ import s from './Card.module.css';
 
 type Props = HTMLAttributes<HTMLElement> & {
   title?: ReactNode;
-  tone?: 'default' | 'highlight' | 'navy';
+  tone?: 'default' | 'highlight' | 'navy' | 'plain';
   as?: 'section' | 'div' | 'article';
 };
 

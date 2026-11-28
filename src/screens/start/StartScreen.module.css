@@ -235,15 +235,24 @@
   .center {
     padding: 0 16px 10vh;
   }
+  /* 휴대폰은 알약 틀 없이: 금색 버튼 하나, 그 아래 글자 링크(상자 안에 상자를 만들지 않는다) */
   .pill {
     flex-direction: column;
     align-items: stretch;
-    border-radius: var(--r-lg);
-    padding: 8px;
+    gap: var(--sp-3);
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  .loginWrap {
+    order: -1;
   }
   .sample {
     justify-content: center;
     text-align: center;
+    background: none;
   }
   .loginWrap,
   .login {

@@ -164,7 +164,8 @@ export function StudioFormSection({ workId, prefill, onCreated }: { workId: stri
       <Button variant="accent" block onClick={create} loading={busy} disabled={Boolean(reason)} title={reason ?? undefined}>
         {busy ? copy.studio.creating : copy.studio.create}
       </Button>
-      {reason && <p className={s.muted}>{reason}</p>}
+      {/* 예시 작품은 맨 위 "읽기 전용" 띠가 이미 알려 주므로 같은 안내를 반복하지 않는다 */}
+      {reason && canWrite && <p className={s.muted}>{reason}</p>}
       {canWrite && st?.imageRestricted && session?.user.email && <p className={s.muted}>{copy.studio.restrictedAccount(session.user.email)}</p>}
     </Card>
   );

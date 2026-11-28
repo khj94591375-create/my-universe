@@ -1,20 +1,27 @@
+/* 파일 올리기 | 붙여 넣기: 위 원고 탭과 겹치지 않게 작은 두 칸 고르기(밑줄 탭을 두 줄로 쌓지 않는다) */
 .tabs {
-  display: flex;
-  gap: 4px;
-  border-bottom: 1px solid var(--c-line);
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  background: var(--c-paper);
 }
 .tab {
   border: 0;
+  border-radius: calc(var(--r-sm) - 3px);
   background: transparent;
-  padding: var(--sp-3) var(--sp-4);
-  font-weight: 700;
+  padding: var(--sp-1-5) var(--sp-4);
+  font-weight: 600;
+  font-size: var(--fs-sm);
   color: var(--c-sub);
-  border-bottom: 3px solid transparent;
   cursor: pointer;
 }
 .tabOn {
-  color: var(--c-strong);
-  border-bottom-color: var(--c-gold);
+  background: var(--c-card);
+  color: var(--c-ink);
+  box-shadow: 0 0 0 1px var(--c-line);
 }
 .form {
   display: flex;
@@ -57,7 +64,6 @@
   align-items: center;
   gap: var(--sp-2);
   text-align: center;
-  background: var(--c-paper);
 }
 .dropOn {
   border-color: var(--c-gold);
@@ -191,16 +197,14 @@
   gap: var(--sp-2);
   align-items: center;
 }
-.limits {
-  background: var(--c-info-bg);
-  border-left: 4px solid var(--c-info);
-  border-radius: var(--r-sm);
-  padding: var(--sp-2) var(--sp-3);
+.more summary {
+  cursor: pointer;
+  color: var(--c-strong);
   font-size: var(--fs-sm);
+  font-weight: 600;
 }
-.limits ul {
-  margin: 4px 0 0;
-  padding-left: 1.2em;
+.more p {
+  margin-top: var(--sp-1);
 }
 .waiting {
   display: flex;

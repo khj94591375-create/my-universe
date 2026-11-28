@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card } from '../../components/Card';
 import { Column, Columns, ScreenLayout } from '../../components/ScreenLayout';
 import { copy } from '../../config/copy';
 import { listWorkImages, type StoredImage } from '../../data/images';
@@ -48,9 +47,7 @@ export default function StudioScreen() {
           </Columns>
         )}
       </WorkDataGate>
-      <Card>
-        <p className={s.copyright}>{copy.studio.copyright}</p>
-      </Card>
+      <p className={s.copyright}>{copy.studio.copyright}</p>
     </ScreenLayout>
   );
 }

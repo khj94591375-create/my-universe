@@ -130,6 +130,6 @@ test('예시 작품: 기본 규칙 체험만, 반영 버튼 없음, 저장 요�
 test('검토 화면에서 "맞춤법 검사하기"로 이동(선택 기능)', async ({ page }) => {
   await withEpisode(page);
   await page.goto(`#/w/${MINE}/review?eps=1`);
-  await page.getByRole('link', { name: /맞춤법 검사하기/ }).click();
+  await page.getByRole('link', { name: /맞춤법 검사/ }).click();
   await expect(page.getByRole('heading', { name: '맞춤법 검사' })).toBeVisible();
 });

@@ -13,7 +13,7 @@ const tight = (t: string) => t.replace(/\n\s*\n+/g, '\n');
  * 근거 인용 + [앞뒤 원문 보기]. 회차 본문에서 근거 문장을 찾아 앞뒤 2문장(각 최대 300자)을 펼쳐 보여 준다.
  * ep를 모르면 모든 회차(최근 회차부터)에서 찾는다. 본문에서 찾지 못하면 버튼 없이 인용만.
  */
-export function EvidenceWithContext({ workId, text, ep, children }: { workId: string; text: string; ep?: number | null; children?: ReactNode }) {
+export function EvidenceWithContext({ workId, text, ep, hideEp, children }: { workId: string; text: string; ep?: number | null; hideEp?: boolean; children?: ReactNode }) {
   const { data } = useWorkData(workId);
   const [open, setOpen] = useState(false);
   const id = useId();
@@ -30,7 +30,7 @@ export function EvidenceWithContext({ workId, text, ep, children }: { workId: st
   const shownEp = ep ?? found?.ep ?? null;
   return (
     <div className={s.wrap}>
-      <EvidenceQuote text={text} ep={shownEp}>
+      <EvidenceQuote text={text} ep={hideEp ? null : shownEp}>
         {children}
         {found && (
           <button type="button" className={s.toggle} aria-expanded={open} aria-controls={id} onClick={() => setOpen((o) => !o)}>

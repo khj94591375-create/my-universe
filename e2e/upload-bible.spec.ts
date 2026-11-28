@@ -4,7 +4,7 @@ import { MINE, prepare, SAMPLE } from './fixtures/app';
 test('원고 붙여 넣기 → 저장되고 검토 화면으로', async ({ page }) => {
   const { db } = await prepare(page, { user: true, mine: true });
   await page.goto(`#/w/${MINE}/upload`);
-  await expect(page.getByText('파일 한 개는 10MB까지 올릴 수 있어요.')).toBeVisible();
+  await expect(page.getByText('파일당 10MB', { exact: false })).toBeVisible();
   await page.getByRole('tab', { name: '붙여 넣기' }).click();
   const body = db.T.episodes.find((e) => e.work_id === SAMPLE && e.no === 1)!.body as string;
   await page.getByLabel('회차 번호').fill('1');

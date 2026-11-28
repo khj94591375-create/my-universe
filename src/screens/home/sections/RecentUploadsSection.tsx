@@ -22,7 +22,7 @@ export function RecentUploadsSection({ workId }: { workId: string }) {
           {copy.home.recentTitle}
         </h2>
         <Link to={`/w/${workId}/episodes`} className={s.headLink}>
-          {copy.home.recentAll}
+          {copy.home.recentAll} <span aria-hidden="true">→</span>
         </Link>
       </div>
       {recent.length === 0 ? (

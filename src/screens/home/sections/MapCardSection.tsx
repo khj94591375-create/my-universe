@@ -61,7 +61,7 @@ export function MapCardSection({ workId }: { workId: string }) {
           ))}
         </ul>
         <Link to={mapUrl} className={s.universeLink}>
-          {copy.home.mapOpen} <span aria-hidden="true">↗</span>
+          {copy.home.mapOpen} <span aria-hidden="true">→</span>
         </Link>
       </div>
     </section>

@@ -34,7 +34,8 @@ export function EpisodeListSection({ workId, openNo, onOpen }: { workId: string;
                   {run?.running && run.nos.indexOf(e.no) >= run.done ? (
                     <Tag tone="ai">{copy.ai.episodeRunning}</Tag>
                   ) : (
-                    <Tag tone={e.analyzed_at ? 'ok' : 'neutral'}>{e.analyzed_at ? copy.episodes.analyzed : copy.episodes.notAnalyzed}</Tag>
+                    // 정리가 끝난 회차는 표시 없이(예외인 "정리 전"만 보인다)
+                    !e.analyzed_at && <Tag tone="neutral">{copy.episodes.notAnalyzed}</Tag>
                   )}
                 </span>
               </button>

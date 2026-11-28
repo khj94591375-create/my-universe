@@ -100,7 +100,7 @@ export function ItemListSection({ workId }: { workId: string }) {
         <TextField
           type="search"
           label={copy.bible.search}
-          hint={copy.bible.searchHint}
+          hideLabel
           placeholder={copy.bible.searchPlaceholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -200,7 +200,8 @@ export function ItemListSection({ workId }: { workId: string }) {
         if (items.length === 0) return null;
         return (
           <Card key={k} title={`${copy.labels.kindPlural[k]} · ${copy.bible.count(all.length)}`}>
-            <p className={s.muted}>{copy.labels.kindHelp[k]}</p>
+            {/* 종류 설명은 전체 목록(여러 개 고르기)에서만. 항목 하나를 볼 때는 바로 내용부터 */}
+            {selecting && <p className={s.muted}>{copy.labels.kindHelp[k]}</p>}
             <ul className={s.list}>
               {items.map((i) => (
                 <ItemRow key={i.id} workId={workId} item={i} pick={selecting ? { checked: picked.has(i.id), onChange: (on) => togglePick(i.id, on) } : undefined} />
@@ -209,7 +210,6 @@ export function ItemListSection({ workId }: { workId: string }) {
           </Card>
         );
       })}
-      <p className={s.muted}>{copy.bible.imageLater}</p>
       </div>
       </div>
     </>

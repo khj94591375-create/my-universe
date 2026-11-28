@@ -38,8 +38,13 @@
     background: color-mix(in srgb, var(--c-danger) 88%, var(--c-ink));
   }
 }
-.btn:disabled {
-  opacity: 0.45;
+/* 꺼진 버튼은 종류와 상관없이 같은 모양(옅은 테두리 + 흐린 글자). 색을 섞으면 어두운 화면에서 진흙색이 된다 */
+.btn:disabled,
+.btn:disabled:hover {
+  background: transparent;
+  border-color: var(--c-line);
+  color: var(--c-sub);
+  opacity: 0.8;
   cursor: not-allowed;
 }
 .md {

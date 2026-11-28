@@ -72,12 +72,11 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
         return (
           <Card key={ep.id} title={copy.review.epHead(ep.no, ep.title ?? `${ep.no}화`)}>
             <p className={s.muted}>{copy.review.found(new Set(apps.map((a) => a.item_id)).size)}</p>
-            {/* 맞춤법 검사는 선택(하지 않아도 등록·정리는 끝남) */}
+            {/* 맞춤법 검사는 선택(설명은 화면 위 한 줄에만) */}
             <p className={s.muted}>
               <Link to={`/w/${workId}/episodes?open=${ep.no}&check=1`} className={s.link}>
                 {copy.spell.afterUpload}
-              </Link>{' '}
-              {copy.spell.afterUploadHint}
+              </Link>
             </p>
             {apps.length === 0 ? (
               <p className={s.muted}>{run?.running && run.nos.includes(ep.no) ? copy.ai.stillRunning : copy.review.noneFound}</p>
@@ -98,8 +97,9 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
                       <div className={s.rowHead}>
                         <strong>{item.name}</strong>
                         <KindTag kind={item.kind} />
-                        {isAi ? <AiBadge evidence={first.evidence} /> : <Tag tone="ok">{foundByAi ? copy.labels.aiConfirmed : `${copy.labels.source[first.source]} · ${copy.review.confirmed}`}</Tag>}
-                        <span className={s.muted}>{copy.review.scenes(ep.no, scenes)}</span>
+                        {/* 표시는 예외만: AI 추정(확인 전), AI가 찾고 작가가 확정한 것. 규칙으로 찾은 확정 항목은 표시 없이 */}
+                        {isAi ? <AiBadge evidence={first.evidence} /> : foundByAi ? <Tag tone="ok" plain>{copy.labels.aiConfirmed}</Tag> : null}
+                        <span className={s.muted}>{copy.review.scenes(scenes)}</span>
                         {canWrite && (
                           <span className={s.actions}>
                             {isAi && (
@@ -116,7 +116,7 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
                           </span>
                         )}
                       </div>
-                      <EvidenceWithContext workId={workId} text={first.evidence} ep={ep.no} />
+                      <EvidenceWithContext workId={workId} text={first.evidence} ep={ep.no} hideEp />
                       {removing === key && (
                         <ConfirmBar
                           message={copy.review.removeConfirm(item.name, ep.no)}
@@ -165,7 +165,7 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
                             </span>
                           )}
                         </div>
-                        <EvidenceWithContext workId={workId} text={r.evidence} ep={ep.no} />
+                        <EvidenceWithContext workId={workId} text={r.evidence} ep={ep.no} hideEp />
                       </li>
                     );
                   })}

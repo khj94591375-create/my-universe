@@ -18,7 +18,7 @@ export function ResolveProgressSection({ workId }: { workId: string }) {
   const pct = total ? Math.round((done / total) * 100) : 0;
   const [big, rest] = copy.home.progressCount(done, total);
   return (
-    <Card title={copy.home.progressTitle}>
+    <Card title={copy.home.progressTitle} tone="plain">
       <p className={s.big}>
         {big} <span>{rest}</span>
       </p>

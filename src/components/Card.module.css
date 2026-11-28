@@ -17,3 +17,11 @@
   font-size: 15.5px;
   margin-bottom: var(--sp-3);
 }
+/* 상자 없이 윗선과 여백으로만 나누는 구역(화면마다 상자를 겹치지 않게). 카드 안에 또 카드가 필요할 때도 이걸 쓴다 */
+.plain {
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--c-line);
+  border-radius: 0;
+  padding: var(--sp-4) 0 0;
+}

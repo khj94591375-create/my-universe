@@ -228,14 +228,6 @@ export function FileUploadSection({ workId }: { workId: string }) {
   return (
     <Card>
       <div className={s.fileWrap}>
-        <div className={s.limits} id="upload-limits">
-          <strong>{copy.upload.limitsTitle}</strong>
-          <ul>
-            {copy.upload.limits(MB, limits.uploadMaxFiles).map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
-        </div>
         <div
           className={dragOver ? `${s.drop} ${s.dropOn}` : s.drop}
           onDragOver={(e) => {
@@ -260,7 +252,14 @@ export function FileUploadSection({ workId }: { workId: string }) {
               e.target.value = '';
             }}
           />
-          <p className={s.muted}>{copy.upload.dropHint}</p>
+          {/* 올릴 수 있는 형식·크기는 한 줄로, 회차 나누기 설명은 접어 둔다(상자를 겹치지 않게) */}
+          <p className={s.muted} id="upload-limits">
+            {copy.upload.limitsLine(MB, limits.uploadMaxFiles)}
+          </p>
+          <details className={s.more}>
+            <summary>{copy.upload.moreTitle}</summary>
+            <p className={s.muted}>{copy.upload.dropHint}</p>
+          </details>
           {canWrite && ai.on && <p className={s.notice}>{copy.upload.autoSplitNotice}</p>}
           <a className={s.sampleLink} href={`${import.meta.env.BASE_URL}samples/star-library-1-6.txt`} download="별의도서관_1-6화.txt">
             {copy.upload.sampleFile}

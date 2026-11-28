@@ -6,7 +6,7 @@ import { Icon } from '../../components/Icon';
 import { ScreenLayout } from '../../components/ScreenLayout';
 import { copy } from '../../config/copy';
 import { WorkDataGate } from '../shared/WorkDataGate';
-import { useWork } from '../../features/works/useWork';
+import { useCanWrite, useWork } from '../../features/works/useWork';
 import { ResolveProgressSection } from './sections/ResolveProgressSection';
 import { RecentUploadsSection } from './sections/RecentUploadsSection';
 import { SampleDemoSection } from './sections/SampleDemoSection';
@@ -23,6 +23,7 @@ export default function HomeScreen() {
   const { workId = '' } = useParams();
   const nav = useNavigate();
   const { work } = useWork(workId);
+  const canWrite = useCanWrite(work);
   const upload = (
     <WriteButton workId={workId} onClick={() => nav(`/w/${workId}/upload`)} icon={<Icon name="upload" size={17} />}>
       {copy.home.upload}
@@ -42,9 +43,9 @@ export default function HomeScreen() {
           }
           action={
             <>
-              {/* 예시 작품이면 핵심 체험으로 바로(간결한 버튼) */}
+              {/* 머리 버튼은 하나만: 내 작품은 [원고 불러오기], 예시 작품은 핵심 체험(꺼진 버튼을 나란히 두지 않는다) */}
               <SampleDemoSection workId={workId} />
-              {upload}
+              {canWrite && upload}
             </>
           }
         >

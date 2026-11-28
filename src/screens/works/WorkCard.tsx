@@ -151,7 +151,7 @@ export function SampleRow({ work }: { work: WorkWithStats }) {
       <BookCover title={work.title} genre={work.genre} small />
       <div className={s.sampleText}>
         <h3>
-          {work.title} <span className={s.sampleTag}>{copy.works.sampleLabel}</span>
+          {work.title}
         </h3>
         <p className={s.meta}>{copy.works.sampleBlurb}</p>
       </div>

@@ -46,3 +46,7 @@
 .plain.neutral {
   color: var(--c-sub);
 }
+/* 글자만 쓰는 상태 표시는 보조색 하나로. 색은 "지금 손봐야 할 것"(경고)과 AI 추정에만 */
+.plain:not(.warn):not(.ai) {
+  color: var(--c-sub);
+}

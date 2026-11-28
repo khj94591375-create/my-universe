@@ -243,7 +243,7 @@ export function MapCanvasSection({
           </Link>
           {canWrite && ai.on && data.episodes.length > 0 && (
             <Button size="sm" variant="ghost" onClick={() => setFinding(true)} disabled={finding || run?.running} aria-expanded={finding}>
-              ✦ {copy.map.findLinks}
+              {copy.map.findLinks}
             </Button>
           )}
           {onExpand && (

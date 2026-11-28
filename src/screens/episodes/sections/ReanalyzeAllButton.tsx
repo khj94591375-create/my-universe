@@ -5,12 +5,16 @@ import { copy } from '../../../config/copy';
 import { reanalyzeAll } from '../../../features/analysis/runRules';
 import { save } from '../../../features/works/save';
 import { useWorkData } from '../../../features/works/workData';
+import { useCanWrite, useWork } from '../../../features/works/useWork';
 
 /** 모든 회차를 규칙으로 다시 정리한다(설정집에 항목을 새로 넣은 뒤). */
 export function ReanalyzeAllButton({ workId }: { workId: string }) {
   const { data } = useWorkData(workId);
   const [label, setLabel] = useState<string | null>(null);
-  if (!data || data.episodes.length === 0) return null;
+  const { work } = useWork(workId);
+  const canWrite = useCanWrite(work);
+  // 머리말 버튼: 쓸 수 없는 작품(예시)에서는 꺼진 채로 두지 않고 숨긴다
+  if (!data || data.episodes.length === 0 || !canWrite) return null;
   const run = async () => {
     await save(
       workId,

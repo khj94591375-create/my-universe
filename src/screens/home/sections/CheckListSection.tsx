@@ -36,9 +36,6 @@ export function CheckListSection({ workId }: { workId: string }) {
             {stories.map((i) => (
               <li key={i.id}>
                 <Link to={`/w/${workId}/forgot?item=${i.id}`} className={s.story}>
-                  <span className={s.goldStar} aria-hidden="true">
-                    ✦
-                  </span>
                   <span>
                     <strong>{i.name}</strong>
                     <span className={s.storyNote}>{i.note || copy.home.storyNoNote(i.gap)}</span>

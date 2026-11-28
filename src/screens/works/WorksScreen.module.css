@@ -110,7 +110,8 @@
 .coverLink {
   display: block;
   width: min(100%, 240px);
-  margin: 0 auto;
+  /* 칸 왼쪽에 붙여 "내 작품" 제목선과 맞춘다 */
+  margin: 0;
 }
 .cover {
   position: relative;
@@ -166,7 +167,7 @@
   flex-direction: column;
   gap: 4px;
   width: min(100%, 240px);
-  margin: 0 auto;
+  margin: 0;
 }
 .bookHead {
   display: flex;
@@ -263,10 +264,6 @@
   display: flex;
   align-items: center;
   gap: var(--sp-4);
-  padding: var(--sp-3) var(--sp-4);
-  border: 1px solid var(--c-line);
-  border-radius: var(--r-md);
-  background: var(--c-card);
 }
 .sampleText {
   flex: 1;
@@ -276,13 +273,6 @@
   font-family: var(--f-display);
   font-size: var(--fs-md);
   margin-bottom: 2px;
-}
-.sampleTag {
-  margin-left: 6px;
-  font-family: var(--f-body);
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  color: var(--c-gold-ink);
 }
 
 /* 새 작품 대화상자 */

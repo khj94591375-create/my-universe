@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useCanWrite, useWork } from '../../features/works/useWork';
 import { useParams } from 'react-router-dom';
 import { ScreenLayout } from '../../components/ScreenLayout';
 import { WriteButton } from '../../components/WriteButton';
@@ -15,6 +16,8 @@ import { AskWorldSection } from './sections/AskWorldSection';
 export default function BibleScreen() {
   const { workId = '' } = useParams();
   const [adding, setAdding] = useState(false);
+  const { work } = useWork(workId);
+  const canWrite = useCanWrite(work);
   // 세계관 질문하기: 이름 검색과 구분되는 버튼으로 연다
   const [asking, setAsking] = useState(false);
   return (
@@ -27,7 +30,8 @@ export default function BibleScreen() {
           <Button variant="ghost" aria-expanded={asking} aria-controls="ask-world" onClick={() => setAsking((v) => !v)}>
             {copy.bible.askOpen}
           </Button>
-          {!adding && (
+          {/* 쓸 수 없는 작품(예시)에서는 꺼진 버튼을 늘어놓지 않는다 */}
+          {canWrite && !adding && (
             <WriteButton workId={workId} onClick={() => setAdding(true)}>
               {copy.bible.add}
             </WriteButton>

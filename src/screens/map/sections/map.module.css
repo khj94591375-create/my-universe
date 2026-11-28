@@ -28,7 +28,27 @@
 }
 .kindOn {
   border-color: var(--c-strong);
+  background: var(--c-highlight);
   font-weight: 600;
+}
+/* 칩 안 체크 상자는 화면에서 숨기고(키보드·화면 읽기에는 그대로) 켜짐은 칩 색으로. 별 모양 점이 종류를 보여 준다 */
+.kindToggle input {
+  /* 투명하게 칩 전체를 덮어 칩 어디를 눌러도 이 상자가 눌린다 */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+.kindToggle {
+  position: relative;
+}
+.kindToggle:has(input:focus-visible) {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 2px;
 }
 .search {
   display: flex;
@@ -373,19 +393,6 @@
   align-items: center;
   gap: var(--sp-2);
   font-size: var(--fs-md);
-}
-.stepNo {
-  flex: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--c-primary);
-  color: var(--c-on-primary);
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 .howTo {
   margin: 0;

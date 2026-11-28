@@ -109,8 +109,10 @@
   color: #ecd39a;
   text-decoration: none;
 }
-.universeLink:hover {
-  text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .universeLink:hover {
+    text-decoration: underline;
+  }
 }
 .universe :focus-visible {
   outline-color: #ecd39a;
@@ -185,8 +187,8 @@
 .recentTitle {
   flex: 1;
   min-width: 0;
-  font-family: var(--f-display);
-  font-size: 18px;
+  font-size: var(--fs-md);
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -246,8 +248,8 @@
 }
 .story strong {
   display: block;
-  font-family: var(--f-display);
-  font-size: 18px;
+  font-size: var(--fs-md);
+  font-weight: 700;
   margin-bottom: 4px;
 }
 .story:hover strong {
@@ -362,5 +364,19 @@
   }
   .recentDate {
     display: none;
+  }
+}
+
+/* 다른 화면으로 가는 글자 링크: 밑줄 없이 보라 + →, 마우스를 올리면 밑줄(지도 위에서만 금색) */
+.headLink,
+.reviewGo,
+.moreLink {
+  text-decoration: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .headLink:hover,
+  .reviewGo:hover,
+  .moreLink:hover {
+    text-decoration: underline;
   }
 }

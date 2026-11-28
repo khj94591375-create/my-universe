@@ -11,8 +11,8 @@ export function SampleDemoSection({ workId }: { workId: string }) {
   if (!work?.is_sample || !data || !SAMPLE_DEMO_ITEMS.every((id) => data.itemById.has(id))) return null;
   return (
     // 지도를 밀어내지 않게 머리말의 간결한 버튼으로(설명은 마우스를 올리면)
-    <ButtonLink to={`/w/${workId}/map?sel=${SAMPLE_DEMO_ITEMS.join(',')}`} variant="ghost" title={copy.home.demoHint}>
-      ✦ {copy.home.demoButton(data.next)}
+    <ButtonLink to={`/w/${workId}/map?sel=${SAMPLE_DEMO_ITEMS.join(',')}`} variant="primary" title={copy.home.demoHint}>
+      {copy.home.demoButton(data.next)}
     </ButtonLink>
   );
 }

@@ -111,7 +111,7 @@ export default function SettingsScreen() {
         ))}
       </nav>
       <div className={s.sections}>
-      <Card title={copy.settings.account} id="account">
+      <Card title={copy.settings.account} id="account" tone="plain">
         <p className={s.sub}>{copy.settings.email}</p>
         <p className={s.email}>{session?.user.email ?? '-'}</p>
         <div className={s.row}>
@@ -123,23 +123,23 @@ export default function SettingsScreen() {
         </Button>
       </Card>
 
-      <Card title={copy.settings.usageTitle} id="ai">
+      <Card title={copy.settings.usageTitle} id="ai" tone="plain">
         {st?.usage ? (
           <div className={s.usage}>
             <UsageBar label={copy.settings.usageText(st.usage.text, st.limits.text)} used={st.usage.text} limit={st.limits.text} />
             <UsageBar label={copy.settings.usageImage(st.usage.image, st.limits.image)} used={st.usage.image} limit={st.limits.image} />
           </div>
         ) : (
-          <p>{copy.settings.usageOff}</p>
+          // 상태는 한 줄(이유가 있으면 이유, 없으면 "연결 전")
+          <p>{!ai.on && ai.reason ? ai.reason : copy.settings.usageOff}</p>
         )}
-        {!ai.on && ai.reason && <p className={s.sub}>{ai.reason}</p>}
-        <p className={s.sub}>{copy.settings.usageNote}</p>
+        {st?.usage && <p className={s.sub}>{copy.settings.usageNote}</p>}
         <p className={s.sub}>{copy.start.aiNotice}</p>
       </Card>
 
-      <Card title={copy.settings.dataTitle} id="data">
+      <Card title={copy.settings.dataTitle} id="data" tone="plain">
         <div className={s.actions}>
-          <Button onClick={doExport} loading={busy === 'export'}>
+          <Button variant="ghost" onClick={doExport} loading={busy === 'export'}>
             {busy === 'export' ? copy.settings.exporting : copy.settings.export}
           </Button>
         </div>
@@ -147,7 +147,7 @@ export default function SettingsScreen() {
       </Card>
 
       {/* 삭제는 따로: 지워지는 대상과 영향을 확인한 뒤에만 */}
-      <Card title={copy.settings.dangerTitle} id="delete" className={s.dangerCard}>
+      <Card title={copy.settings.dangerTitle} id="delete" className={s.dangerCard} tone="plain">
         <div className={s.danger}>
           {confirm === 'all' ? (
             <ConfirmBar message={copy.settings.deleteAllConfirm} confirmLabel={copy.settings.yesDelete} cancelLabel={copy.settings.cancel} busy={busy === 'all'} onConfirm={doDeleteAll} onCancel={() => setConfirm(null)} />
@@ -167,9 +167,9 @@ export default function SettingsScreen() {
         </div>
       </Card>
 
-      <Card title={copy.guide.settingsTitle} id="guide">
+      <Card title={copy.guide.settingsTitle} id="guide" tone="plain">
         <div className={s.actions}>
-          <Button onClick={openTour}>{copy.guide.replay}</Button>
+          <Button variant="ghost" onClick={openTour}>{copy.guide.replay}</Button>
           <Button
             variant="ghost"
             onClick={() => {
@@ -182,19 +182,15 @@ export default function SettingsScreen() {
         </div>
       </Card>
 
-      <Card title={copy.help.title} id="help">
+      <Card title={copy.help.title} id="help" tone="plain">
         <p>
           <a href={`mailto:${site.contactEmail}?subject=${encodeURIComponent(copy.help.mailSubject)}`}>{copy.help.mail}</a>
         </p>
         <p className={s.sub}>{copy.help.mailHint(site.contactEmail)}</p>
-      </Card>
-
-      <Card title={copy.eval.toolsTitle}>
-        <Link to="/eval">{copy.eval.toolLink}</Link>
-      </Card>
-
-      <Card title={copy.settings.connection}>
-        <p>{isSupabaseConfigured ? copy.settings.connected : copy.settings.notConnected}</p>
+        {/* 한 줄짜리 묶음(도구·서버 연결)은 따로 상자를 만들지 않고 도움말 아래에 */}
+        <p className={s.sub}>
+          {copy.settings.connection}: {isSupabaseConfigured ? copy.settings.connected : copy.settings.notConnected} · <Link to="/eval">{copy.eval.toolLink}</Link>
+        </p>
       </Card>
       <footer className={s.footer}>
         <Link to="/works">{copy.common.back}</Link>
