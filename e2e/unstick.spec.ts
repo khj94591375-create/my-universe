@@ -28,6 +28,8 @@ test('막힌 장면을 적으면 대안 3개를 근거와 함께 보여 준다(�
     return ok({ ok: true });
   });
   await page.goto('#/w/' + MINE + '/home');
+  // 작업실의 "이어서 구상하기"를 열면 막힌 장면 풀기
+  await page.getByRole('button', { name: /이어서 구상하기/ }).click();
   await expect(page.getByRole('heading', { name: '막힌 장면 풀기' })).toBeVisible();
   await expect(page.getByText(/적은 내용과 관련 원고 일부가 AI 회사\(OpenAI\) 서버로 전송돼요/)).toBeVisible();
   await page.getByRole('button', { name: '대안 3개 받기' }).click();

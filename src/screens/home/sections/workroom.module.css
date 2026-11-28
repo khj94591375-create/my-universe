@@ -1,0 +1,210 @@
+/* 작업실(2026-11-28): 왼쪽 지도·최근 원고 약 68%, 오른쪽 확인할 내용 약 32% */
+.titleRow {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+.workTitle {
+  font-family: var(--f-display);
+}
+.next {
+  font-family: var(--f-body);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  color: var(--c-sub);
+  padding-left: var(--sp-3);
+  border-left: 1px solid var(--c-line);
+}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 68fr) minmax(0, 32fr);
+  gap: var(--sp-5);
+  align-items: start;
+}
+.mainCol,
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+.muted {
+  color: var(--c-sub);
+  font-size: var(--fs-sm);
+}
+.cardHead {
+  font-size: var(--fs-md);
+  font-weight: 700;
+}
+.mapHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+.headLink {
+  margin-left: auto;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--c-strong);
+}
+
+/* 지도 미리보기 */
+.mapCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.mapPreview {
+  cursor: pointer;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+/* 미리보기는 가로로 넓게(세로로 길어지지 않게) */
+.mapPreview > * {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+}
+
+/* 최근 원고: 간결한 줄 */
+.recent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.recentList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--c-line);
+}
+.recentRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 48px;
+  padding: 0 4px;
+  border-bottom: 1px solid var(--c-line);
+  color: var(--c-ink);
+  text-decoration: none;
+}
+.recentRow:hover {
+  background: var(--c-card);
+}
+.recentNo {
+  flex: none;
+  width: 3em;
+  font-weight: 700;
+}
+.recentTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 확인할 내용 */
+.check {
+  padding: var(--sp-4);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.checkTitle {
+  font-size: var(--fs-md);
+  font-weight: 700;
+}
+.checkList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 12px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  background: var(--c-paper);
+  color: var(--c-ink);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.checkRow:hover {
+  border-color: var(--c-strong);
+}
+.dim strong {
+  color: var(--c-sub);
+  font-weight: 600;
+}
+.checkIcon {
+  flex: none;
+  color: var(--c-strong);
+}
+.checkText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.checkText strong {
+  font-size: var(--fs-sm);
+}
+.checkText span {
+  font-size: var(--fs-xs);
+  color: var(--c-sub);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chev {
+  flex: none;
+  color: var(--c-sub);
+}
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+}
+
+/* 원고 없음 */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--sp-3);
+  padding: var(--sp-6) var(--sp-4);
+  border: 1px dashed var(--c-line);
+  border-radius: var(--r-lg);
+  background: var(--c-card);
+}
+.empty h2 {
+  font-family: var(--f-display);
+  font-size: var(--fs-lg);
+}
+.emptyArt {
+  width: clamp(140px, 22vw, 240px);
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

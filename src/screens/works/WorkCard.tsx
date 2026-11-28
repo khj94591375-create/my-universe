@@ -1,25 +1,47 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../../components/Button';
-import { Card } from '../../components/Card';
+import { Button, ButtonLink } from '../../components/Button';
 import { ConfirmBar } from '../../components/ConfirmBar';
-import { Tag } from '../../components/Tag';
 import { TextField } from '../../components/TextField';
 import { copy } from '../../config/copy';
 import { deleteWork, renameWork } from '../../data/works';
 import type { WorkWithStats } from '../../data/types';
 import { forgetWork } from '../../features/works/useWork';
+import { BookCover } from './BookCover';
 import s from './WorksScreen.module.css';
 
-const dateFmt = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+const dateFmt = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' });
 
-/** 작품 카드: 제목, 장르, 연재 회차 수, 미회수 복선 수, 마지막 업로드 + (내 작품이면) 이름 바꾸기·삭제. */
+/**
+ * 책 모양 작품 카드: 표지 · 작품명 · 장르·회차 · 최근 작업 · [이어서 작업] · 더보기(이름 바꾸기 · 삭제).
+ * 삭제는 지워지는 범위를 보여 주는 확인 단계를 거친다.
+ */
 export function WorkCard({ work, onChanged, onDeleted }: { work: WorkWithStats; onChanged?: (title: string) => void; onDeleted?: () => void }) {
   const [mode, setMode] = useState<'view' | 'rename' | 'confirmDelete'>('view');
+  const [menu, setMenu] = useState(false);
   const [title, setTitle] = useState(work.title);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuBtn = useRef<HTMLButtonElement>(null);
   const editable = !work.is_sample && onChanged && onDeleted;
+
+  useEffect(() => {
+    if (!menu) return;
+    const down = (e: MouseEvent) => menuRef.current && !menuRef.current.contains(e.target as Node) && setMenu(false);
+    const key = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMenu(false);
+        menuBtn.current?.focus();
+      }
+    };
+    document.addEventListener('mousedown', down);
+    document.addEventListener('keydown', key);
+    return () => {
+      document.removeEventListener('mousedown', down);
+      document.removeEventListener('keydown', key);
+    };
+  }, [menu]);
 
   const saveTitle = async (e: FormEvent) => {
     e.preventDefault();
@@ -50,65 +72,92 @@ export function WorkCard({ work, onChanged, onDeleted }: { work: WorkWithStats; 
     }
   };
 
-  const meta = [
-    work.genre,
-    copy.works.episodes(work.episode_count),
-    copy.works.openForeshadows(work.open_foreshadow_count),
-    work.last_upload_at ? copy.works.lastUpload(dateFmt.format(new Date(work.last_upload_at))) : copy.works.noUpload,
-  ].filter(Boolean);
+  const meta = [work.genre, copy.works.episodes(work.episode_count), copy.works.openForeshadows(work.open_foreshadow_count)].filter(Boolean);
+  const when = work.last_upload_at ? copy.works.recent(dateFmt.format(new Date(work.last_upload_at))) : copy.works.noUpload;
 
   return (
-    <Card as="article" className={s.card} tone={work.is_sample ? 'highlight' : 'default'}>
-      {mode === 'rename' ? (
-        <form className={s.renameRow} onSubmit={saveTitle}>
-          <TextField label={copy.works.titleLabel} hideLabel value={title} onChange={(e) => setTitle(e.target.value)} autoFocus maxLength={80} />
-          <Button variant="ghost" size="sm" onClick={() => { setMode('view'); setTitle(work.title); setError(null); }} disabled={busy}>
-            {copy.works.cancel}
-          </Button>
-          <Button type="submit" size="sm" loading={busy}>
-            {copy.works.save}
-          </Button>
-        </form>
-      ) : (
-        <div className={s.cardTop}>
-          <h2 className={s.cardTitle}>
-            <Link to={`/w/${work.id}/home`} className={s.titleLink}>
-              {work.title}
-            </Link>
-          </h2>
-          {work.is_sample && <Tag tone="gold">{copy.works.sampleLabel}</Tag>}
-        </div>
-      )}
-      <p className={s.meta}>{meta.join(' · ')}</p>
-      {error && <p className={s.formError} role="alert">{error}</p>}
-      {mode === 'confirmDelete' ? (
-        <ConfirmBar
-          message={copy.works.removeConfirm(work.title)}
-          confirmLabel={copy.works.removeYes}
-          cancelLabel={copy.works.cancel}
-          onConfirm={remove}
-          onCancel={() => setMode('view')}
-          busy={busy}
-        />
-      ) : (
-        mode === 'view' && (
-          <div className={s.cardActions}>
-            <Link to={`/w/${work.id}/home`} className={s.openLink}>
-              {copy.works.open}
-            </Link>
+    <article className={s.book}>
+      <Link to={`/w/${work.id}/home`} className={s.coverLink} tabIndex={-1} aria-hidden="true">
+        <BookCover title={work.title} genre={work.genre} />
+      </Link>
+      <div className={s.bookBody}>
+        {mode === 'rename' ? (
+          <form className={s.renameRow} onSubmit={saveTitle}>
+            <TextField label={copy.works.titleLabel} hideLabel value={title} onChange={(e) => setTitle(e.target.value)} autoFocus maxLength={80} />
+            <div className={s.renameActions}>
+              <Button variant="ghost" size="sm" onClick={() => { setMode('view'); setTitle(work.title); setError(null); }} disabled={busy}>
+                {copy.works.cancel}
+              </Button>
+              <Button type="submit" size="sm" loading={busy}>
+                {copy.works.save}
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <div className={s.bookHead}>
+            <h2 className={s.cardTitle}>
+              <Link to={`/w/${work.id}/home`} className={s.titleLink}>
+                {work.title}
+              </Link>
+            </h2>
             {editable && (
-              <>
-                <Button variant="ghost" size="sm" onClick={() => setMode('rename')}>
-                  {copy.works.rename}
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => setMode('confirmDelete')}>
-                  {copy.works.remove}
-                </Button>
-              </>
+              <div className={s.more} ref={menuRef}>
+                <button ref={menuBtn} type="button" className={s.moreBtn} aria-haspopup="true" aria-expanded={menu} aria-label={copy.works.more(work.title)} onClick={() => setMenu(!menu)}>
+                  ⋯
+                </button>
+                {menu && (
+                  <ul className={s.moreMenu}>
+                    <li>
+                      <button type="button" onClick={() => { setMenu(false); setMode('rename'); }}>
+                        {copy.works.rename}
+                      </button>
+                    </li>
+                    <li>
+                      <button type="button" className={s.danger} onClick={() => { setMenu(false); setMode('confirmDelete'); }}>
+                        {copy.works.remove}
+                      </button>
+                    </li>
+                  </ul>
+                )}
+              </div>
             )}
           </div>
-        )
-      )}
-    </Card>
+        )}
+        <p className={s.meta}>{meta.join(' · ')}</p>
+        <p className={s.meta}>{when}</p>
+        {error && (
+          <p className={s.formError} role="alert">
+            {error}
+          </p>
+        )}
+        {mode === 'confirmDelete' ? (
+          <ConfirmBar message={copy.works.removeConfirm(work.title)} confirmLabel={copy.works.removeYes} cancelLabel={copy.works.cancel} onConfirm={remove} onCancel={() => setMode('view')} busy={busy} />
+        ) : (
+          mode === 'view' && (
+            <ButtonLink to={`/w/${work.id}/home`} variant="ghost" size="sm" className={s.continue}>
+              {copy.works.continue}
+            </ButtonLink>
+          )
+        )}
+      </div>
+    </article>
+  );
+}
+
+/** 예시 작품: 작은 표지 + 한 줄 설명 + [예시 열어 보기] */
+export function SampleRow({ work }: { work: WorkWithStats }) {
+  return (
+    <div className={s.sampleRow}>
+      <BookCover title={work.title} genre={work.genre} small />
+      <div className={s.sampleText}>
+        <h3>
+          {work.title} <span className={s.sampleTag}>{copy.works.sampleLabel}</span>
+        </h3>
+        <p className={s.meta}>{copy.works.sampleBlurb}</p>
+      </div>
+      <ButtonLink to={`/w/${work.id}/home`} variant="ghost" size="sm">
+        {copy.works.sampleOpen}
+      </ButtonLink>
+    </div>
   );
 }

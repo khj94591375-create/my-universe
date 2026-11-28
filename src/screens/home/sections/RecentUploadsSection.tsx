@@ -1,36 +1,41 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { WriteButton } from '../../../components/WriteButton';
-import { Card } from '../../../components/Card';
+import { Link } from 'react-router-dom';
+import { Icon } from '../../../components/Icon';
 import { copy } from '../../../config/copy';
 import { useWorkData } from '../../../features/works/workData';
-import s from './sections.module.css';
+import s from './workroom.module.css';
 
 const dateFmt = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric' });
 
-/** 최근 원고 3개 + 새 원고 올리기. */
+/** 최근 원고 3개: 회차 · 제목 · 올린 날짜(누르면 회차 기록에서 그 회차) */
 export function RecentUploadsSection({ workId }: { workId: string }) {
-  const nav = useNavigate();
   const { data } = useWorkData(workId);
   const recent = data ? [...data.episodes].sort((x, y) => y.created_at.localeCompare(x.created_at) || y.no - x.no).slice(0, 3) : [];
   return (
-    <Card title={copy.home.recentTitle}>
+    <section className={s.recent} aria-labelledby="recent-title">
+      <div className={s.mapHead}>
+        <h2 id="recent-title" className={s.cardHead}>
+          {copy.home.recentTitle}
+        </h2>
+        <Link to={`/w/${workId}/episodes`} className={s.headLink}>
+          {copy.home.recentAll}
+        </Link>
+      </div>
       {recent.length === 0 ? (
-        <p className={s.placeholder}>{copy.home.recentEmpty}</p>
+        <p className={s.muted}>{copy.home.recentEmpty}</p>
       ) : (
-        <ul className={s.list}>
+        <ul className={s.recentList}>
           {recent.map((e) => (
-            <li key={e.id} className={s.row}>
-              <Link to={`/w/${workId}/episodes?open=${e.no}`} className={s.rowMain}>
-                {copy.home.recentItem(e.no, e.title ?? `${e.no}화`)}
+            <li key={e.id}>
+              <Link to={`/w/${workId}/episodes?open=${e.no}`} className={s.recentRow}>
+                <Icon name="layers" size={16} className={s.checkIcon} />
+                <span className={s.recentNo}>{e.no}화</span>
+                <span className={s.recentTitle}>{e.title ?? `${e.no}화`}</span>
+                <span className={s.muted}>{dateFmt.format(new Date(e.created_at))}</span>
               </Link>
-              <span className={s.note}>{dateFmt.format(new Date(e.created_at))}</span>
             </li>
           ))}
         </ul>
       )}
-      <WriteButton workId={workId} block onClick={() => nav(`/w/${workId}/upload`)} style={{ marginTop: 'var(--sp-2)' }}>
-        {copy.home.newEpisode}
-      </WriteButton>
-    </Card>
+    </section>
   );
 }

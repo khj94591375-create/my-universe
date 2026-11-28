@@ -1,68 +1,66 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { EmptyState } from '../../components/EmptyState';
-import { ThemedArtImage } from '../../components/ArtImage';
+import { ArtImage } from '../../components/ArtImage';
 import { art } from '../../config/art';
-import s from './HomeScreen.module.css';
 import { WriteButton } from '../../components/WriteButton';
-import { Column, Columns, ScreenLayout } from '../../components/ScreenLayout';
+import { ScreenLayout } from '../../components/ScreenLayout';
 import { copy } from '../../config/copy';
 import { WorkDataGate } from '../shared/WorkDataGate';
-import { SlumpButton } from '../shared/SlumpButton';
-import { ForgottenListSection } from './sections/ForgottenListSection';
-import { TodaySuggestionSection } from './sections/TodaySuggestionSection';
+import { useWork } from '../../features/works/useWork';
 import { ResolveProgressSection } from './sections/ResolveProgressSection';
 import { RecentUploadsSection } from './sections/RecentUploadsSection';
-import { ConflictsSection } from './sections/ConflictsSection';
-import { UniverseMapSection } from './sections/UniverseMapSection';
-import { StuckSceneSection } from './sections/StuckSceneSection';
 import { SampleDemoSection } from './sections/SampleDemoSection';
+import { MapCardSection } from './sections/MapCardSection';
+import { CheckListSection } from './sections/CheckListSection';
+import s from './sections/workroom.module.css';
 
 /**
- * 내 우주 홈(BUILD_SPEC 6.3). 배너 → 나의 우주 지도(대표 영역) → 기존 카드들.
- * 배치를 바꾸려면 아래 섹션의 순서·칸만 옮기면 된다. 각 섹션은 workId만 받아 스스로 데이터를 가져온다.
+ * 작업실(BUILD_SPEC 6.3 · 2026-11-28 재디자인).
+ * 위: 작품명 · 다음 회차 · [원고 불러오기]. 왼쪽 약 68%: 우주 지도 미리보기 + 최근 원고, 오른쪽 약 32%: 확인할 내용 + 복선 회수 현황.
+ * 원고·항목이 없으면 첫 원고 불러오기 안내. 각 섹션은 workId만 받아 스스로 데이터를 가져온다.
  */
 export default function HomeScreen() {
   const { workId = '' } = useParams();
   const nav = useNavigate();
+  const { work } = useWork(workId);
+  const upload = (
+    <WriteButton workId={workId} onClick={() => nav(`/w/${workId}/upload`)}>
+      {copy.home.upload}
+    </WriteButton>
+  );
   return (
     <WorkDataGate workId={workId}>
       {(data) => (
         <ScreenLayout
           tip="home"
-          pageName={copy.home.pageName}
-          title={copy.home.nextTitle(data.next)}
-          action={data.episodes.length > 0 ? <SlumpButton workId={workId} /> : undefined}
+          pageName={copy.home.roomName}
+          title={
+            <span className={s.titleRow}>
+              <span className={s.workTitle}>{work?.title ?? copy.home.roomName}</span>
+              <span className={s.next}>{copy.home.nextLine(data.next)}</span>
+            </span>
+          }
+          action={upload}
         >
           {/* 예시 작품이면 핵심 체험으로 바로 */}
           <SampleDemoSection workId={workId} />
-          <div className={s.banner}>
-            <ThemedArtImage art={art.dashboard} />
-          </div>
-          {/* 서비스의 중심: 나의 우주 지도 */}
-          <UniverseMapSection workId={workId} />
-          {data.episodes.length === 0 ? (
-            <EmptyState
-              art={art.emptyAnalysis}
-              title={copy.home.emptyTitle}
-              action={
-                <WriteButton workId={workId} variant="accent" onClick={() => nav(`/w/${workId}/upload`)}>
-                  {copy.home.emptyAction}
-                </WriteButton>
-              }
-            />
+          {data.episodes.length === 0 && data.items.length === 0 ? (
+            <div className={s.empty}>
+              <ArtImage art={art.emptyManuscript} className={s.emptyArt} />
+              <h2>{copy.home.emptyRoomTitle}</h2>
+              <p className={s.muted}>{copy.home.emptyRoomBody}</p>
+              {upload}
+            </div>
           ) : (
-            <Columns>
-              <Column>
-                <ForgottenListSection workId={workId} />
-                <TodaySuggestionSection workId={workId} />
-                <StuckSceneSection workId={workId} />
-              </Column>
-              <Column>
-                <ResolveProgressSection workId={workId} />
-                <ConflictsSection workId={workId} />
+            <div className={s.grid}>
+              <div className={s.mainCol}>
+                <MapCardSection workId={workId} />
                 <RecentUploadsSection workId={workId} />
-              </Column>
-            </Columns>
+              </div>
+              <aside className={s.side}>
+                <CheckListSection workId={workId} />
+                <ResolveProgressSection workId={workId} />
+              </aside>
+            </div>
           )}
         </ScreenLayout>
       )}

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { WorkspaceBar } from '../../components/WorkspaceBar';
 import { Button } from '../../components/Button';
 import { EmptyState } from '../../components/EmptyState';
@@ -13,7 +13,7 @@ import { toMessage } from '../../data/errors';
 import type { WorkWithStats } from '../../data/types';
 import { useSession } from '../../features/auth/SessionProvider';
 import { NewWorkForm } from './NewWorkForm';
-import { WorkCard } from './WorkCard';
+import { SampleRow, WorkCard } from './WorkCard';
 import s from './WorksScreen.module.css';
 
 type ListState =
@@ -29,6 +29,8 @@ export default function WorksScreen() {
   const [state, setState] = useState<ListState>({ status: 'loading' });
   const [params, setParams] = useSearchParams();
   const [creating, setCreating] = useState(params.get('new') === '1');
+  const nav = useNavigate();
+  const closeNew = useCallback(() => setCreating(false), []);
   // 가이드의 "새 작품 만들기"로 오면 폼을 연다
   useEffect(() => {
     if (params.get('new') === '1') {
@@ -60,14 +62,15 @@ export default function WorksScreen() {
       <main className={s.main}>
         <div className={s.head}>
           <h1>{copy.works.title}</h1>
-          {!creating && <Button onClick={() => setCreating(true)}>{copy.works.newWork}</Button>}
+          <Button onClick={() => setCreating(true)}>+ {copy.works.newWork}</Button>
         </div>
         {creating && (
           <NewWorkForm
-            onCancel={() => setCreating(false)}
+            onCancel={closeNew}
             onCreated={(work) => {
               setCreating(false);
-              updateMine((mine) => [{ ...work, episode_count: 0, open_foreshadow_count: 0, last_upload_at: null }, ...mine]);
+              // 만든 작품의 빈 작업실로 바로(첫 원고 올리기로 이어진다)
+              nav(`/w/${work.id}/home`);
             }}
           />
         )}
@@ -76,7 +79,7 @@ export default function WorksScreen() {
         {state.status === 'error' && <ErrorState title={copy.works.loadError} body={state.message} onRetry={load} />}
         {state.status === 'ready' && (
           <>
-            {state.mine.length === 0 && !creating ? (
+            {state.mine.length === 0 ? (
               <EmptyState
                 art={art.emptyCollection}
                 title={copy.works.emptyTitle}
@@ -95,8 +98,12 @@ export default function WorksScreen() {
                 ))}
               </div>
             )}
-            <h2 className={s.sub}>{copy.works.sampleSection}</h2>
-            {state.sample ? <WorkCard work={state.sample} /> : <p className={s.meta}>{copy.works.sampleMissing}</p>}
+            <section className={s.sampleSection} aria-labelledby="sample-head">
+              <h2 id="sample-head" className={s.sub}>
+                {copy.works.sampleSection}
+              </h2>
+              {state.sample ? <SampleRow work={state.sample} /> : <p className={s.meta}>{copy.works.sampleMissing}</p>}
+            </section>
           </>
         )}
       </main>

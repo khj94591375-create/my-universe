@@ -159,7 +159,7 @@ export function makeDb(userId: string | null) {
           delete r.id;
           delete r.created_at;
         }
-        if (!owns(workOf(t, r))) return { status: 403, body: { code: '42501', message: 'new row violates row-level security policy' } };
+        if (t !== 'works' && !owns(workOf(t, r))) return { status: 403, body: { code: '42501', message: 'new row violates row-level security policy' } };
         if (t === 'links' && !(r.a < r.b)) return { status: 400, body: { code: '23514', message: 'check a<b' } };
         const keys = uniq[t];
         const dup = keys && T[t].find((x) => keys.every((k) => x[k] === r[k]) && !(t === 'appearances' && r.chunk_id == null));
