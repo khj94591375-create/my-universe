@@ -38,5 +38,6 @@ export const art = {
 
 export type FeatureArt = keyof typeof art.feature;
 
-/** 시작 화면: 우주 지도(대표 카드) 아래의 도구 카드 순서 */
-export const featureOrder: FeatureArt[] = ['writing', 'worldbuilding', 'foreshadowing', 'image'];
+/** 시작 화면: 기능 소개 넘기기 순서('map'은 그림 대신 별자리 그림) */
+export type StartSlide = 'writing' | 'map' | 'worldbuilding' | 'foreshadowing' | 'image';
+export const startSlides: StartSlide[] = ['writing', 'map', 'worldbuilding', 'foreshadowing', 'image'];

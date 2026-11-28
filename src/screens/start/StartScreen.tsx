@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/Button';
-import { ArtImage, ThemedArtImage } from '../../components/ArtImage';
+import { ThemedArtImage } from '../../components/ArtImage';
+import { StarShape } from '../../components/StarShape';
 import { ThemeToggle } from '../../components/ThemeToggle';
-import { ConstellationArt } from './ConstellationArt';
-import { art, featureOrder } from '../../config/art';
+import { FeatureCarousel } from './FeatureCarousel';
+import { art } from '../../config/art';
 import { copy } from '../../config/copy';
 import { usePageTitle } from '../../lib/usePageTitle';
 import { SAMPLE_WORK_ID } from '../../config/sample';
@@ -13,7 +14,10 @@ import { signInWithGoogle } from '../../features/auth/auth';
 import { useSession } from '../../features/auth/SessionProvider';
 import s from './StartScreen.module.css';
 
-/** 시작 화면(BUILD_SPEC 6.1). 로그인하면 작품 목록으로, 예시 작품은 로그인 없이 둘러본다. */
+/**
+ * 시작 화면(BUILD_SPEC 6.1). 첫 장: 책·등불 그림을 흐리게 깐 배경 + 제목 한 줄 + 알약 줄(예시 작품 보기 | 구글로 시작하기).
+ * 그 아래 기능 소개 넘기기, 맨 아래 AI 전송 안내·개인정보 처리방침. 로그인하면 작품 목록으로.
+ */
 export default function StartScreen() {
   usePageTitle(copy.start.lead);
   const nav = useNavigate();
@@ -36,82 +40,52 @@ export default function StartScreen() {
   };
 
   const message = !isSupabaseConfigured ? copy.start.notConfigured : error ?? (loginError ? copy.start.loginError : copy.start.loginHint);
+  const loginDisabled = !isSupabaseConfigured || loading || redirecting;
+  const loginText = redirecting ? copy.start.loggingIn : copy.start.login;
 
   return (
     <main className={s.page}>
-      <div className={s.top}>
-        <ThemeToggle />
-      </div>
       <section className={s.hero}>
-        <div className={s.intro}>
-          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="My Universe 로고" className={s.logo} />
-          <h1 className={s.name}>{copy.brand.name}</h1>
+        <div className={s.heroBg} aria-hidden="true">
+          <ThemedArtImage art={art.hero} eager />
+        </div>
+        <header className={s.top}>
+          <span className={s.brand}>
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" className={s.logo} />
+            {copy.brand.name}
+          </span>
+          <ThemeToggle />
+        </header>
+        <div className={s.center}>
+          <h1 className={s.title}>{copy.start.title}</h1>
           <p className={s.lead}>{copy.start.lead}</p>
-          <p className={s.message}>{copy.brand.message}</p>
-          <div className={s.actions}>
-            <Button
-              variant="accent"
-              size="lg"
-              onClick={login}
-              disabled={!isSupabaseConfigured || loading || redirecting}
-            >
-              {redirecting ? copy.start.loggingIn : copy.start.login}
-            </Button>
-            <Button variant="ghost" size="lg" onClick={() => nav(`/w/${SAMPLE_WORK_ID}/home`)}>
-              {copy.start.sample}
+          <div className={s.pill}>
+            <button type="button" className={s.sample} onClick={() => nav(`/w/${SAMPLE_WORK_ID}/home`)}>
+              <StarShape kind="foreshadow" size={16} />
+              <span>{copy.start.sampleLong}</span>
+            </button>
+            <Button variant="accent" size="lg" className={s.login} onClick={login} disabled={loginDisabled}>
+              {loginText}
             </Button>
           </div>
           <p className={s.note} role={error || loginError ? 'alert' : undefined}>
             {message}
           </p>
         </div>
-        <div className={s.heroArt}>
-          <ThemedArtImage art={art.hero} alt={copy.art.hero} eager />
-        </div>
       </section>
-      <section className={s.values}>
-        {copy.start.values.map((v) => (
-          <div key={v.title} className={s.value}>
-            <h2>{v.title}</h2>
-            <p>{v.body}</p>
-          </div>
-        ))}
-      </section>
-      <section className={s.features} aria-labelledby="start-features">
-        <h2 id="start-features" className={s.featuresTitle}>
-          {copy.start.featuresTitle}
+
+      <section className={s.slides} aria-labelledby="start-slides">
+        <h2 id="start-slides" className={s.slidesTitle}>
+          {copy.start.slidesTitle}
         </h2>
-        {/* 대표 기능: 나의 우주 지도 */}
-        <article className={s.mapFeature} aria-labelledby="start-map">
-          <ConstellationArt />
-          <div className={s.mapText}>
-            <h3 id="start-map" className={s.mapTitle}>
-              {copy.start.mapFeature.title}
-            </h3>
-            <p className={s.mapLead}>{copy.start.mapFeature.lead}</p>
-            <p className={s.mapBody}>{copy.start.mapFeature.body}</p>
-            <ul className={s.mapPoints}>
-              {copy.start.mapFeature.points.map((t) => (
-                <li key={t}>{t}</li>
-              ))}
-            </ul>
-          </div>
-        </article>
-        <h3 className={s.toolsTitle}>{copy.start.toolsTitle}</h3>
-        <ul className={s.featureList}>
-          {featureOrder.map((k) => (
-            <li key={k} className={s.feature}>
-              <ArtImage art={art.feature[k]} className={s.featureArt} />
-              <div className={s.featureText}>
-                <h4>{copy.start.features[k].title}</h4>
-                <p>{copy.start.features[k].body}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <FeatureCarousel />
+        <Button variant="ghost" size="lg" className={s.again} onClick={login} disabled={loginDisabled}>
+          {loginText}
+        </Button>
       </section>
-      <p className={s.notice}>{copy.start.aiNotice}</p>
+
       <footer className={s.footer}>
+        <p>{copy.start.aiNotice}</p>
         <Link to="/privacy">{copy.privacy.link}</Link>
       </footer>
     </main>

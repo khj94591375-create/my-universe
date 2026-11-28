@@ -1,0 +1,175 @@
+/* 시작 화면 기능 소개 넘기기. 지금 장면은 칸의 78%, 오른쪽에 다음 장면이 살짝 보인다 */
+.carousel {
+  --slide-w: 78%;
+  --gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.viewport {
+  overflow: hidden;
+  border-radius: var(--r-lg);
+}
+.track {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--gap);
+  transform: translateX(calc((var(--slide-w) + var(--gap)) * var(--cur) * -1));
+  transition: transform 0.45s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    transition: none;
+  }
+}
+.slide {
+  flex: 0 0 var(--slide-w);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.3s ease;
+}
+.on {
+  cursor: default;
+  opacity: 1;
+}
+/* 그림 칸: 같은 그림을 흐리게 크게 깔고, 가운데에 원래 그림 */
+.panel {
+  position: relative;
+  aspect-ratio: 16 / 7;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: var(--c-card);
+  isolation: isolate;
+}
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: -40px;
+  background: var(--bg) center / cover no-repeat;
+  filter: blur(22px) saturate(1.1);
+  opacity: 0.7;
+  z-index: -1;
+}
+.art {
+  height: 78%;
+  width: auto;
+  max-width: 86%;
+  object-fit: contain;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-float);
+}
+/* 우주 지도 장면: 밤하늘 그림 위 별자리 */
+.sky {
+  background:
+    radial-gradient(circle at 50% 45%, rgb(var(--c-map-from-rgb) / var(--map-sky-veil-center)), rgb(var(--c-map-to-rgb) / var(--map-sky-veil-edge)) 72%),
+    url('../../assets/art/map-sky-light.webp') center / cover no-repeat;
+}
+:global(:root[data-theme='dark']) .sky {
+  background:
+    radial-gradient(circle at 50% 45%, rgb(var(--c-map-from-rgb) / var(--map-sky-veil-center)), rgb(var(--c-map-to-rgb) / var(--map-sky-veil-edge)) 72%),
+    url('../../assets/art/map-sky-dark.webp') center / cover no-repeat;
+}
+.sky svg {
+  width: 70%;
+  height: 90%;
+  /* 지도 칸의 바탕은 이 장면의 밤하늘이 대신한다 */
+  background: none !important;
+  border: 0 !important;
+}
+
+/* 아래 줄: 왼쪽 제목·설명, 가운데 점, 오른쪽 화살표 */
+.bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--sp-4);
+  width: var(--slide-w);
+}
+.caption h3 {
+  font-family: var(--f-display);
+  font-size: var(--fs-lg);
+  color: var(--c-ink);
+  margin: 0 0 4px;
+}
+.caption p {
+  font-size: var(--fs-sm);
+  color: var(--c-sub);
+}
+.dots {
+  display: flex;
+  gap: 4px;
+}
+.dot {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.dot::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--c-line);
+}
+.dotOn::after {
+  background: var(--c-strong);
+}
+.arrows {
+  display: flex;
+  gap: var(--sp-3);
+  justify-content: flex-end;
+}
+.arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--c-ink);
+  background: transparent;
+  color: var(--c-ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* 휴대폰: 장면 한 장만, 아래 줄은 두 줄(설명 → 점·화살표) */
+@media (max-width: 720px) {
+  .carousel {
+    --slide-w: 100%;
+    --gap: 12px;
+  }
+  .panel {
+    aspect-ratio: 4 / 3;
+  }
+  .art {
+    width: 86%;
+    height: auto;
+  }
+  .bar {
+    grid-template-columns: auto 1fr;
+    row-gap: var(--sp-3);
+  }
+  .caption {
+    grid-column: 1 / -1;
+  }
+}

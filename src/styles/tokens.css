@@ -54,6 +54,11 @@
   --c-hero-to: #ece4f6;
   --c-hero-glow: rgba(224, 180, 106, 0.2);
   --c-hero-card: rgba(255, 253, 248, 0.82);
+  /* 시작 화면 첫 장: 배경 그림 위 덮개(바탕색 RGB + 불투명도). 1 - 불투명도 = 그림이 보이는 정도 */
+  --c-start-veil-rgb: 248 244 236;
+  --start-veil-center: 0.72; /* 글자가 놓이는 가운데 */
+  --start-veil-edge: 0.35; /* 가장자리 */
+  --c-pill: rgba(255, 253, 248, 0.86); /* 알약 줄 바탕 */
 
   /* 우주 지도: 라이트 = 아이보리 바탕의 은은한 별자리 */
   --c-map-from: #fcf9f3;
@@ -166,6 +171,10 @@
   --c-hero-to: #221a46;
   --c-hero-glow: rgba(224, 180, 106, 0.1);
   --c-hero-card: rgba(21, 29, 59, 0.78);
+  --c-start-veil-rgb: 11 22 48;
+  --start-veil-center: 0.7;
+  --start-veil-edge: 0.4;
+  --c-pill: rgba(15, 23, 50, 0.82);
 
   --c-map-from: #132c4f;
   --c-map-to: #0b203b;

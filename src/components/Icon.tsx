@@ -2,9 +2,11 @@
  * 기능 아이콘(SVG). 디자인 참고: my-universe-assets/icons-reference.png(둥근 선 아이콘).
  * 글자 색(currentColor)을 따르므로 색은 쓰는 곳의 CSS 토큰으로 정한다.
  */
-export type IconName = 'home' | 'upload' | 'review' | 'sparkles' | 'orbit' | 'people' | 'layers' | 'image' | 'settings' | 'user' | 'logout' | 'sun' | 'moon';
+export type IconName = 'home' | 'upload' | 'review' | 'sparkles' | 'orbit' | 'people' | 'layers' | 'image' | 'settings' | 'user' | 'logout' | 'sun' | 'moon' | 'chevronLeft' | 'chevronRight';
 
 const paths: Record<IconName, React.ReactNode> = {
+  chevronLeft: <path d="m14.5 5.5-6.5 6.5 6.5 6.5" />,
+  chevronRight: <path d="m9.5 5.5 6.5 6.5-6.5 6.5" />,
   home: (
     <>
       <path d="M3 10.5 12 3l9 7.5" />
