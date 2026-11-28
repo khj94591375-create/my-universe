@@ -13,15 +13,25 @@ test('시작 화면: 제목·버튼·기능 소개 넘기기·개인정보처리
   // 기능 소개 넘기기: 화살표·점·키보드
   const region = page.getByRole('region', { name: '기능 소개' });
   await expect(region.getByRole('heading', { name: '원고를 올려요' })).toBeVisible();
-  await expect(region.getByRole('button', { name: '이전 기능' })).toBeDisabled();
   await region.getByRole('button', { name: '다음 기능' }).click();
   await expect(region.getByRole('heading', { name: '별자리가 생겨요' })).toBeVisible();
   await region.getByRole('button', { name: '5번째 기능 보기' }).click();
   await expect(region.getByRole('heading', { name: '삽화까지 그려요' })).toBeVisible();
-  await expect(region.getByRole('button', { name: '다음 기능' })).toBeDisabled();
   await region.getByRole('button', { name: '이전 기능' }).press('ArrowLeft');
   await expect(region.getByRole('heading', { name: '잊힌 복선을 다시 불러요' })).toBeVisible();
   await expect(region.getByText('5개 중 4번째: 잊힌 복선을 다시 불러요')).toBeAttached();
+  // 끝에서 다음 → 처음, 처음에서 이전 → 끝(빙글빙글)
+  await region.getByRole('button', { name: '다음 기능' }).click();
+  await region.getByRole('button', { name: '다음 기능' }).click();
+  await expect(region.getByRole('heading', { name: '원고를 올려요' })).toBeVisible();
+  await expect(region.getByRole('button', { name: '1번째 기능 보기' })).toHaveAttribute('aria-current', 'true');
+  await page.waitForTimeout(700);
+  await region.getByRole('button', { name: '이전 기능' }).click();
+  await expect(region.getByRole('heading', { name: '삽화까지 그려요' })).toBeVisible();
+  await page.waitForTimeout(700);
+  await region.getByRole('button', { name: '다음 기능' }).click();
+  await region.getByRole('button', { name: '다음 기능' }).click();
+  await expect(region.getByRole('heading', { name: '별자리가 생겨요' })).toBeVisible();
   await page.getByRole('link', { name: '개인정보처리방침' }).click();
   await expect(page.getByRole('heading', { level: 1, name: '개인정보처리방침' })).toBeVisible();
 });

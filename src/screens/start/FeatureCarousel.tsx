@@ -1,4 +1,4 @@
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { ArtImage } from '../../components/ArtImage';
 import { Icon } from '../../components/Icon';
 import { art, startSlides, type StartSlide } from '../../config/art';
@@ -9,15 +9,62 @@ import s from './FeatureCarousel.module.css';
 /**
  * 시작 화면의 기능 소개: 큰 그림을 한 장씩 넘겨 본다(자동으로 넘어가지 않는다).
  * 지금 장면 옆에 다음 장면이 살짝 보이고, 아래에 제목·설명 한 줄, 점(몇 번째), 이전/다음 버튼. ←/→ 키로도 넘긴다.
+ * 끝에서 다음 → 처음, 처음에서 이전 → 끝으로 이어서 돈다. 맨 뒤에 첫 장면을 하나 더 붙여(복제) 마지막 장면 옆에도 첫 장면이 보이게 하고,
+ * 복제 장면까지 넘어간 뒤에는 움직임 없이 진짜 첫 장면으로 바꿔 끊김 없이 돈다.
  */
+const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
 export function FeatureCarousel() {
-  const [cur, setCur] = useState(0);
   const total = startSlides.length;
-  const live = useRef<HTMLParagraphElement>(null);
-  const go = (n: number) => setCur(Math.max(0, Math.min(total - 1, n)));
+  const [pos, setPos] = useState(0); // 0..total(total = 첫 장면 복제)
+  const [anim, setAnim] = useState(true);
+  const after = useRef<number | null>(null); // 움직임 없이 자리를 바꾼 뒤 이어서 움직여 갈 자리
+  const cur = pos % total;
+
+  // 자리를 움직임 없이 바꾼 다음 화면에 그려지면 움직임을 다시 켜고, 예약된 자리로 움직인다
+  useEffect(() => {
+    if (anim) return;
+    const id = requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        setAnim(true);
+        if (after.current != null) {
+          setPos(after.current);
+          after.current = null;
+        }
+      }),
+    );
+    return () => cancelAnimationFrame(id);
+  }, [anim]);
+
+  const next = () => {
+    if (pos === total) {
+      // 복제 첫 장면에 서 있으면(움직임이 끝나기 전에 또 누름) 진짜 첫 장면으로 옮긴 뒤 두 번째로
+      after.current = 1;
+      setAnim(false);
+      setPos(0);
+    } else if (pos === total - 1) setPos(reducedMotion() ? 0 : total);
+    else setPos(pos + 1);
+  };
+  const prev = () => {
+    if (pos === 0 || pos === total) {
+      if (reducedMotion()) return setPos(total - 1);
+      // 복제 첫 장면 자리로 몰래 옮긴 뒤 마지막 장면으로 움직여 간다
+      after.current = total - 1;
+      setAnim(false);
+      setPos(total);
+    } else setPos(pos - 1);
+  };
+  const go = (n: number) => setPos(n);
+  // 복제 장면에 도착하면 움직임 없이 진짜 첫 장면으로
+  const onEnd = () => {
+    if (pos === total) {
+      setAnim(false);
+      setPos(0);
+    }
+  };
   const onKey = (e: KeyboardEvent) => {
-    if (e.key === 'ArrowRight') go(cur + 1);
-    else if (e.key === 'ArrowLeft') go(cur - 1);
+    if (e.key === 'ArrowRight') next();
+    else if (e.key === 'ArrowLeft') prev();
     else return;
     e.preventDefault();
   };
@@ -27,14 +74,14 @@ export function FeatureCarousel() {
   return (
     <div className={s.carousel} role="region" aria-roledescription="carousel" aria-label={copy.start.slidesLabel} onKeyDown={onKey}>
       <div className={s.viewport}>
-        <ul className={s.track} style={{ ['--cur' as string]: cur }}>
-          {startSlides.map((k, i) => (
+        <ul className={anim ? s.track : `${s.track} ${s.still}`} style={{ ['--cur' as string]: pos }} onTransitionEnd={(e) => e.target === e.currentTarget && onEnd()}>
+          {[...startSlides, startSlides[0]].map((k, i) => (
             <li
-              key={k}
-              className={i === cur ? `${s.slide} ${s.on}` : s.slide}
-              aria-hidden={i !== cur}
+              key={i}
+              className={i === pos ? `${s.slide} ${s.on}` : s.slide}
+              aria-hidden={i !== pos}
               // 옆에 살짝 보이는 장면을 누르면 그 장면으로
-              onClick={i !== cur ? () => go(i) : undefined}
+              onClick={i !== pos ? () => (i === pos + 1 ? next() : go(i % total)) : undefined}
             >
               <SlideArt k={k} />
             </li>
@@ -52,15 +99,15 @@ export function FeatureCarousel() {
           ))}
         </div>
         <div className={s.arrows}>
-          <button type="button" className={s.arrow} aria-label={copy.start.prev} disabled={cur === 0} onClick={() => go(cur - 1)}>
+          <button type="button" className={s.arrow} aria-label={copy.start.prev} onClick={prev}>
             <Icon name="chevronLeft" size={20} />
           </button>
-          <button type="button" className={s.arrow} aria-label={copy.start.next} disabled={cur === total - 1} onClick={() => go(cur + 1)}>
+          <button type="button" className={s.arrow} aria-label={copy.start.next} onClick={next}>
             <Icon name="chevronRight" size={20} />
           </button>
         </div>
       </div>
-      <p ref={live} className={s.srOnly} aria-live="polite">
+      <p className={s.srOnly} aria-live="polite">
         {copy.start.position(cur + 1, total)}: {text.title}
       </p>
     </div>
