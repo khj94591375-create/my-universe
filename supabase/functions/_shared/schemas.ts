@@ -23,6 +23,9 @@ export const analysisSchema = z.object({
   resolutions: z.array(z.object({ item_name: z.string(), evidence: z.string(), tag: z.string() })),
 });
 
+/** 지도의 "AI로 관계 찾기": 관계만 */
+export const relationsSchema = z.object({ relations: analysisSchema.shape.relations });
+
 export const guideSchema = z.object({
   opening_line: z.string().describe('다음 회차 시작 문장 예시 1개'),
   directions: z.array(

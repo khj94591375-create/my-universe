@@ -14,6 +14,8 @@ export async function aiAnalyzeEpisodes(
   episodes: { id: string; no: number }[],
   onProgress: (done: number, total: number, no: number) => void,
   shouldStop: () => boolean = () => false,
+  /** 'relations': 설정집 항목 사이의 관계 선만(우주 지도의 "AI로 관계 찾기") */
+  mode?: 'relations',
 ): Promise<AiAnalyzeResult[]> {
   const sorted = [...episodes].sort((a, b) => a.no - b.no);
   const out: AiAnalyzeResult[] = [];
@@ -21,7 +23,7 @@ export async function aiAnalyzeEpisodes(
     if (shouldStop()) break;
     onProgress(i, sorted.length, ep.no);
     try {
-      const r = await callAi<AnalyzeResult>('analyze-episode', { workId, episodeId: ep.id });
+      const r = await callAi<AnalyzeResult>('analyze-episode', { workId, episodeId: ep.id, ...(mode ? { mode } : {}) });
       out.push({ episodeId: ep.id, no: ep.no, ok: true, found: r.counts.new_items + r.counts.aliases + r.counts.relations + r.counts.resolutions, counts: r.counts });
     } catch (e) {
       const code = e instanceof AiCallError ? e.code : undefined;

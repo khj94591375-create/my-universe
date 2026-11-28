@@ -8,6 +8,7 @@ import s from './MapScreen.module.css';
 import { art } from '../../config/art';
 import { useWorkData } from '../../features/works/workData';
 import { WorkDataGate } from '../shared/WorkDataGate';
+import { AnalyzeRunBanner } from '../shared/AnalyzeRunBanner';
 import { MapCanvasSection, type MapFocus } from './sections/MapCanvasSection';
 import { DesignPanelSection } from './sections/DesignPanelSection';
 import { SelectionStrip } from './sections/SelectionStrip';
@@ -109,6 +110,8 @@ export default function MapScreen() {
 
   return (
     <ScreenLayout tip="map" pageName={copy.map.pageName} title={copy.map.title}>
+      {/* AI로 관계 찾기·AI 정리 진행(끝나면 새 선이 저절로 나타난다) */}
+      <AnalyzeRunBanner workId={workId} />
       <WorkDataGate workId={workId}>
         {() =>
           data && data.items.length === 0 ? (

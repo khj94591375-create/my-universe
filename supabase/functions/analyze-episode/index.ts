@@ -1,19 +1,21 @@
-// 회차 자동 정리(BUILD_SPEC 8.4). 입력 { workId, episodeId }.
+// 회차 자동 정리(BUILD_SPEC 8.4). 입력 { workId, episodeId, mode? }.
+// mode = 'relations'(우주 지도의 "AI로 관계 찾기"): 설정집에 있는 항목 사이의 관계 선만 더한다(새 항목·별칭·요약·회수 제안은 건드리지 않음).
 // 결과는 바로 반영하되 AI 추정(source='ai', confirmed=false)으로 저장하고, 회수 추정은 제안만 저장한다.
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
 import { askJson } from '../_shared/ai.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
-import { loadSnapshot } from '../_shared/retrieval.ts';
+import { loadSnapshot, relationsFor } from '../_shared/retrieval.ts';
 import { buildContext, trimItems } from '../_shared/context.ts';
 import { filterAnalysis } from '../_shared/rules.ts';
 import { parseTag } from '../_shared/verify.ts';
-import { analysisSchema } from '../_shared/schemas.ts';
-import { ANALYZE_SYSTEM } from '../_shared/prompts.ts';
+import { analysisSchema, relationsSchema } from '../_shared/schemas.ts';
+import { ANALYZE_SYSTEM, RELATIONS_SYSTEM } from '../_shared/prompts.ts';
 
 serve(async (ctx) => {
   const userId = requireUser(ctx);
   const workId = str(ctx.body, 'workId');
   const episodeId = str(ctx.body, 'episodeId');
+  const relationsOnly = (ctx.body as Record<string, unknown>)?.mode === 'relations';
   const { admin } = ctx;
   await requireOwnWork(admin, userId, workId);
   await checkLimit(admin, userId, 'text');
@@ -27,8 +29,11 @@ serve(async (ctx) => {
   if (chunks.length === 0) throw new HttpError('bad_request', '장면이 없어요. 먼저 규칙 정리를 해 주세요.');
 
   const prev = snap.episodes.filter((e) => e.no < ep.no).slice(-3);
-  const context = buildContext(trimItems(snap.items, new Set(), new Set()), prev, chunks.map((c) => ({ ep: ep.no, seq: c.seq, text: c.text })));
-  const raw = await askJson({ tier: 'fast', system: ANALYZE_SYSTEM, user: `${context.text}\n\n위 ${ep.no}화를 정리해 JSON으로 답하라.`, schema: analysisSchema });
+  const all = new Set(snap.items.map((i) => i.id));
+  const context = buildContext(trimItems(snap.items, new Set(), new Set()), prev, chunks.map((c) => ({ ep: ep.no, seq: c.seq, text: c.text })), undefined, relationsOnly ? relationsFor(snap, all, 60) : []);
+  const raw = relationsOnly
+    ? { summary: '', new_items: [], aliases: [], resolutions: [], ...(await askJson({ tier: 'fast', system: RELATIONS_SYSTEM, user: `${context.text}\n\n위 ${ep.no}화에서 설정집 항목 사이의 관계를 찾아 JSON으로 답하라.`, schema: relationsSchema })) }
+    : await askJson({ tier: 'fast', system: ANALYZE_SYSTEM, user: `${context.text}\n\n위 ${ep.no}화를 정리해 JSON으로 답하라.`, schema: analysisSchema });
 
   const byName = new Map(snap.items.map((i) => [i.name, i.id]));
   const out = filterAnalysis(raw, context.scenes, new Set(byName.keys()));
@@ -94,7 +99,7 @@ serve(async (ctx) => {
     const { error: e2 } = await admin.from('appearances').insert({ item_id: itemId, episode_id: episodeId, chunk_id: null, evidence: r.evidence, source: 'ai', role: 'resolve' });
     if (!e2) newResolutions++;
   }
-  await admin.from('episodes').update({ analyzed_at: new Date().toISOString() }).eq('id', episodeId);
+  if (!relationsOnly) await admin.from('episodes').update({ analyzed_at: new Date().toISOString() }).eq('id', episodeId);
   await addUsage(admin, userId, 'text');
   return {
     summary: out.summary,

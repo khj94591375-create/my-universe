@@ -18,6 +18,8 @@ export type AnalyzeRun = {
   nos: number[];
   /** 끝난 회차 결과(성공·실패) */
   results: AiAnalyzeResult[];
+  /** 'relations' = 우주 지도의 "AI로 관계 찾기"(다시 시도도 같은 방식으로) */
+  mode?: 'relations';
 };
 
 const runs = new Map<string, AnalyzeRun>();
@@ -33,23 +35,24 @@ const put = (workId: string, run: AnalyzeRun) => {
  * 회차들을 AI로 정리한다(같은 작품에서 이미 돌고 있으면 그다음에). 기다리지 않아도 된다.
  * shouldStop: 멈추기 버튼용.
  */
-export function startAnalyze(workId: string, episodes: { id: string; no: number }[], shouldStop?: () => boolean): Promise<AiAnalyzeResult[]> {
+export function startAnalyze(workId: string, episodes: { id: string; no: number }[], shouldStop?: () => boolean, mode?: 'relations'): Promise<AiAnalyzeResult[]> {
   const nos = [...episodes].sort((a, b) => a.no - b.no).map((e) => e.no);
   const prev = chains.get(workId) ?? Promise.resolve();
   const job = prev.then(async () => {
-    put(workId, { running: true, done: 0, total: nos.length, no: nos[0] ?? 0, nos, results: [] });
+    put(workId, { running: true, done: 0, total: nos.length, no: nos[0] ?? 0, nos, results: [], mode });
     const results: AiAnalyzeResult[] = [];
     const out = await aiAnalyzeEpisodes(
       workId,
       episodes,
       (done, total, no) => {
-        put(workId, { running: done < total, done, total, no, nos, results: [...results] });
+        put(workId, { running: done < total, done, total, no, nos, results: [...results], mode });
         if (done > 0) refreshWorkData(workId); // 한 회차가 끝날 때마다 결과를 보이게
       },
       shouldStop,
+      mode,
     );
     results.push(...out);
-    put(workId, { running: false, done: nos.length, total: nos.length, no: nos.at(-1) ?? 0, nos, results: out });
+    put(workId, { running: false, done: nos.length, total: nos.length, no: nos.at(-1) ?? 0, nos, results: out, mode });
     refreshWorkData(workId);
     return out;
   });

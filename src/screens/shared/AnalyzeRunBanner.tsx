@@ -34,7 +34,7 @@ export function AnalyzeRunBanner({ workId }: { workId: string }) {
                 <span>
                   <strong>{f.no}화</strong> — {f.error}
                 </span>
-                <Button size="sm" variant="ghost" onClick={() => void startAnalyze(workId, [{ id: f.episodeId, no: f.no }]).catch(() => undefined)}>
+                <Button size="sm" variant="ghost" onClick={() => void startAnalyze(workId, [{ id: f.episodeId, no: f.no }], undefined, run.mode).catch(() => undefined)}>
                   {copy.ai.analyzeRetry}
                 </Button>
               </li>

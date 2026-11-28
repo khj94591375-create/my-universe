@@ -87,6 +87,7 @@ test('예시 작품 홈: 최근 회차 등장 표시, 회수 숫자 일치, 설�
   const demo = page.getByRole('link', { name: /복선 두 개로 7화 설계 체험/ });
   await expect(demo).toHaveAttribute('href', /\/map\?sel=00000000-0000-4000-8001-000000000008,00000000-0000-4000-8001-000000000006$/);
   await demo.click();
-  await expect(page).toHaveURL(/\/map\?sel=00000000-0000-4000-8001-000000000008,00000000-0000-4000-8001-000000000006/, { timeout: 20_000 });
+  // 지도 화면이 주소를 다시 쓰면 쉼표가 %2C로 바뀔 수 있다
+  await expect(page).toHaveURL(/\/map\?sel=00000000-0000-4000-8001-000000000008(,|%2C)00000000-0000-4000-8001-000000000006/);
   await expect(page.getByRole('button', { name: '설계 체험하기' })).toBeVisible();
 });

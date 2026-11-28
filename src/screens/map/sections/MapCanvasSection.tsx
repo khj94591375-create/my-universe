@@ -21,6 +21,8 @@ import { useWorkData } from '../../../features/works/workData';
 import s from './map.module.css';
 import { isUnconfirmedAi } from '../../../features/ai/review';
 import { shortLabel } from '../../../features/map/labels';
+import { useAiStatus } from '../../../features/ai/aiStatus';
+import { startAnalyze, useAnalyzeRun } from '../../../features/ai/analyzeTracker';
 
 const KINDS: ItemKind[] = ['character', 'setting', 'foreshadow'];
 
@@ -74,6 +76,11 @@ export function MapCanvasSection({
   const [label, setLabel] = useState('');
   const [dir, setDir] = useState<'both' | 'forward' | 'backward'>('both');
   const [removing, setRemoving] = useState<string | null>(null);
+  // AI로 관계 찾기(확인 단계 → 작품별 진행 저장소로 실행, 끝나면 데이터가 다시 불러와져 선이 생긴다)
+  const ai = useAiStatus();
+  const run = useAnalyzeRun(workId);
+  const [finding, setFinding] = useState(false);
+  const left = ai.status?.usage ? Math.max(0, ai.status.limits.text - ai.status.usage.text) : null;
   // 지도가 별자리를 가로로 펼친 배율(별로 옮길 때 같은 값으로)
   const [stretch, setStretch] = useState(1);
 
@@ -234,6 +241,11 @@ export function MapCanvasSection({
           <Link to={`/w/${workId}/forgot`} className={s.forgotLink}>
             {copy.map.forgotLink}
           </Link>
+          {canWrite && ai.on && data.episodes.length > 0 && (
+            <Button size="sm" variant="ghost" onClick={() => setFinding(true)} disabled={finding || run?.running} aria-expanded={finding}>
+              ✦ {copy.map.findLinks}
+            </Button>
+          )}
           {onExpand && (
             <Button id="map-expand" variant={expanded ? 'primary' : 'ghost'} size="sm" onClick={() => onExpand(!expanded)} aria-pressed={expanded}>
               {expanded ? copy.map.expand.exit : copy.map.expand.enter}
@@ -242,6 +254,25 @@ export function MapCanvasSection({
         </div>
       </div>
 
+      {/* AI로 관계 찾기: 비용·전송 안내를 보여 주고 확인한 뒤에만 */}
+      {finding && (
+        <ConfirmBar
+          message={copy.map.findLinksConfirm(data.episodes.length, left)}
+          confirmLabel={copy.map.findLinksYes}
+          cancelLabel={copy.map.findLinksCancel}
+          danger={false}
+          onCancel={() => setFinding(false)}
+          onConfirm={() => {
+            setFinding(false);
+            void startAnalyze(
+              workId,
+              [...data.episodes].sort((a, b) => a.no - b.no).map((e) => ({ id: e.id, no: e.no })),
+              undefined,
+              'relations',
+            ).catch(() => undefined);
+          }}
+        />
+      )}
       <div className={s.canvas} ref={canvasRef}>
         <StarMap
           title={work?.title ?? ''}

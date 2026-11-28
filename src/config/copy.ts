@@ -300,6 +300,12 @@ export const copy = {
     empty: '설정집에 항목이 생기면 별자리가 그려져요.',
     pageName: '우주 지도',
     forgotLink: '잊힌 항목 보기',
+    findLinks: 'AI로 관계 찾기',
+    findLinksConfirm: (n: number, left: number | null) =>
+      `올린 회차 ${n}개를 AI가 다시 읽고, 설정집 항목 사이의 관계를 찾아 선으로 더해요("AI 추정"으로 표시). 하루 사용량 ${n}회${left != null ? `(오늘 남은 ${left}회)` : ''}가 들고, 원고가 AI 회사(${TEXT_AI}) 서버로 전송돼요. 이미 있는 선과 새 항목·요약은 바꾸지 않아요.`,
+    findLinksYes: '관계 찾기 시작',
+    findLinksCancel: '취소',
+    findLinksNone: '먼저 원고를 올려 주세요.',
     zoomGroup: '확대·축소',
     stripLabel: '선택한 항목',
     stripCount: (n: number) => `선택한 항목 ${n}개`,
