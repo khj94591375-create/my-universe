@@ -324,4 +324,7 @@
   .sampleRow {
     flex-wrap: wrap;
   }
+  .sampleText {
+    flex-basis: calc(100% - 64px - var(--sp-4));
+  }
 }

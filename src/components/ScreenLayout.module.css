@@ -38,3 +38,12 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+/* 쓰기 버튼(예시 작품이면 안내 글과 함께)은 머리말 오른쪽 끝에 맞추고, 휴대폰에서는 왼쪽에 */
+.action > span {
+  align-items: flex-end;
+}
+@media (max-width: 860px) {
+  .action > span {
+    align-items: flex-start;
+  }
+}

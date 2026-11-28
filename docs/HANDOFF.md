@@ -8,6 +8,7 @@
 
 | 항목 | 상태 |
 |---|---|
+| 디자인 | 2026-11-28 디자인 키트 6단계 반영: 로그인 뒤 상단바(작업실·우주 지도·원고·설정집·삽화)+휴대폰 하단 탐색, 작업 공간 색은 tokens.css의 [data-mu-workspace] 범위(시작 화면 제외). 자세한 내용은 DECISIONS.md |
 | 현재 단계 | **M4·M5 완료(Claude 연결 2026-11-10 → 2026-11-28부터 글 AI는 GPT(OpenAI)), M6 완료(OpenAI 키 대기), M7 점검 완료 → 남은 것: 실제 원고로 AI 품질 확인, 작가 3명 테스트** |
 | 저장소 | https://github.com/khj94591375-create/my-universe (Public, 기본 브랜치 `main`) |
 | 배포 주소 | https://khj94591375-create.github.io/my-universe/ (`main`에 push하면 GitHub Actions가 자동 배포) |
