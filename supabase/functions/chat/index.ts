@@ -1,6 +1,6 @@
 // 설계 다듬기 대화(BUILD_SPEC 8.7). 입력 { sessionId, message }. 같은 세션의 대화와 선택 항목 근거를 다시 찾아 넣는다.
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
-import { askJson } from '../_shared/claude.ts';
+import { askJson } from '../_shared/ai.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { retrieve } from '../_shared/retrieval.ts';
 import { verifyEvidence } from '../_shared/verify.ts';

@@ -143,7 +143,7 @@ my-universe/
 │  ├─ migrations/             # SQL(5장)
 │  ├─ seed/sample_work.sql    # 예시 작품 "별의 도서관"
 │  └─ functions/              # Edge Functions(8장)
-│     ├─ _shared/             # claude.ts, openai.ts, retrieval.ts, verify.ts, limits.ts
+│     ├─ _shared/             # ai.ts(글 AI: OpenAI·Claude), provider.ts, openai.ts(그림), retrieval.ts, verify.ts, limits.ts
 │     ├─ analyze-episode/
 │     ├─ guide/
 │     ├─ design-next/

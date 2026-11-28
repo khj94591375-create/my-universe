@@ -5,3 +5,4 @@ export { z } from 'npm:zod@4.6.7';
 export { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 export type { SupabaseClient } from 'npm:@supabase/supabase-js@2.117.3';
 export { default as OpenAI, toFile } from 'npm:openai@7.41.0';
+export { zodTextFormat } from 'npm:openai@7.41.0/helpers/zod';

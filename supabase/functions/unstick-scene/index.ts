@@ -1,6 +1,6 @@
 // 막힌 장면 대안 전개. 입력 { workId, situation }. 설정집·원고를 근거로 방향이 다른 대안 3개. 아무것도 저장하지 않는다.
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
-import { askJson } from '../_shared/claude.ts';
+import { askJson } from '../_shared/ai.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { loadSnapshot, retrieve } from '../_shared/retrieval.ts';
 import { itemsInQuestion } from '../_shared/ask.ts';

@@ -1,6 +1,6 @@
 // 회차 요약 초안. 입력 { workId, episodeId }. 원고·요약은 읽기만 하고 저장하지 않는다(작가가 고쳐서 저장).
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
-import { askJson } from '../_shared/claude.ts';
+import { askJson } from '../_shared/ai.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { summarySchema } from '../_shared/schemas.ts';
 import { SUMMARY_SYSTEM } from '../_shared/prompts.ts';

@@ -33,7 +33,7 @@ test('질문하면 근거와 함께 답하고, 근거 없는 답·찾지 못함�
   );
   await page.goto(`#/w/${MINE}/bible`);
   await expect(page.getByRole('heading', { name: '세계관 질문하기' })).toBeVisible();
-  await expect(page.getByText(/AI 회사\(Anthropic\) 서버로 전송돼요/)).toBeVisible();
+  await expect(page.getByText(/AI 회사\(OpenAI\) 서버로 전송돼요/)).toBeVisible();
   const box = page.getByRole('textbox', { name: '질문' });
   await box.fill('은열쇠를 처음 본 회차는?');
   await page.getByRole('button', { name: '질문하기' }).click();

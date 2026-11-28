@@ -1,7 +1,7 @@
 // 다음 회차 설계(BUILD_SPEC 8.6). 입력 { workId, itemIds, targetEp, includeDraft }.
 // [고정] includeDraft가 false면 서버에서 draft를 지운다. 결과는 design_sessions에 저장한다.
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
-import { askJson } from '../_shared/claude.ts';
+import { askJson } from '../_shared/ai.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { loadSnapshot, retrieve } from '../_shared/retrieval.ts';
 import { finishDesign, finishEnding } from '../_shared/rules.ts';

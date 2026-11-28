@@ -2,6 +2,10 @@
  * 화면 문구 전부. [변경 가능]
  * 버튼 이름·안내 문구를 바꿀 때는 이 파일만 고친다. (BUILD_SPEC 4.5)
  */
+
+/** 글 AI를 맡은 회사(전송 안내에 쓴다). 공급자를 바꾸면 여기만 고친다. */
+const TEXT_AI = 'OpenAI';
+
 export const copy = {
   brand: {
     name: 'My Universe',
@@ -46,7 +50,7 @@ export const copy = {
       storyGuide: { title: '우주 지도', body: '관계를 별과 선으로 보고, 별을 골라 다음 회차 장면을 설계해요.' },
       image: { title: '삽화 스튜디오', body: '설정집에 적은 외모를 그대로 담아 장면 삽화와 표지 시안을 그려요.' },
     },
-    aiNotice: 'AI 분석을 쓰면 원고가 AI 회사(Anthropic·OpenAI) 서버로 전송돼요.',
+    aiNotice: `AI 분석을 쓰면 원고가 AI 회사(${TEXT_AI}) 서버로 전송돼요.`,
   },
   works: {
     title: '내 작품',
@@ -132,7 +136,7 @@ export const copy = {
   upload: {
     splitTitle: '회차 나누기',
     splitWait: 'AI가 회차를 나누는 중이에요. 끝나면 저장할 수 있어요.',
-    autoSplitNotice: 'AI가 켜져 있어 파일을 올리면 원고가 AI 회사(Anthropic) 서버로 전송되고, AI가 앞뒤 문맥을 보고 회차와 장면을 나눠요(파일 하나당 하루 사용량 1회). 원고 글자는 바뀌지 않아요.',
+    autoSplitNotice: `AI가 켜져 있어 파일을 올리면 원고가 AI 회사(${TEXT_AI}) 서버로 전송되고, AI가 앞뒤 문맥을 보고 회차와 장면을 나눠요(파일 하나당 하루 사용량 1회). 원고 글자는 바뀌지 않아요.`,
     splitFallback: (reason: string) => `AI로 나누지 못해 회차 표시 줄로 나눴어요(${reason}). 다시 시도할 수 있어요.`,
     splitTooLong: '12만 자가 넘는 파일이라 회차 표시 줄로 나눴어요. AI로 나누려면 파일을 나눠서 올려 주세요.',
     scenes: (n: number) => `장면 ${n}개`,
@@ -147,7 +151,7 @@ export const copy = {
     splitHint: '회차 표시 줄만 보고 나누면 의도와 다른 곳에서 잘릴 수 있어요. AI는 앞뒤 문맥을 읽고 회차가 바뀌는 곳을 찾아요(원고 글자는 바꾸지 않고 자르는 위치만 정해요).',
     splitRun: 'AI로 문맥 보고 나누기',
     splitRunning: 'AI가 회차 경계를 찾는 중…',
-    splitNotice: '누르면 이 파일의 원고가 AI 회사(Anthropic) 서버로 전송돼요. 하루 사용량 1회.',
+    splitNotice: `누르면 이 파일의 원고가 AI 회사(${TEXT_AI}) 서버로 전송돼요. 하루 사용량 1회.`,
     splitUndo: '회차 표시 줄로 나누기로 되돌리기',
     splitOff: (reason: string) => `AI로 나누기는 지금 쓸 수 없어요: ${reason}`,
 
@@ -201,7 +205,7 @@ export const copy = {
     overwrite: '덮어쓰기',
     skip: '건너뛰기',
     done: (no: number) => `${no}화를 저장하고 정리했어요.`,
-    aiNotice: 'AI가 켜져 있으면 저장할 때 원고가 AI 회사(Anthropic) 서버로 전송돼, 문맥을 보고 장면을 나누고 인물·설정·복선을 정리해요. 원고 글자는 바뀌지 않아요.',
+    aiNotice: `AI가 켜져 있으면 저장할 때 원고가 AI 회사(${TEXT_AI}) 서버로 전송돼, 문맥을 보고 장면을 나누고 인물·설정·복선을 정리해요. 원고 글자는 바뀌지 않아요.`,
     aiNoticeOff: 'AI가 꺼져 있어 이름·별칭이 나온 곳을 규칙으로 찾아요.',
     count: (n: number) => `${n.toLocaleString('ko-KR')}자(공백 포함)`,
   },
@@ -422,7 +426,7 @@ export const copy = {
     start: '검사 시작',
     again: '다시 검사',
     close: '닫기',
-    aiNotice: 'AI 검사를 쓰면 이 회차 원고가 AI 회사(Anthropic) 서버로 전송돼요.',
+    aiNotice: `AI 검사를 쓰면 이 회차 원고가 AI 회사(${TEXT_AI}) 서버로 전송돼요.`,
     ruleOnly: (reason: string) => `${reason} 지금은 브라우저 안 기본 규칙(외부 전송 없음)으로만 검사해요.`,
     sampleRuleOnly: '예시 작품은 읽기 전용이라 기본 규칙 검사만 체험할 수 있어요. 결과는 저장되지 않아요.',
     running: (done: number, total: number) => `${total}묶음 중 ${done}묶음 검사 중…`,
@@ -483,7 +487,7 @@ export const copy = {
     placeholder: '작품에 대해 궁금한 것을 적어 주세요',
     run: '질문하기',
     running: '원고에서 찾는 중…',
-    notice: '질문하면 질문과 관련 원고 일부가 AI 회사(Anthropic) 서버로 전송돼요. 답은 저장되지 않아요.',
+    notice: `질문하면 질문과 관련 원고 일부가 AI 회사(${TEXT_AI}) 서버로 전송돼요. 답은 저장되지 않아요.`,
     ownOnly: '세계관 질문은 내 작품에서만 쓸 수 있어요.',
     needText: '질문을 적어 주세요.',
     verified: '원고 근거 있음',
@@ -499,7 +503,7 @@ export const copy = {
     title: (name: string) => `「${name}」 인물 소개(AI 초안)`,
     start: '인물 소개 만들기',
     running: '원고에서 외모·성격·말투를 찾는 중…',
-    notice: '누르면 이 인물이 나온 원고 일부가 AI 회사(Anthropic) 서버로 전송돼요. 설정집은 [옮기기] 뒤 [저장]을 눌러야 바뀌어요.',
+    notice: `누르면 이 인물이 나온 원고 일부가 AI 회사(${TEXT_AI}) 서버로 전송돼요. 설정집은 [옮기기] 뒤 [저장]을 눌러야 바뀌어요.`,
     fields: { look: '외모', personality: '성격', speech: '말투' } as Record<'look' | 'personality' | 'speech', string>,
     unknown: '원고에서 확인하지 못했어요.',
     dropped: (n: number) => `원고에서 확인되지 않은 근거 ${n}개는 뺐어요.`,
@@ -516,7 +520,7 @@ export const copy = {
     placeholder: '예: 7화 끝, 세린이 리안의 거짓말을 눈치챘는데 다음에 어떻게 해야 할지 모르겠어요.',
     run: '대안 3개 받기',
     running: '원고와 설정집을 살펴보는 중…',
-    notice: '누르면 적은 내용과 관련 원고 일부가 AI 회사(Anthropic) 서버로 전송돼요. 결과는 저장되지 않아요.',
+    notice: `누르면 적은 내용과 관련 원고 일부가 AI 회사(${TEXT_AI}) 서버로 전송돼요. 결과는 저장되지 않아요.`,
     ownOnly: '막힌 장면 풀기는 내 작품에서만 쓸 수 있어요.',
     needText: '막힌 장면을 적어 주세요.',
     option: (n: number) => `대안 ${n}`,
@@ -548,7 +552,7 @@ export const copy = {
     aiTitle: 'AI가 본 문체 특징',
     aiRun: 'AI 문체 특징 보기',
     aiRunning: '원고 표본을 읽는 중…',
-    aiNotice: '누르면 최근 회차(최대 10개)에서 고르게 뽑은 원고 약 8,000자가 AI 회사(Anthropic) 서버로 전송돼요. 결과는 저장되지 않아요.',
+    aiNotice: `누르면 최근 회차(최대 10개)에서 고르게 뽑은 원고 약 8,000자가 AI 회사(${TEXT_AI}) 서버로 전송돼요. 결과는 저장되지 않아요.`,
     aiOwnOnly: 'AI 문체 특징은 내 작품에서만 볼 수 있어요.',
     aiBasis: (eps: number, chars: number) => `최근 회차 ${eps}개에서 뽑은 ${chars.toLocaleString()}자 표본 기준`,
     aiNone: '원고에서 예시를 확인할 수 있는 특징을 찾지 못했어요.',
@@ -564,7 +568,7 @@ export const copy = {
     cost: (n: number) => `회차 ${n}개 · 하루 사용량 ${n}회`,
     left: (n: number) => ` (오늘 남은 ${n}회)`,
     overLimit: (left: number) => `오늘 남은 사용량(${left}회)보다 많아요. 앞에서부터 ${left}개 회차만 정리되고 멈춰요.`,
-    notice: '누르면 고른 회차의 원고가 AI 회사(Anthropic) 서버로 전송돼요.',
+    notice: `누르면 고른 회차의 원고가 AI 회사(${TEXT_AI}) 서버로 전송돼요.`,
     run: 'AI로 정리하기',
     confirm: (n: number) => `${n}개 회차를 AI로 정리할까요? 새로 찾은 것은 "AI 추정"으로 설정집과 우주 지도에 들어가요.`,
     confirmYes: '정리 시작',
@@ -728,7 +732,7 @@ export const copy = {
     sceneSaved: '장면을 바꾸고 등장 기록을 다시 정리했어요.',
     aiSummary: 'AI로 요약 초안 쓰기',
     aiSummaryRunning: '요약을 쓰는 중…',
-    aiSummaryNotice: '누르면 이 회차 원고가 AI 회사(Anthropic) 서버로 전송돼요. 초안은 칸에만 들어가고, [저장]을 눌러야 저장돼요.',
+    aiSummaryNotice: `누르면 이 회차 원고가 AI 회사(${TEXT_AI}) 서버로 전송돼요. 초안은 칸에만 들어가고, [저장]을 눌러야 저장돼요.`,
     aiSummaryDone: '초안을 칸에 넣었어요. 읽고 고친 뒤 [저장]을 눌러 주세요.',
     aiSummaryUndo: '원래 요약으로 되돌리기',
     loadingBody: '원고를 불러오는 중…',
@@ -898,7 +902,7 @@ export const copy = {
       {
         title: '3. AI 처리',
         items: [
-          'AI 기능을 쓸 때 필요한 원고 장면과 설정집 요약이 AI 회사(글: Anthropic, 그림: OpenAI) 서버로 보내집니다. 버튼을 누르기 전에 화면에서 무엇이 보내지는지 알려 드립니다.',
+          'AI 기능을 쓸 때 필요한 원고 장면과 설정집 요약이 AI 회사(글·그림: OpenAI) 서버로 보내집니다. 버튼을 누르기 전에 화면에서 무엇이 보내지는지 알려 드립니다.',
           '보내는 경우: 원고 정리(회차 원고), 회차 요약 초안(그 회차 원고), 세계관 질문하기·AI 인물 소개·막힌 장면 풀기(질문·적은 내용과 관련 원고 장면), 문체 분석(최근 회차에서 뽑은 약 8,000자), 맞춤법 AI 검사(회차 원고를 나눈 묶음).',
           '요약 초안, 세계관 질문, 인물 소개, 막힌 장면, 문체 분석, 맞춤법 검사의 AI 결과는 서비스에 저장하지 않습니다. 작가가 "저장"을 누른 내용만 저장됩니다.',
           'AI 회사가 받은 내용을 다루는 방식(보관·학습 여부 등)은 각 회사의 정책과 이용 조건을 따릅니다.',

@@ -1,6 +1,6 @@
 // 잊힌 복선 가이드(BUILD_SPEC 8.5). 입력 { workId, itemId }. 검증 안 된 근거는 null로 돌려준다.
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
-import { askJson } from '../_shared/claude.ts';
+import { askJson } from '../_shared/ai.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { loadSnapshot, retrieve } from '../_shared/retrieval.ts';
 import { markEvidence } from '../_shared/rules.ts';

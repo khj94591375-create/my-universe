@@ -29,7 +29,7 @@ test('막힌 장면을 적으면 대안 3개를 근거와 함께 보여 준다(�
   });
   await page.goto('#/w/' + MINE + '/home');
   await expect(page.getByRole('heading', { name: '막힌 장면 풀기' })).toBeVisible();
-  await expect(page.getByText(/적은 내용과 관련 원고 일부가 AI 회사\(Anthropic\) 서버로 전송돼요/)).toBeVisible();
+  await expect(page.getByText(/적은 내용과 관련 원고 일부가 AI 회사\(OpenAI\) 서버로 전송돼요/)).toBeVisible();
   await page.getByRole('button', { name: '대안 3개 받기' }).click();
   await expect(page.getByText('막힌 장면을 적어 주세요.')).toBeVisible();
   expect(calls).toHaveLength(0);

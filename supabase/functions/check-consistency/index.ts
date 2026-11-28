@@ -1,7 +1,7 @@
 // 설정 충돌 감지(BUILD_SPEC 7.9, 8.8). 입력 { workId, itemId? } — 없으면 캐릭터 전체(최대 20개).
 // 두 근거 모두 원고에 글자 그대로 있을 때만 consistency_issues에 저장한다.
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
-import { askJson } from '../_shared/claude.ts';
+import { askJson } from '../_shared/ai.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { loadSnapshot } from '../_shared/retrieval.ts';
 import { buildConsistencyContext } from '../_shared/context.ts';

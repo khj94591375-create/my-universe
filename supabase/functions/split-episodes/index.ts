@@ -1,6 +1,6 @@
 // AI 회차·장면 나누기. 입력 { workId, text }(브라우저에서 정리한 원고 글자). 회차 시작 줄과 장면 시작 줄만 돌려준다. 아무것도 저장하지 않는다.
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
-import { askJson } from '../_shared/claude.ts';
+import { askJson } from '../_shared/ai.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { checkStarts, numberLines } from '../_shared/split.ts';
 import { splitSchema } from '../_shared/schemas.ts';

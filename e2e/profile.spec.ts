@@ -28,7 +28,7 @@ test('인물 소개 AI 초안: 안내 → 만들기 → 옮기기 → 저장', a
   await page.goto(`#/w/${MINE}/bible`);
   const row = page.locator('li', { has: page.getByText('리안', { exact: true }) }).first();
   await row.getByRole('button', { name: 'AI 인물 소개' }).click();
-  await expect(row.getByText(/AI 회사\(Anthropic\) 서버로 전송돼요/)).toBeVisible();
+  await expect(row.getByText(/AI 회사\(OpenAI\) 서버로 전송돼요/)).toBeVisible();
   expect(calls).toHaveLength(0); // 안내 뒤 눌러야 보냄
   await row.getByRole('button', { name: '인물 소개 만들기' }).click();
   await expect(row.getByText('잿빛 망토를 걸친다.')).toBeVisible();

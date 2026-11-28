@@ -38,7 +38,7 @@ test('내 작품: 안내 뒤 AI 문체 특징(예시 인용), 저장 없음', as
   });
   await page.goto('#/w/' + MINE + '/episodes');
   await expect(page.getByText(/^리안 \d+ · 천천히 3/)).toBeVisible(); // 자주 쓰는 낱말
-  await expect(page.getByText(/약 8,000자가 AI 회사\(Anthropic\) 서버로 전송돼요/)).toBeVisible();
+  await expect(page.getByText(/약 8,000자가 AI 회사\(OpenAI\) 서버로 전송돼요/)).toBeVisible();
   expect(calls).toEqual([]);
   await page.getByRole('button', { name: 'AI 문체 특징 보기' }).click();
   await expect(page.getByText('짧은 문장으로 끊는다')).toBeVisible();

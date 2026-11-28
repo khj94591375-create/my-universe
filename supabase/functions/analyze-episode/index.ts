@@ -1,7 +1,7 @@
 // 회차 자동 정리(BUILD_SPEC 8.4). 입력 { workId, episodeId }.
 // 결과는 바로 반영하되 AI 추정(source='ai', confirmed=false)으로 저장하고, 회수 추정은 제안만 저장한다.
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
-import { askJson } from '../_shared/claude.ts';
+import { askJson } from '../_shared/ai.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { loadSnapshot } from '../_shared/retrieval.ts';
 import { buildContext, trimItems } from '../_shared/context.ts';

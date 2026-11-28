@@ -1,3 +1,4 @@
+import { openaiModels, pickProvider } from './provider.ts';
 import { describe, expect, it } from 'vitest';
 import { normalize, parseTag, verifyEvidence } from './verify.ts';
 import { buildContext, pickScenes, trimItems, type CtxItem } from './context.ts';
@@ -452,5 +453,24 @@ describe('같은 회차 안에서도 뒤 장면에 나온 별을 먼저', () => 
     );
     expect(p.get('a')).toEqual({ ep: 2, seq: 2, count: 2 });
     expect(p.get('b')).toEqual({ ep: 2, seq: 0, count: 1 });
+  });
+});
+
+describe('글 AI 공급자 고르기', () => {
+  it('정해 두지 않으면 OpenAI 키 우선, 없으면 Claude, 둘 다 없으면 꺼짐', () => {
+    expect(pickProvider({ openaiKey: true, claudeKey: true })).toBe('openai');
+    expect(pickProvider({ openaiKey: false, claudeKey: true })).toBe('claude');
+    expect(pickProvider({ openaiKey: false, claudeKey: false })).toBeNull();
+  });
+  it('AI_PROVIDER로 정하면 그 공급자(키가 없으면 꺼짐), 대소문자·별명 허용', () => {
+    expect(pickProvider({ choice: ' Claude ', openaiKey: true, claudeKey: true })).toBe('claude');
+    expect(pickProvider({ choice: 'anthropic', openaiKey: true, claudeKey: false })).toBeNull();
+    expect(pickProvider({ choice: 'GPT', openaiKey: true, claudeKey: true })).toBe('openai');
+    expect(pickProvider({ choice: '', openaiKey: false, claudeKey: true })).toBe('claude');
+  });
+  it('OpenAI 모델 후보: 비밀값 먼저, 기본값과 겹치면 한 번만', () => {
+    expect(openaiModels('fast')).toEqual(['gpt-5.4-mini', 'gpt-5-mini']);
+    expect(openaiModels('main', 'gpt-5.6-sol')).toEqual(['gpt-5.6-sol', 'gpt-5.5', 'gpt-5']);
+    expect(openaiModels('main', 'gpt-5')).toEqual(['gpt-5', 'gpt-5.5']);
   });
 });

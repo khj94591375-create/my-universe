@@ -1,7 +1,7 @@
 // 맞춤법 검사. 입력 { workId, text } — text는 화면이 나눠 보낸 문단 묶음(최대 4,000자).
 // 원고·분석 데이터는 읽기만 하고 아무것도 저장하지 않는다. 결과는 작가가 고를 제안 목록.
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
-import { askJson } from '../_shared/claude.ts';
+import { askJson } from '../_shared/ai.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { spellSchema } from '../_shared/schemas.ts';
 import { SPELL_SYSTEM } from '../_shared/prompts.ts';

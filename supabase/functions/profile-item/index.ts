@@ -1,6 +1,6 @@
 // 인물 소개 카드. 입력 { workId, itemId }. 원고 근거가 확인된 외모·성격·말투만 돌려준다. 아무것도 저장하지 않는다.
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
-import { askJson } from '../_shared/claude.ts';
+import { askJson } from '../_shared/ai.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { loadSnapshot, retrieve } from '../_shared/retrieval.ts';
 import { finishProfile } from '../_shared/profile.ts';

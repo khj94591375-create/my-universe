@@ -1,6 +1,6 @@
 // 세계관 질문하기. 입력 { workId, question }. 설정집·원고 장면을 찾아 근거와 함께 답한다. 아무것도 저장하지 않는다.
 import { HttpError, requireOwnWork, requireUser, serve, str } from '../_shared/http.ts';
-import { askJson } from '../_shared/claude.ts';
+import { askJson } from '../_shared/ai.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { loadSnapshot, retrieve } from '../_shared/retrieval.ts';
 import { itemsInQuestion, keepVerified } from '../_shared/ask.ts';

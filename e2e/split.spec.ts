@@ -36,7 +36,7 @@ async function setup(page: Page, fail = false, delay = 0) {
 test('올리면 AI가 회차·장면을 나누고, 합치기·나누기 후 저장하면 그 장면대로', async ({ page }) => {
   const { db, sent } = await setup(page);
   await page.goto('#/w/' + MINE + '/upload');
-  await expect(page.getByText(/파일을 올리면 원고가 AI 회사\(Anthropic\) 서버로 전송되고/)).toBeVisible(); // 올리기 전에 안내
+  await expect(page.getByText(/파일을 올리면 원고가 AI 회사\(OpenAI\) 서버로 전송되고/)).toBeVisible(); // 올리기 전에 안내
   await page.locator('input[type=file]').setInputFiles({ name: '학교.txt', mimeType: 'text/plain', buffer: Buffer.from(FILE) });
   await expect(page.getByText('「학교.txt」 — AI가 앞뒤 문맥을 보고 2개로 나눴어요. 표에서 경계와 번호를 확인해 주세요.')).toBeVisible();
   expect(sent).toHaveLength(1);

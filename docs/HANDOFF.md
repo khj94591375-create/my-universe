@@ -8,7 +8,7 @@
 
 | 항목 | 상태 |
 |---|---|
-| 현재 단계 | **M4·M5 완료(Claude 연결됨 2026-11-10), M6 완료(OpenAI 키 대기), M7 점검 완료 → 남은 것: 실제 원고로 AI 품질 확인, 작가 3명 테스트** |
+| 현재 단계 | **M4·M5 완료(Claude 연결 2026-11-10 → 2026-11-28부터 글 AI는 GPT(OpenAI)), M6 완료(OpenAI 키 대기), M7 점검 완료 → 남은 것: 실제 원고로 AI 품질 확인, 작가 3명 테스트** |
 | 저장소 | https://github.com/khj94591375-create/my-universe (Public, 기본 브랜치 `main`) |
 | 배포 주소 | https://khj94591375-create.github.io/my-universe/ (`main`에 push하면 GitHub Actions가 자동 배포) |
 | GitHub Pages | 켜짐(Source: GitHub Actions). 첫 배포 성공 |
@@ -97,7 +97,7 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 
 - DB `supabase/migrations/0004_ai_ready.sql`(**사용자 실행 필요**): `item_aliases.source`, `increment_ai_usage()`(service role 전용), `search_chunks()`(pg_trgm word_similarity, service role 전용)
 - 서버 `supabase/functions/`:
-  - `_shared/`: `verify.ts`(8.3 근거 검증), `context.ts`(8.2 근거 조립: 8장면·12,000자·150항목), `rules.ts`(8.4 거르기, 8.6 draft 제거), `retrieval.ts`(`retrieve(workId, query, itemIds)`), `claude.ts`(SDK + 구조화 출력, 1회 재시도, 키 없으면 `ai_off`), `schemas.ts`(zod), `prompts.ts`, `limits.ts`, `http.ts`, `deps.ts`(버전 고정)
+  - `_shared/`: `verify.ts`(8.3 근거 검증), `context.ts`(8.2 근거 조립: 8장면·12,000자·150항목), `rules.ts`(8.4 거르기, 8.6 draft 제거), `retrieval.ts`(`retrieve(workId, query, itemIds)`), `ai.ts`(글 AI: OpenAI 또는 Claude, 공급자 고르기는 `provider.ts`. SDK + 구조화 출력, 1회 재시도, 키 없으면 `ai_off`), `schemas.ts`(zod), `prompts.ts`, `limits.ts`, `http.ts`, `deps.ts`(버전 고정)
   - 함수: `ai-status`, `analyze-episode`, `guide`, `design-next`, `chat`, `delete-account`
   - 순수 로직 테스트 `_shared/shared.test.ts`(vitest), 함수 전체는 `deno check` 통과, 가짜 Claude 서버로 요청 모양·재시도·키 없음 확인
   - 배포 `.github/workflows/functions.yml`(GitHub 비밀값 `SUPABASE_ACCESS_TOKEN`이 있을 때만)
@@ -108,7 +108,7 @@ BUILD_SPEC 5장(데이터 모델), 6.1·6.2절(시작·작품 목록), 13장 M1�
 
 ### 3.6 M4 마무리(사용자가 키를 준비하면)
 1. Claude API 키 발급(Claude Console → API Keys), 결제 수단 등록
-2. Supabase → Edge Functions → Secrets: `ANTHROPIC_API_KEY`(필수), 필요하면 `CLAUDE_MODEL_MAIN`(기본 claude-sonnet-5-5), `CLAUDE_MODEL_FAST`(기본 claude-haiku-5-5), `DAILY_AI_TEXT_LIMIT`
+2. Supabase → Edge Functions → Secrets: (2026-11-28부터) `OPENAI_API_KEY`가 있으면 글 AI도 GPT. 모델은 `OPENAI_MODEL_MAIN`(기본 gpt-5.5)·`OPENAI_MODEL_FAST`(기본 gpt-5.4-mini), 공급자를 직접 정하려면 `AI_PROVIDER`(openai|claude). 예전 Claude 설정: `ANTHROPIC_API_KEY`, 필요하면 `CLAUDE_MODEL_MAIN`(기본 claude-sonnet-5-5), `CLAUDE_MODEL_FAST`(기본 claude-haiku-5-5), `DAILY_AI_TEXT_LIMIT`
 3. 함수 배포: Supabase → Account → Access Tokens에서 토큰 발급 → GitHub 저장소 Settings → Secrets and variables → Actions → `SUPABASE_ACCESS_TOKEN` → Actions 탭에서 "Deploy Supabase Edge Functions" 실행
 4. 확인할 것: 서버 키 이름(`SUPABASE_SERVICE_ROLE_KEY` 또는 `SUPABASE_SECRET_KEYS`)이 함수에서 읽히는지, 실제 원고로 analyze-episode 결과 품질과 근거 검증 통과율, 60초 안에 끝나는지
 5. 그다음 M5(채점 도구, 설정 충돌)
