@@ -16,7 +16,15 @@ import { useSession } from '../../features/auth/SessionProvider';
 import { aiErrorMessage, useAiStatus } from '../../features/ai/aiStatus';
 import { clearWorkData } from '../../features/works/workData';
 import { openTour, useGuideState } from '../../features/guide/guideState';
+import { ThemeToggle } from '../../components/ThemeToggle';
 import s from './settings.module.css';
+
+const SECTIONS: [string, string][] = [
+  ['account', copy.settings.account],
+  ['ai', copy.settings.usageTitle],
+  ['data', copy.settings.dataTitle],
+  ['help', copy.help.title],
+];
 
 /** 내 설정(BUILD_SPEC 6.11): 계정, 오늘 AI 사용량, 데이터 내보내기, 로그아웃, 데이터·계정 삭제. */
 export default function SettingsScreen() {
@@ -93,15 +101,29 @@ export default function SettingsScreen() {
   return (
     <main className={s.page}>
       <h1 className={s.title}>{copy.settings.title}</h1>
-      <Card title={copy.settings.account}>
+      <div className={s.layout}>
+      {/* 왼쪽: 묶음으로 바로 가기(계정 · AI 사용 · 데이터 · 도움말) */}
+      <nav className={s.sideNav} aria-label={copy.settings.sections}>
+        {SECTIONS.map(([id, label]) => (
+          <a key={id} href={`#/settings#${id}`} onClick={(e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ block: 'start' }); }}>
+            {label}
+          </a>
+        ))}
+      </nav>
+      <div className={s.sections}>
+      <Card title={copy.settings.account} id="account">
         <p className={s.sub}>{copy.settings.email}</p>
         <p className={s.email}>{session?.user.email ?? '-'}</p>
+        <div className={s.row}>
+          <span className={s.sub}>{copy.settings.theme}</span>
+          <ThemeToggle />
+        </div>
         <Button variant="ghost" onClick={logout} loading={busy === 'logout'}>
           {copy.settings.logout}
         </Button>
       </Card>
 
-      <Card title={copy.settings.usageTitle}>
+      <Card title={copy.settings.usageTitle} id="ai">
         {st?.usage ? (
           <div className={s.usage}>
             <UsageBar label={copy.settings.usageText(st.usage.text, st.limits.text)} used={st.usage.text} limit={st.limits.text} />
@@ -112,15 +134,20 @@ export default function SettingsScreen() {
         )}
         {!ai.on && ai.reason && <p className={s.sub}>{ai.reason}</p>}
         <p className={s.sub}>{copy.settings.usageNote}</p>
+        <p className={s.sub}>{copy.start.aiNotice}</p>
       </Card>
 
-      <Card title={copy.settings.dataTitle}>
+      <Card title={copy.settings.dataTitle} id="data">
         <div className={s.actions}>
           <Button onClick={doExport} loading={busy === 'export'}>
             {busy === 'export' ? copy.settings.exporting : copy.settings.export}
           </Button>
         </div>
         <p className={s.sub}>{copy.settings.exportHint}</p>
+      </Card>
+
+      {/* 삭제는 따로: 지워지는 대상과 영향을 확인한 뒤에만 */}
+      <Card title={copy.settings.dangerTitle} id="delete" className={s.dangerCard}>
         <div className={s.danger}>
           {confirm === 'all' ? (
             <ConfirmBar message={copy.settings.deleteAllConfirm} confirmLabel={copy.settings.yesDelete} cancelLabel={copy.settings.cancel} busy={busy === 'all'} onConfirm={doDeleteAll} onCancel={() => setConfirm(null)} />
@@ -140,7 +167,7 @@ export default function SettingsScreen() {
         </div>
       </Card>
 
-      <Card title={copy.guide.settingsTitle}>
+      <Card title={copy.guide.settingsTitle} id="guide">
         <div className={s.actions}>
           <Button onClick={openTour}>{copy.guide.replay}</Button>
           <Button
@@ -173,6 +200,8 @@ export default function SettingsScreen() {
         <Link to="/works">{copy.common.back}</Link>
         <Link to="/privacy">{copy.privacy.link}</Link>
       </footer>
+      </div>
+      </div>
     </main>
   );
 }

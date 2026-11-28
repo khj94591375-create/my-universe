@@ -52,7 +52,7 @@ export function GallerySection({
   return (
     <Card title={copy.studio.galleryTitle}>
       {images.length === 0 ? (
-        <EmptyState art={art.emptyCollection} title={copy.studio.galleryEmpty} />
+        <EmptyState art={art.emptyGallery} title={copy.studio.galleryEmpty} />
       ) : (
         <ul className={s.gallery}>
           {images.map((img, n) => {

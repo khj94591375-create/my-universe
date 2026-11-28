@@ -14,6 +14,7 @@ import { deleteItems } from '../../../data/items';
 import { recomputeCoOccur } from '../../../features/analysis/runRules';
 import { save } from '../../../features/works/save';
 import { ItemRow } from './ItemRow';
+import { StarShape } from '../../../components/StarShape';
 import s from './bible.module.css';
 
 const KINDS: ItemKind[] = ['character', 'setting', 'foreshadow'];
@@ -31,6 +32,7 @@ export function ItemListSection({ workId }: { workId: string }) {
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [current, setCurrent] = useState<string | null>(null);
   // 우주 지도 등에서 ?item=id 로 오면 그 항목으로 이동해 강조한다
   const [params] = useSearchParams();
   const target = params.get('item');
@@ -43,11 +45,21 @@ export function ItemListSection({ workId }: { workId: string }) {
       const el = document.getElementById(`item-${target}`);
       document.querySelectorAll('[data-target]').forEach((x) => x.removeAttribute('data-target'));
       el?.setAttribute('data-target', '');
+      setCurrent(target);
       el?.scrollIntoView({ block: 'center' });
       el?.focus({ preventScroll: true });
     }, 50);
     return () => window.clearTimeout(t);
   }, [target, ready]);
+  /** 목차에서 고른 항목으로 옮겨 강조(?item= 링크와 같은 방식) */
+  const goTo = (id: string) => {
+    setCurrent(id);
+    const el = document.getElementById(`item-${id}`);
+    document.querySelectorAll('[data-target]').forEach((x) => x.removeAttribute('data-target'));
+    el?.setAttribute('data-target', '');
+    el?.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    el?.focus({ preventScroll: true });
+  };
   if (!data) return null;
   if (data.items.length === 0) return <EmptyState art={art.emptyCollection} title={copy.bible.empty} />;
 
@@ -158,6 +170,29 @@ export function ItemListSection({ workId }: { workId: string }) {
           }
         />
       )}
+      <div className={s.docLayout}>
+      {/* 왼쪽 목차: 종류별 이름 목록. 누르면 오른쪽 상세 문서의 그 항목으로 */}
+      <nav className={s.index} aria-label={copy.bible.indexLabel}>
+        {KINDS.map((k) => {
+          const items = matches.filter((i) => i.kind === k).sort((x, y) => x.name.localeCompare(y.name));
+          if (items.length === 0) return null;
+          return (
+            <div key={k} className={s.indexGroup}>
+              <p className={s.indexHead}>
+                <StarShape kind={k} size={12} /> {copy.labels.kindPlural[k]} ({items.length})
+              </p>
+              <div className={s.indexList}>
+                {items.map((i) => (
+                  <button key={i.id} type="button" className={i.id === current ? `${s.indexItem} ${s.indexOn}` : s.indexItem} aria-current={i.id === current || undefined} onClick={() => goTo(i.id)} title={i.name}>
+                    {i.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </nav>
+      <div className={s.docs}>
       {KINDS.map((k) => {
         const items = matches.filter((i) => i.kind === k).sort((x, y) => x.name.localeCompare(y.name));
         if (items.length === 0) return null;
@@ -173,6 +208,8 @@ export function ItemListSection({ workId }: { workId: string }) {
         );
       })}
       <p className={s.muted}>{copy.bible.imageLater}</p>
+      </div>
+      </div>
     </>
   );
 }

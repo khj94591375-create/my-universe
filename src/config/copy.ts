@@ -648,6 +648,8 @@ export const copy = {
     empty: '원고를 올리거나 직접 추가하면 설정집이 채워져요.',
     pageName: '설정집',
     add: '항목 추가',
+    indexLabel: '설정집 목차',
+    askOpen: '세계관 질문하기',
     addTitle: '새 항목',
     name: '이름',
     kind: '종류',
@@ -837,6 +839,9 @@ export const copy = {
   },
   settings: {
     title: '내 설정',
+    sections: '설정 묶음',
+    theme: '화면 모드',
+    dangerTitle: '데이터·계정 삭제',
     account: '계정',
     email: '구글 이메일',
     logout: '로그아웃',

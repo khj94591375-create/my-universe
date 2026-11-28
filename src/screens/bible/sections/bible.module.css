@@ -229,3 +229,82 @@
   accent-color: var(--c-primary);
   flex: none;
 }
+
+/* ── 2026-11-28 재디자인: 왼쪽 목차 + 오른쪽 상세 문서 ── */
+.docLayout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: var(--sp-5);
+  align-items: start;
+}
+.index {
+  position: sticky;
+  top: calc(var(--bar-h) + var(--sp-3));
+  max-height: calc(100vh - var(--bar-h) - 32px);
+  overflow-y: auto;
+  padding: var(--sp-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.indexList {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+}
+.indexHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--c-sub);
+}
+.indexItem {
+  display: block;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--c-ink);
+  font: inherit;
+  font-size: var(--fs-sm);
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.indexItem:hover {
+  background: var(--c-paper);
+}
+.indexOn {
+  background: var(--c-highlight);
+  color: var(--c-strong);
+  font-weight: 700;
+}
+.docs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+@media (max-width: 960px) {
+  .docLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .index {
+    display: none;
+  }
+}
+.actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}

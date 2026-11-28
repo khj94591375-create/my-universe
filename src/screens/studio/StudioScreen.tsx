@@ -31,7 +31,7 @@ export default function StudioScreen() {
     <ScreenLayout tip="studio" pageName={copy.studio.pageName} title={copy.studio.title}>
       <WorkDataGate workId={workId}>
         {() => (
-          <Columns ratio="1fr 1.2fr">
+          <Columns ratio="35fr 65fr">
             <Column>
               <StudioFormSection
                 workId={workId}
