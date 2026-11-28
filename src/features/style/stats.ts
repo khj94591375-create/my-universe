@@ -60,9 +60,11 @@ export function styleStats(bodies: string[]): StyleStats {
   let past = 0;
   let present = 0;
   for (const s of sentences) {
-    const core = s.replace(/[.!?…\s]+$/, '');
+    // 끝의 문장부호·꾸밈 기호(**, ", 』 등)는 빼고 글자만 본다
+    const core = s.replace(/[^\p{L}\p{N}]+$/u, '');
     if (core.length < 2) continue;
     const end = core.slice(-2);
+    if (!/^[가-힣]{2}$/.test(end)) continue; // 한국어 끝말만 센다
     endings.set(end, (endings.get(end) ?? 0) + 1);
     if (!core.endsWith('다')) continue;
     if (core.length >= 2 && pastSyllable(core[core.length - 2])) past++;

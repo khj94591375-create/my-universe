@@ -19,7 +19,7 @@
   margin: 0;
   /* 상자 대신 왼쪽 가는 선 하나(카드 안에 또 상자를 만들지 않는다) */
   padding: var(--sp-1) 0 var(--sp-1) var(--sp-3);
-  border-left: 2px solid var(--c-gold);
+  border-left: 2px solid var(--c-line);
   font-size: var(--fs-sm);
 }
 .quote footer {

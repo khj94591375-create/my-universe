@@ -31,7 +31,7 @@ export function GuidePanelSection({ workId, itemId }: { workId: string; itemId: 
   const item = itemId && data ? data.itemById.get(itemId) : null;
   if (!data) return null;
   if (!item) {
-    return <p className={s.muted}>{copy.forgot.pickHint}</p>;
+    return <p className={`${s.muted} ${s.pickHint}`}>{copy.forgot.pickHint}</p>;
   }
 
   const guide = templateGuide(item.kind, item.name, item.last_ep);

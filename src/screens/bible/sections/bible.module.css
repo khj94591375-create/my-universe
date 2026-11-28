@@ -101,7 +101,7 @@
 }
 .pasteZone:focus-visible,
 .pasteOver {
-  border-color: var(--c-gold);
+  border-color: var(--c-accent);
   background: var(--c-highlight);
 }
 .pasteZone .thumb {
@@ -173,10 +173,10 @@
   border-color: var(--c-primary);
 }
 .chipOn {
-  background: var(--c-primary);
-  border-color: var(--c-primary);
-  color: var(--c-on-primary);
-  font-weight: 700;
+  /* 고른 칩은 앱 전체에서 같은 모양: 크림 바탕 + 보라 테두리(목차의 고른 항목과 같은 색) */
+  background: var(--c-highlight);
+  border-color: var(--c-strong);
+  font-weight: 600;
 }
 .row[data-target] {
   outline: 2px solid var(--c-focus);
@@ -302,12 +302,17 @@
     grid-template-columns: minmax(0, 1fr);
   }
   /* 휴대폰: 목차를 위에(가로로 넘겨 고르기), 고른 항목 상세는 아래 */
+  /* 휴대폰: 상자 없이 옆으로 넘기는 칩 줄(화면 끝까지 이어져 잘려 보이지 않게) */
   .index {
     position: static;
     max-height: none;
     flex-direction: row;
     overflow-x: auto;
     gap: var(--sp-4);
+    padding: 0 0 var(--sp-2);
+    border: 0;
+    border-radius: 0;
+    background: none;
   }
   .indexGroup {
     flex: none;

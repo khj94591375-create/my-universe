@@ -226,7 +226,7 @@ export function FileUploadSection({ workId }: { workId: string }) {
   const okNos = (results ?? []).filter((r) => r.ok).map((r) => r.no).sort((a, b) => a - b);
 
   return (
-    <Card>
+    <Card tone="plain">
       <div className={s.fileWrap}>
         <div
           className={dragOver ? `${s.drop} ${s.dropOn}` : s.drop}

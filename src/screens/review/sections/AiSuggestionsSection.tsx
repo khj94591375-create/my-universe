@@ -22,7 +22,7 @@ export function AiSuggestionsSection({ workId }: { workId: string }) {
   return (
     <>
       {aliases.length > 0 && (
-        <Card title={copy.review.aiAliasesTitle}>
+        <Card title={copy.review.aiAliasesTitle} tone="plain">
           <ul className={s.rows}>
             {aliases.map(({ item, alias }) => (
               <li key={`${item.id}|${alias}`} className={s.row}>
@@ -46,7 +46,7 @@ export function AiSuggestionsSection({ workId }: { workId: string }) {
         </Card>
       )}
       {links.length > 0 && (
-        <Card title={copy.review.aiLinksTitle}>
+        <Card title={copy.review.aiLinksTitle} tone="plain">
           <ul className={s.rows}>
             {links.map((l) => (
               <li key={l.id} className={s.row}>

@@ -184,7 +184,6 @@
 .continue {
   align-self: flex-start;
   margin-top: var(--sp-2);
-  border-radius: var(--r-pill);
 }
 .more {
   position: relative;

@@ -167,3 +167,9 @@
   flex-wrap: wrap;
   gap: var(--sp-2);
 }
+/* 휴대폰은 목록 아래에 이어지므로 "고르면 보여 드려요" 안내가 필요 없다 */
+@media (max-width: 860px) {
+  .pickHint {
+    display: none;
+  }
+}

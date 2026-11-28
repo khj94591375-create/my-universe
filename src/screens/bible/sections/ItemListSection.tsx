@@ -199,7 +199,7 @@ export function ItemListSection({ workId }: { workId: string }) {
         const items = selecting ? all : all.filter((i) => i.id === shown);
         if (items.length === 0) return null;
         return (
-          <Card key={k} title={`${copy.labels.kindPlural[k]} · ${copy.bible.count(all.length)}`}>
+          <Card key={k} title={selecting ? `${copy.labels.kindPlural[k]} · ${copy.bible.count(all.length)}` : copy.labels.kindPlural[k]}>
             {/* 종류 설명은 전체 목록(여러 개 고르기)에서만. 항목 하나를 볼 때는 바로 내용부터 */}
             {selecting && <p className={s.muted}>{copy.labels.kindHelp[k]}</p>}
             <ul className={s.list}>

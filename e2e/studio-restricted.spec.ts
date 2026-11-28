@@ -20,7 +20,7 @@ for (const restricted of [true, false])
     await page.goto(`#/w/${MINE}/studio`);
     if (restricted) {
       await expect(page.getByText(/삽화 그리기는 지금 쉬고 있어요/).first()).toBeVisible();
-      await expect(page.getByText(/이미지 AI 키가 아직 없어요/)).toHaveCount(0);
+      await expect(page.getByText(/그림 AI가 아직 준비되지/)).toHaveCount(0);
       await expect(page.getByText('지금 로그인한 계정(w@e.com)은 삽화 허용 목록에 없어요.', { exact: false })).toBeVisible();
     } else {
       await expect(page.getByText(/삽화 그리기는 지금 쉬고 있어요/)).toHaveCount(0);

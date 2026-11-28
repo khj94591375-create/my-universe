@@ -23,11 +23,11 @@
 .bar span {
   display: block;
   height: 100%;
-  background: var(--c-gold);
+  background: var(--c-accent);
 }
 .tags {
   display: flex;
-  gap: 5px;
+  gap: var(--sp-1) var(--sp-4); /* 상태별 개수 사이를 넉넉히 띄워 한 덩어리로 붙어 보이지 않게 */
   flex-wrap: wrap;
 }
 .list {

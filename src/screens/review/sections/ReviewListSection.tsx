@@ -70,7 +70,7 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
           for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) pairs.set(`${ids[i]}|${ids[j]}`, (pairs.get(`${ids[i]}|${ids[j]}`) ?? 0) + 1);
         }
         return (
-          <Card key={ep.id} title={copy.review.epHead(ep.no, ep.title ?? `${ep.no}화`)}>
+          <Card key={ep.id} tone="plain" title={copy.review.epHead(ep.no, ep.title ?? `${ep.no}화`)}>
             <p className={s.muted}>{copy.review.found(new Set(apps.map((a) => a.item_id)).size)}</p>
             {/* 맞춤법 검사는 선택(설명은 화면 위 한 줄에만) */}
             <p className={s.muted}>

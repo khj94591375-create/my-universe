@@ -26,7 +26,7 @@
 }
 .no {
   font-weight: 700;
-  color: var(--c-gold-ink);
+  color: var(--c-sub);
   font-variant-numeric: tabular-nums;
 }
 .rowMain {
@@ -86,7 +86,7 @@
   background: var(--c-field);
 }
 .checkOn {
-  border-color: var(--c-gold);
+  border-color: var(--c-accent);
   background: var(--c-highlight);
 }
 .body {
@@ -114,7 +114,7 @@
 .mark {
   background: var(--c-highlight);
   color: inherit;
-  border-bottom: 2px solid var(--c-gold);
+  border-bottom: 2px solid var(--c-accent);
   padding: 0 1px;
 }
 .form {

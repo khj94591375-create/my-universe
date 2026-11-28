@@ -4,6 +4,7 @@
   border-bottom: 1px solid var(--c-line);
   overflow-x: auto;
   scrollbar-width: none;
+  padding-right: var(--sp-3); /* 마지막 탭의 숫자가 화면 끝에 붙지 않게 */
 }
 .tab {
   position: relative;

@@ -16,7 +16,7 @@
   height: 16px;
   border-radius: 50%;
   border: 2px solid var(--c-line);
-  border-top-color: var(--c-gold);
+  border-top-color: var(--c-accent);
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin {
@@ -80,7 +80,7 @@
   width: 100%;
 }
 .input:focus-visible {
-  border-color: var(--c-gold);
+  border-color: var(--c-accent);
 }
 .srOnly {
   position: absolute;

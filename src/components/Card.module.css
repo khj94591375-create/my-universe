@@ -6,7 +6,7 @@
   min-width: 0;
 }
 .highlight {
-  border-color: var(--c-gold);
+  border-color: var(--c-accent);
 }
 .navy {
   background: var(--c-navy);
@@ -24,4 +24,8 @@
   border-top: 1px solid var(--c-line);
   border-radius: 0;
   padding: var(--sp-4) 0 0;
+}
+.plain > .title {
+  font-family: var(--f-display);
+  font-size: var(--fs-lg);
 }

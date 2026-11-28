@@ -27,6 +27,12 @@ describe('문체 통계(브라우저 안)', () => {
     expect(st.marks.ellipsis).toBeGreaterThan(0);
   });
 
+  it('문장 끝의 꾸밈 기호(**, 따옴표)는 끝말로 세지 않는다', () => {
+    const st = styleStats(['**리안은 문을 열었다.**\n세린이 웃었다.**\n바람이 불었다.*']);
+    expect(st.endings.map((e) => e.text)).not.toContain('**');
+    expect(st.endings.find((e) => e.text === '었다')?.count).toBe(3);
+  });
+
   it('빈 원고도 오류 없이 0', () => {
     const st = styleStats(['']);
     expect(st.sentences).toBe(0);

@@ -75,7 +75,7 @@ export function PasteSection({ workId }: { workId: string }) {
   };
 
   return (
-    <Card>
+    <Card tone="plain">
       <form className={s.form} onSubmit={submit}>
         <div className={s.row}>
           <div className={s.no}>

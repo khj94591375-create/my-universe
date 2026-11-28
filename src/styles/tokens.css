@@ -103,7 +103,7 @@
   --c-backdrop: rgba(34, 31, 53, 0.5); /* 모달 뒤 어둡게 */
 
   /* 글꼴 */
-  --f-display: 'Noto Serif KR', 'Apple SD Gothic Neo', serif;
+  --f-display: 'Noto Serif KR', 'Nanum Myeongjo', 'AppleMyungjo', 'Batang', serif; /* 글꼴을 못 받아도 한국어 명조로 */
   --f-body: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
 
   /* 글자 크기 */

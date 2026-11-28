@@ -66,7 +66,7 @@
   text-align: center;
 }
 .dropOn {
-  border-color: var(--c-gold);
+  border-color: var(--c-accent);
   background: var(--c-highlight);
 }
 .dropTitle {
@@ -171,7 +171,7 @@
 .bar span {
   display: block;
   height: 100%;
-  background: var(--c-gold);
+  background: var(--c-accent);
   transition: width 0.2s;
 }
 .failed {

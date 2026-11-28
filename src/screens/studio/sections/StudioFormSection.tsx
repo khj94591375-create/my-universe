@@ -133,11 +133,10 @@ export function StudioFormSection({ workId, prefill, onCreated }: { workId: stri
       {group(data.items.filter((i) => i.kind === 'character'), copy.studio.characters)}
       {group(data.items.filter((i) => i.kind !== 'character'), copy.studio.places)}
 
+      {/* 고른 항목이 있을 때만: 설정집에서 함께 넣는 묘사(비어 있는 제목·설명을 늘어놓지 않는다) */}
+      {chosen.length > 0 && (
       <div className={s.looks}>
         <h2 className={s.lookHead}>{copy.studio.lookTitle}</h2>
-        {chosen.length === 0 ? (
-          <p className={s.muted}>{copy.studio.lookEmpty}</p>
-        ) : (
           <ul>
             {chosen.map((i) => (
               <li key={i.id}>
@@ -145,8 +144,8 @@ export function StudioFormSection({ workId, prefill, onCreated }: { workId: stri
               </li>
             ))}
           </ul>
-        )}
       </div>
+      )}
 
       <TextArea label={copy.studio.scene} placeholder={copy.studio.scenePlaceholder} value={scene} onChange={(e) => setScene(e.target.value)} rows={3} maxLength={600} />
       <div className={s.row}>

@@ -126,7 +126,8 @@ function SlideArt({ k }: { k: StartSlide }) {
   const a = art.feature[k];
   return (
     <div className={s.panel} style={{ ['--bg' as string]: `url(${a.src})` }}>
-      <ArtImage art={a} className={s.art} />
+      {/* 넘기기 칸은 가로로 가려져 있어 lazy면 옆 장면이 빈 칸으로 보인다 → 미리 받는다 */}
+      <ArtImage art={a} className={s.art} eager />
     </div>
   );
 }

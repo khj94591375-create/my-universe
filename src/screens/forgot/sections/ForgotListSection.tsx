@@ -88,7 +88,7 @@ export function ForgotListSection({ workId, selectedId, onSelect }: { workId: st
                   <GapTag gap={i.gap} />
                   <StatusTag status={i.status} />
                   {reuse && (
-                    <Tag tone={reuseTone[reuse.level]}>
+                    <Tag tone={reuseTone[reuse.level]} plain>
                       {copy.forgot.reuseTitle} {reuse.label}
                     </Tag>
                   )}

@@ -18,13 +18,11 @@
   outline: none;
 }
 .sampleBar {
+  /* 알약 대신 조용한 한 줄(금색은 화면의 주 행동에만) */
   align-self: flex-start;
-  background: var(--c-highlight);
-  color: var(--c-gold-ink);
+  color: var(--c-sub);
   font-size: var(--fs-xs);
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: var(--r-pill);
+  font-weight: 600;
 }
 .sampleHint {
   font-weight: 400;

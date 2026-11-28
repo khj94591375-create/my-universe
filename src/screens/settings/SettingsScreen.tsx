@@ -23,6 +23,8 @@ const SECTIONS: [string, string][] = [
   ['account', copy.settings.account],
   ['ai', copy.settings.usageTitle],
   ['data', copy.settings.dataTitle],
+  ['delete', copy.settings.dangerTitle],
+  ['guide', copy.guide.settingsTitle],
   ['help', copy.help.title],
 ];
 
@@ -189,7 +191,9 @@ export default function SettingsScreen() {
         <p className={s.sub}>{copy.help.mailHint(site.contactEmail)}</p>
         {/* 한 줄짜리 묶음(도구·서버 연결)은 따로 상자를 만들지 않고 도움말 아래에 */}
         <p className={s.sub}>
-          {copy.settings.connection}: {isSupabaseConfigured ? copy.settings.connected : copy.settings.notConnected} · <Link to="/eval">{copy.eval.toolLink}</Link>
+          {/* 서버 연결 상태는 문제가 있을 때만 */}
+          {!isSupabaseConfigured && <>{copy.settings.connection}: {copy.settings.notConnected} · </>}
+          <Link to="/eval">{copy.eval.toolLink}</Link>
         </p>
       </Card>
       <footer className={s.footer}>
