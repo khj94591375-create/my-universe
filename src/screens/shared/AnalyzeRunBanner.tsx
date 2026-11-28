@@ -23,10 +23,11 @@ export function AnalyzeRunBanner({ workId }: { workId: string }) {
   }
   const failed = run.results.filter((r) => !r.ok);
   const found = run.results.reduce((n, r) => n + r.found, 0);
+  const proposed = run.results.reduce((n, r) => n + (r.proposed ?? 0), 0);
   return (
     <div className={failed.length ? `${s.banner} ${s.warn}` : `${s.banner} ${s.ok}`} role={failed.length ? 'alert' : 'status'}>
       <div className={s.body}>
-        <p className={s.head}>{copy.ai.runDone(found)}</p>
+        <p className={s.head}>{run.mode === 'relations' ? copy.ai.relationsDone(found, proposed) : copy.ai.runDone(found)}</p>
         {failed.length > 0 && (
           <ul className={s.failed}>
             {failed.map((f) => (

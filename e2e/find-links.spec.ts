@@ -30,7 +30,7 @@ test('확인 후 관계만 찾고, 끝나면 지도에 새 선', async ({ page }
   await expect(page.getByText(/올린 회차 1개를 AI가 다시 읽고/)).toBeVisible();
   expect(calls).toHaveLength(0); // 확인 전
   await page.getByRole('button', { name: '관계 찾기 시작' }).click();
-  await expect(page.getByText('AI 정리를 마쳤어요 · 새로 찾은 것 1개')).toBeVisible();
+  await expect(page.getByText('관계 선 1개를 새로 이었어요', { exact: false })).toBeVisible();
   expect(calls).toEqual([{ workId: MINE, episodeId: ep, mode: 'relations' }]);
   await expect(page.locator('[data-link]')).toHaveCount(before + 1);
 });

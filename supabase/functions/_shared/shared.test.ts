@@ -2,7 +2,7 @@ import { openaiModels, pickProvider } from './provider.ts';
 import { describe, expect, it } from 'vitest';
 import { normalize, parseTag, verifyEvidence } from './verify.ts';
 import { buildContext, pickScenes, trimItems, type CtxItem } from './context.ts';
-import { filterAnalysis, finishDesign, markEvidence, trimAtSentence } from './rules.ts';
+import { filterAnalysis, finishDesign, markEvidence, repairRelations, trimAtSentence } from './rules.ts';
 
 const scenes = new Map([['E3-S1', '“반쪽으로는 열리지 않는다.” 등 뒤에서 목소리가 들렸다.\n노인은   웃었다...']]);
 
@@ -495,5 +495,39 @@ describe('AI 추정 표시가 AI 맥락에도 들어간다', () => {
     expect(ctx.text).not.toContain('[캐릭터] 리안 · 1~2화 (AI');
     expect(ctx.text).toContain('- 리안 – 세린: 「스승과 제자」 (AI 추정, 작가 확인 전)');
     expect(ctx.text.split('\n')).toContain('- 리안 – 하람: 「친구」');
+  });
+});
+
+describe('AI로 관계 찾기: 관계 바로잡기', () => {
+  const sc = new Map([
+    ['E2-S1', '리안은 서고 문을 열었다. 노인이 리안에게 은열쇠를 건넸다.'],
+    ['E2-S2', '세린은 금서 구역 앞에서 기다렸다.'],
+  ]);
+  const names = new Map([
+    ['리안', []],
+    ['검은 망토의 노인', ['노인']],
+    ['반쪽짜리 은열쇠', ['은열쇠']],
+    ['세린', []],
+    ['금서 구역', []],
+  ]);
+  const r = (a: string, b: string, evidence: string, tag: string) => ({ a, b, label: '관계', evidence, tag });
+
+  it('근거가 맞으면 그대로, 별칭·「」은 설정집 이름으로', () => {
+    const out = repairRelations([r('「노인」', '리안', '노인이 리안에게 은열쇠를 건넸다.', 'E2-S1')], sc, names);
+    expect(out).toHaveLength(1);
+    expect(out[0].a).toBe('검은 망토의 노인');
+  });
+  it('꼬리표만 틀리면 맞는 장면으로 고친다', () => {
+    const out = repairRelations([r('세린', '금서 구역', '세린은 금서 구역 앞에서 기다렸다.', 'E2-S1')], sc, names);
+    expect(out[0].tag).toBe('E2-S2');
+  });
+  it('근거를 못 찾으면 두 이름이 함께 나온 원고 문장을 근거로', () => {
+    const out = repairRelations([r('리안', '반쪽짜리 은열쇠', '리안은 열쇠를 받았다', 'E2-S1')], sc, names);
+    expect(out[0].evidence).toBe('노인이 리안에게 은열쇠를 건넸다.');
+    expect(filterAnalysis({ summary: '', new_items: [], aliases: [], resolutions: [], relations: out }, sc, new Set(names.keys())).relations).toHaveLength(1);
+  });
+  it('원고로 확인할 수 없으면 버린다(근거를 지어내지 않음)', () => {
+    expect(repairRelations([r('세린', '반쪽짜리 은열쇠', '세린이 열쇠를 훔쳤다', 'E2-S1')], sc, names)).toHaveLength(0);
+    expect(repairRelations([r('없는사람', '리안', '리안은 서고 문을 열었다.', 'E2-S1')], sc, names)).toHaveLength(0);
   });
 });

@@ -42,8 +42,10 @@ export function ForgotListSection({ workId, selectedId, onSelect }: { workId: st
   const togglePick = (id: string) => setPicked((old) => (old.includes(id) ? old.filter((x) => x !== id) : [...old, id]));
 
   const byKind = data.items.filter((i) => kind === 'all' || i.kind === kind);
+  // 회수 상태는 복선에만 있는 개념: 상태 필터·개수·표시는 복선만 센다(작업실 "복선 회수 현황"과 같은 숫자)
+  const fsWith = (st: ItemStatus) => byKind.filter((i) => i.kind === 'foreshadow' && i.status === st);
   const list = byKind
-    .filter((i) => status === 'all' || i.status === status)
+    .filter((i) => status === 'all' || (i.kind === 'foreshadow' && i.status === status))
     .sort((x, y) => (y.gap ?? -1) - (x.gap ?? -1) || x.name.localeCompare(y.name));
 
   return (
@@ -54,7 +56,7 @@ export function ForgotListSection({ workId, selectedId, onSelect }: { workId: st
         </FilterButton>
         {STATUSES.map((st) => (
           <FilterButton key={st} active={status === st} onClick={() => setStatus(st)}>
-            {copy.labels.status[st]} {byKind.filter((i) => i.status === st).length}
+            {copy.labels.status[st]} {fsWith(st).length}
           </FilterButton>
         ))}
       </div>
@@ -86,7 +88,7 @@ export function ForgotListSection({ workId, selectedId, onSelect }: { workId: st
                 </span>
                 <span className={s.cardTags}>
                   <GapTag gap={i.gap} />
-                  <StatusTag status={i.status} />
+                  {i.kind === 'foreshadow' && <StatusTag status={i.status} />}
                   {reuse && (
                     <Tag tone={reuseTone[reuse.level]} plain>
                       {copy.forgot.reuseTitle} {reuse.label}

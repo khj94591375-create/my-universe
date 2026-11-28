@@ -1048,6 +1048,13 @@ export const copy = {
     runningHint: '끝나면 결과가 이 화면에 자동으로 나타나요.',
     runDone: (n: number) => (n > 0 ? `AI 정리를 마쳤어요 · 새로 찾은 것 ${n}개` : 'AI 정리를 마쳤어요 · 새로 찾은 것은 없어요'),
     runClose: '닫기',
+    /** 우주 지도 "AI로 관계 찾기" 결과 */
+    relationsDone: (added: number, proposed: number) =>
+      added > 0
+        ? `관계 선 ${added}개를 새로 이었어요. 지도에 "AI 추정" 선으로 보여요.`
+        : proposed > 0
+          ? 'AI가 찾은 관계는 이미 지도에 이어져 있었어요.'
+          : '원고에서 이을 만한 관계를 찾지 못했어요. 두 항목이 한 장면에 함께 나오고 사이가 드러나는 문장이 있어야 이어져요.',
     stillRunning: 'AI가 아직 이 회차를 정리하는 중이에요.',
     episodeRunning: 'AI 정리 중',
   },

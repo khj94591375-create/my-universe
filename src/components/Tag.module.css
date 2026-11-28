@@ -50,3 +50,7 @@
 .plain:not(.warn):not(.ai) {
   color: var(--c-sub);
 }
+.plain.warn {
+  color: var(--c-warn);
+  font-weight: 700;
+}

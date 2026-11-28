@@ -1,7 +1,7 @@
 /*
  * AI 결과를 저장·표시하기 전에 거르는 규칙(BUILD_SPEC 8.4~8.7). 순수 함수.
  */
-import { keepVerified, verifyEvidence } from './verify.ts';
+import { keepVerified, normalize, verifyEvidence } from './verify.ts';
 
 export const MIN_CONFIDENCE = 0.5;
 
@@ -30,6 +30,56 @@ export function filterAnalysis(out: AnalysisOut, scenes: Map<string, string>, ex
     relations: keepVerified(out.relations, scenes).filter((r) => names.has(r.a) && names.has(r.b) && r.a !== r.b),
     resolutions: keepVerified(out.resolutions, scenes).filter((r) => existingNames.has(r.item_name)),
   };
+}
+
+/** 장면 본문을 문장으로 나눈다(뒤쪽 확인 정규식 없이: 브라우저와 함께 쓰는 규칙) */
+function sentencesOf(text: string): string[] {
+  return text
+    .replace(/([.!?…]["'”’」』)]*)\s+/g, '$1\n')
+    .split(/\n+/)
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
+
+/**
+ * AI가 준 관계를 저장 전에 바로잡는다(근거를 지어내지는 않는다).
+ * - 이름: 앞뒤 공백·「」·따옴표를 떼고, 별칭으로 적었으면 설정집 이름으로 바꾼다.
+ * - 근거: 꼬리표 장면에 글자 그대로 없으면 이 회차의 다른 장면에서 찾고(꼬리표만 틀린 경우),
+ *   그래도 없으면 두 항목 이름(별칭 포함)이 함께 나오는 원고 문장을 근거로 쓴다. 그런 문장도 없으면 버린다.
+ * names: 설정집 이름 → [이름, ...별칭]
+ */
+export function repairRelations<T extends Ev & { a: string; b: string; label: string }>(list: T[], scenes: Map<string, string>, names: Map<string, string[]>): T[] {
+  const clean = (n: string) => n.trim().replace(/^[「『"'“‘\[(]+|[」』"'”’\])]+$/g, '').trim();
+  const canon = new Map<string, string>();
+  for (const [name, aliases] of names) for (const n of [name, ...aliases]) if (n.trim() && !canon.has(n.trim())) canon.set(n.trim(), name);
+  const toName = (n: string) => canon.get(clean(n)) ?? null;
+  const out: T[] = [];
+  for (const r of list) {
+    const a = toName(r.a);
+    const b = toName(r.b);
+    if (!a || !b || a === b) continue;
+    let { evidence, tag } = r;
+    if (!verifyEvidence(evidence, tag, scenes)) {
+      const ev = normalize(evidence ?? '');
+      const hit = ev.length >= 6 ? [...scenes].find(([, text]) => normalize(text).includes(ev)) : undefined;
+      if (hit) tag = hit[0];
+      else {
+        const has = (sent: string, n: string) => (names.get(n) ?? [n]).concat(n).some((x) => x.trim().length >= 2 && sent.includes(x.trim()));
+        let found: [string, string] | null = null;
+        for (const [t, text] of scenes) {
+          const sent = sentencesOf(text).find((x) => has(x, a) && has(x, b));
+          if (sent) {
+            found = [t, sent];
+            break;
+          }
+        }
+        if (!found) continue;
+        [tag, evidence] = found;
+      }
+    }
+    out.push({ ...r, a, b, evidence, tag, label: r.label.trim() });
+  }
+  return out;
 }
 
 /** 8.6 [고정]: 초안 스위치가 꺼져 있으면 서버에서 draft를 지운다. 근거 없는 사용처는 "근거 없음"으로. */

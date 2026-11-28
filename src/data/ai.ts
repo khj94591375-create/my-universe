@@ -65,4 +65,4 @@ export type SplitResult = { starts: { line: number; title: string; heading: bool
 
 export type SummaryResult = { summary: string };
 
-export type AnalyzeResult = { summary: string; counts: { new_items: number; aliases: number; relations: number; resolutions: number } };
+export type AnalyzeResult = { summary: string; counts: { new_items: number; aliases: number; relations: number; resolutions: number }; proposed?: number };

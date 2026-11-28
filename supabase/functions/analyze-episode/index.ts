@@ -6,7 +6,7 @@ import { askJson } from '../_shared/ai.ts';
 import { addUsage, checkLimit } from '../_shared/limits.ts';
 import { loadSnapshot, relationsFor } from '../_shared/retrieval.ts';
 import { buildContext, trimItems } from '../_shared/context.ts';
-import { filterAnalysis } from '../_shared/rules.ts';
+import { filterAnalysis, repairRelations } from '../_shared/rules.ts';
 import { parseTag } from '../_shared/verify.ts';
 import { analysisSchema, relationsSchema } from '../_shared/schemas.ts';
 import { ANALYZE_SYSTEM, RELATIONS_SYSTEM } from '../_shared/prompts.ts';
@@ -32,11 +32,13 @@ serve(async (ctx) => {
   const all = new Set(snap.items.map((i) => i.id));
   const context = buildContext(trimItems(snap.items, new Set(), new Set()), prev, chunks.map((c) => ({ ep: ep.no, seq: c.seq, text: c.text })), undefined, relationsOnly ? relationsFor(snap, all, 60) : []);
   const raw = relationsOnly
-    ? { summary: '', new_items: [], aliases: [], resolutions: [], ...(await askJson({ tier: 'fast', system: RELATIONS_SYSTEM, user: `${context.text}\n\n위 ${ep.no}화에서 설정집 항목 사이의 관계를 찾아 JSON으로 답하라.`, schema: relationsSchema })) }
+    ? { summary: '', new_items: [], aliases: [], resolutions: [], ...(await askJson({ tier: 'main', system: RELATIONS_SYSTEM, user: `${context.text}\n\n위 ${ep.no}화에서 설정집 항목 사이의 관계를 찾아 JSON으로 답하라.`, schema: relationsSchema })) }
     : await askJson({ tier: 'fast', system: ANALYZE_SYSTEM, user: `${context.text}\n\n위 ${ep.no}화를 정리해 JSON으로 답하라.`, schema: analysisSchema });
 
   const byName = new Map(snap.items.map((i) => [i.name, i.id]));
-  const out = filterAnalysis(raw, context.scenes, new Set(byName.keys()));
+  // 관계는 이름(별칭)·근거 꼬리표가 조금 어긋나도 원고 문장으로 바로잡아 살린다(지어낸 근거는 여전히 버림)
+  const fixedRelations = repairRelations(raw.relations, context.scenes, new Map(snap.items.map((i) => [i.name, i.aliases])));
+  const out = filterAnalysis({ ...raw, relations: fixedRelations }, context.scenes, new Set(byName.keys()));
   const chunkOf = (tag: string) => {
     const t = parseTag(tag);
     return chunks.find((c) => t && c.seq === t.seq)?.id ?? null;
@@ -105,5 +107,7 @@ serve(async (ctx) => {
     summary: out.summary,
     counts: { new_items: newItems, aliases: newAliases, relations: newRelations, resolutions: newResolutions },
     dropped: raw.new_items.length + raw.aliases.length + raw.relations.length + raw.resolutions.length - (out.new_items.length + out.aliases.length + out.relations.length + out.resolutions.length),
+    // 관계 찾기: AI가 낸 관계 수(이미 있던 선과 겹치거나 근거가 없어 빠진 것 포함) — 화면에서 "찾았지만 이미 있음/근거 없음"을 구분해 알려 준다
+    proposed: raw.relations.length,
   };
 });

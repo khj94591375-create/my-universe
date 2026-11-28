@@ -6,12 +6,12 @@ import { Tag, type TagTone } from './Tag';
 import { StarShape } from './StarShape';
 import s from './Badges.module.css';
 
-/** 미등장 회차 수 태그. gap으로 문구·색이 자동으로 정해진다(BUILD_SPEC 7.1). 오래 잊힌 경고만 알약 모양, 나머지는 글자만. */
+/** 미등장 회차 수 태그. gap으로 문구·색이 자동으로 정해진다(BUILD_SPEC 7.1). 모두 글자만(알약 없이), 오래 잊힌 경고만 경고색 굵은 글자. */
 export function GapTag({ gap }: { gap: number | null }) {
   if (gap == null) return null;
   const { text, tone } = gapLabel(gap);
   return (
-    <Tag tone={tone} plain={tone !== 'warn'}>
+    <Tag tone={tone} plain>
       {text}
     </Tag>
   );
