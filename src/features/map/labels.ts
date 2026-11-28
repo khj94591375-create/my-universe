@@ -22,7 +22,7 @@ export function shortLabel(text: string, max: number): string {
   return `${cut.trimEnd()}…`;
 }
 
-export const LABEL_FONT = 17; // 화면에서 보이는 별 이름 글자 크기(px)
+export const LABEL_FONT = 16; // 화면에서 보이는 별 이름 글자 크기(px, 시안: 15~17)
 export const LINK_FONT = 15; // 관계 이름 글자 크기(px)
 
 /** 글자 수로 어림한 이름 상자 크기(지도 좌표). 한글 한 글자 ≈ 글자 크기. */
@@ -102,14 +102,15 @@ class BoxGrid {
   }
 }
 
-export type StarLabelInput = { id: string; x: number; y: number; r: number; name: string; priority: number; force?: boolean };
+export type StarLabelInput = { id: string; x: number; y: number; r: number; name: string; priority: number; force?: boolean; /** 별 위에 표식(AI 등)이 있으면 위 자리는 쓰지 않는다 */ markTop?: boolean };
 
 /**
  * 별 이름 위치 정하기(욕심쟁이 배치). 우선순위가 높은 이름부터 놓고, 이미 놓인 이름·별·막힌 곳과 겹치면 숨긴다.
  * force인 이름(고른 별·가리킨 별)은 겹쳐도 보여 준다.
  * k = 확대 배율(이름 상자를 1/k로 줄여 계산).
  */
-export function placeStarLabels(stars: StarLabelInput[], k: number, blocked: Box[] = []): Map<string, Box> {
+/** bounds: 보이는 지도 범위(이 밖으로 나가는 자리는 쓰지 않는다) */
+export function placeStarLabels(stars: StarLabelInput[], k: number, blocked: Box[] = [], bounds?: Box): Map<string, Box> {
   const f = LABEL_FONT / k;
   const cell = f * 8;
   // 별·막힌 곳·이미 놓은 이름을 칸별로 기억
@@ -126,10 +127,22 @@ export function placeStarLabels(stars: StarLabelInput[], k: number, blocked: Box
   const placed = new Map<string, Box>();
   const order = [...stars].sort((a, b) => Number(Boolean(b.force)) - Number(Boolean(a.force)) || b.priority - a.priority || a.name.localeCompare(b.name));
   for (const st of order) {
-    const box = textBox(st.x, st.y + st.r + f * 0.95, st.name, f);
+    // 자리 후보: 아래 → 위 → 오른쪽 → 왼쪽(겹치면 다음 자리). 이름을 숨기는 것은 마지막 수단
+    const w = textBox(0, 0, st.name, f);
+    const half = (w.x1 - w.x0) / 2;
+    const spots = [
+      textBox(st.x, st.y + st.r + f * 0.95, st.name, f),
+      ...(st.markTop ? [] : [textBox(st.x, st.y - st.r - f * 0.75, st.name, f)]),
+      textBox(st.x + st.r + f * 0.4 + half, st.y + f * 0.1, st.name, f),
+      textBox(st.x - st.r - f * 0.4 - half, st.y + f * 0.1, st.name, f),
+    ];
     // 자기 별과 겹치는 건 괜찮다: 자기 별을 뺀 나머지 별과만 비교
-    const hitsStar = starGrid.hits(box, starBox.get(st.id));
-    if (st.force || (!hitsStar && !labelGrid.hits(box) && !blockGrid.hits(box))) {
+    // 보이는 범위 안의 별만 범위 검사(밖에 있는 별의 이름은 어차피 안 보이므로 예전처럼)
+    const inView = !bounds || (st.x >= bounds.x0 && st.x <= bounds.x1 && st.y >= bounds.y0 && st.y <= bounds.y1);
+    const inside = (box: Box) => !bounds || !inView || (box.x0 >= bounds.x0 && box.x1 <= bounds.x1 && box.y0 >= bounds.y0 && box.y1 <= bounds.y1);
+    const free = (box: Box) => inside(box) && !starGrid.hits(box, starBox.get(st.id)) && !labelGrid.hits(box) && !blockGrid.hits(box);
+    const box = spots.find(free) ?? (st.force ? spots[0] : null);
+    if (box) {
       placed.set(st.id, box);
       labelGrid.add(box);
     }

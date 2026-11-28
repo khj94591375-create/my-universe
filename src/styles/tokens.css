@@ -276,19 +276,21 @@
 /* 작업 공간의 우주 지도: 밝게·어둡게 모두 짙은 밤하늘(#181B31 계열). 배경 안개 그림은 대비를 낮게, 별·이름이 가장 잘 보이게 */
 [data-mu-workspace] {
   --c-map-from: #22264a;
-  --c-map-to: #181b31;
-  --c-map-from-rgb: 34 38 74;
-  --c-map-to-rgb: 24 27 49;
-  --map-sky-veil-center: 0.55;
-  --map-sky-veil-edge: 0.35;
+  --c-map-to: #17192d;
+  --c-map-from-rgb: 23 25 45;
+  --c-map-to-rgb: 23 25 45;
+  /* 밤하늘 그림은 거의 그대로(아주 얇은 어두운 덮개만): 가운데 12%, 가장자리 0% */
+  --map-sky-veil-center: 0.12;
+  --map-sky-veil-edge: 0;
   --c-map-hub-line: #3a3f6a;
-  --c-map-co: #b9bfdc;
+  /* 관계선: 은보라·샴페인 가는 곡선, 고른 관계는 금빛 */
+  --c-map-co: #bdb0cb;
   --c-map-ai: #d6c8f2;
-  --c-map-manual: #edcf89;
-  --c-map-lit: #edcf89;
-  --c-map-text: #f6f1e8;
+  --c-map-manual: #e6cf9a;
+  --c-map-lit: #ecd39a;
+  --c-map-text: #f6eddb;
   --c-map-hub-text: #b3b6d0;
-  --c-map-halo: #181b31;
+  --c-map-halo: #16182b;
   --c-map-hub: #22264a;
   --c-map-hub-stroke: #b9bfdc;
   --c-map-center: #f6f1e8;
@@ -301,4 +303,17 @@
   --c-star-done: #8fd3a6;
   --c-map-focus: #edcf89;
   --c-star-glow: rgba(237, 207, 137, 0.45);
+  /* 발광 노드(시안 보완): 캐릭터 보라 그라데이션 원 · 설정 청록 마름모 · 복선 금색 네 갈래 별 */
+  --c-node-char-1: #c7a3d8;
+  --c-node-char-2: #9674ae;
+  --c-node-char-3: #6b4d80;
+  --c-node-char-rim: #eee0fb;
+  --c-node-char-glow: #af82cf;
+  --c-node-set: #538b91;
+  --c-node-set-rim: #b6ece6;
+  --c-node-set-glow: #62b7b9;
+  --c-node-clue: #f3d487;
+  --c-node-clue-rim: #fff0bc;
+  --c-node-clue-glow: #d9ad50;
+  --c-node-orbit: #dcb970;
 }

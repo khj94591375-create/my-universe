@@ -41,11 +41,11 @@ export function ItemListSection({ workId }: { workId: string }) {
     if (!target || !ready) return;
     setQuery('');
     setKind('all');
+    setCurrent(target); // 오른쪽 상세를 그 항목으로(그린 뒤 강조)
     const t = window.setTimeout(() => {
       const el = document.getElementById(`item-${target}`);
       document.querySelectorAll('[data-target]').forEach((x) => x.removeAttribute('data-target'));
       el?.setAttribute('data-target', '');
-      setCurrent(target);
       el?.scrollIntoView({ block: 'center' });
       el?.focus({ preventScroll: true });
     }, 50);
@@ -54,11 +54,8 @@ export function ItemListSection({ workId }: { workId: string }) {
   /** 목차에서 고른 항목으로 옮겨 강조(?item= 링크와 같은 방식) */
   const goTo = (id: string) => {
     setCurrent(id);
-    const el = document.getElementById(`item-${id}`);
-    document.querySelectorAll('[data-target]').forEach((x) => x.removeAttribute('data-target'));
-    el?.setAttribute('data-target', '');
-    el?.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-    el?.focus({ preventScroll: true });
+    // 바뀐 상세로 초점을 옮긴다(화면 낭독기·키보드)
+    window.setTimeout(() => document.getElementById(`item-${id}`)?.focus({ preventScroll: true }), 0);
   };
   if (!data) return null;
   if (data.items.length === 0) return <EmptyState art={art.emptyCollection} title={copy.bible.empty} />;
@@ -67,6 +64,9 @@ export function ItemListSection({ workId }: { workId: string }) {
   const matches = data.items.filter(
     (i) => (kind === 'all' || i.kind === kind) && (!q || i.name.toLowerCase().includes(q) || i.aliases.some((a) => a.toLowerCase().includes(q))),
   );
+  // 오른쪽에 보일 항목: 고른 항목이 지금 목록에 있으면 그것, 아니면 목차의 첫 항목
+  const ordered = KINDS.flatMap((k) => matches.filter((i) => i.kind === k).sort((x, y) => x.name.localeCompare(y.name)));
+  const shown = current && ordered.some((i) => i.id === current) ? current : (ordered[0]?.id ?? null);
   // 지워졌거나 지금 안 보이는 항목은 선택에서 뺀다
   const visibleIds = new Set(matches.map((i) => i.id));
   const pickedNow = [...picked].filter((id) => visibleIds.has(id));
@@ -183,7 +183,7 @@ export function ItemListSection({ workId }: { workId: string }) {
               </p>
               <div className={s.indexList}>
                 {items.map((i) => (
-                  <button key={i.id} type="button" className={i.id === current ? `${s.indexItem} ${s.indexOn}` : s.indexItem} aria-current={i.id === current || undefined} onClick={() => goTo(i.id)} title={i.name}>
+                  <button key={i.id} type="button" className={i.id === shown ? `${s.indexItem} ${s.indexOn}` : s.indexItem} aria-current={i.id === shown || undefined} onClick={() => goTo(i.id)} title={i.name}>
                     {i.name}
                   </button>
                 ))}
@@ -193,11 +193,13 @@ export function ItemListSection({ workId }: { workId: string }) {
         })}
       </nav>
       <div className={s.docs}>
+      {/* 오른쪽은 고른 항목 하나의 상세 문서(여러 개 고르기 중에는 전체 목록) */}
       {KINDS.map((k) => {
-        const items = matches.filter((i) => i.kind === k).sort((x, y) => x.name.localeCompare(y.name));
+        const all = matches.filter((i) => i.kind === k).sort((x, y) => x.name.localeCompare(y.name));
+        const items = selecting ? all : all.filter((i) => i.id === shown);
         if (items.length === 0) return null;
         return (
-          <Card key={k} title={`${copy.labels.kindPlural[k]} · ${copy.bible.count(items.length)}`}>
+          <Card key={k} title={`${copy.labels.kindPlural[k]} · ${copy.bible.count(all.length)}`}>
             <p className={s.muted}>{copy.labels.kindHelp[k]}</p>
             <ul className={s.list}>
               {items.map((i) => (

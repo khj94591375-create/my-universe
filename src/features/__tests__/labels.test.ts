@@ -9,10 +9,19 @@ describe('별 이름 배치', () => {
     const boxes = [...placeStarLabels(row, 1).values()];
     for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) expect(overlaps(boxes[i], boxes[j])).toBe(false);
   });
-  it('확대할수록 더 많은 이름이 보인다', () => {
-    const at1 = placeStarLabels(row, 1).size;
-    const at2 = placeStarLabels(row, 2.5).size;
+  it('확대할수록 더 많은 이름이 보인다(아래·위·옆 자리를 다 써도 모자랄 만큼 촘촘할 때)', () => {
+    const dense = row.map((s, i) => ({ ...s, x: i * 24 }));
+    const at1 = placeStarLabels(dense, 1).size;
+    const at2 = placeStarLabels(dense, 2.5).size;
+    expect(at1).toBeLessThan(dense.length);
     expect(at2).toBeGreaterThan(at1);
+  });
+  it('아래 자리가 막히면 위·옆 자리를 찾아 이름을 숨기지 않는다', () => {
+    const two: StarLabelInput[] = [
+      { id: 'a', x: 0, y: 0, r: 10, name: '리안', priority: 2 },
+      { id: 'b', x: 0, y: 40, r: 10, name: '세린', priority: 1 },
+    ];
+    expect(placeStarLabels(two, 1).size).toBe(2);
   });
   it('우선순위가 높은 이름이 먼저, 고른 별은 겹쳐도 보인다', () => {
     const shown = placeStarLabels(row, 1);

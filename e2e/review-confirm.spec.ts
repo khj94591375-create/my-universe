@@ -19,7 +19,7 @@ for (const theme of ['light', 'dark'] as const)
     await expect(row.getByText('AI가 찾음 · 확정')).toBeVisible();
     await expect(page.getByRole('button', { name: 'AI 추정 모두 확정' })).toBeDisabled();
     expect(db.T.items.find((i) => i.id === it)!.confirmed).toBe(true);
-    await page.goto('#/w/' + MINE + '/bible');
+    await page.goto('#/w/' + MINE + '/bible?item=' + it);
     const brow = page.locator('li', { has: page.getByText('푸른 잉크의 편지', { exact: true }) }).first();
     await expect(brow).toBeVisible();
     await expect(brow.getByText('AI 추정', { exact: true })).toHaveCount(0);

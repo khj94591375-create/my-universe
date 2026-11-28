@@ -64,7 +64,19 @@ export default function MapScreen() {
   };
 
   // 지도 크게 보기: 같은 지도를 화면 전체로 키운다(다시 만들지 않아 고른 별·확대·위치 유지)
-  const [expanded, setExpanded] = useState(false);
+  // 작업실의 "크게 보기"(?expand=1)로 오면 바로 크게 보기. 끄면 주소에서도 뺀다
+  const [expanded, setExpanded] = useState(() => params.get('expand') === '1');
+  useEffect(() => {
+    if (!expanded && params.has('expand'))
+      setParams(
+        (p) => {
+          p.delete('expand');
+          return p;
+        },
+        { replace: true },
+      );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expanded]);
   const mapArea = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!expanded) return;

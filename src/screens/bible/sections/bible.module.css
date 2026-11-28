@@ -298,8 +298,25 @@
   .docLayout {
     grid-template-columns: minmax(0, 1fr);
   }
+  /* 휴대폰: 목차를 위에(가로로 넘겨 고르기), 고른 항목 상세는 아래 */
   .index {
-    display: none;
+    position: static;
+    max-height: none;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: var(--sp-4);
+  }
+  .indexGroup {
+    flex: none;
+  }
+  .indexList {
+    flex-direction: row;
+    gap: 4px;
+  }
+  .indexItem {
+    width: auto;
+    max-width: 180px;
+    border: 1px solid var(--c-line);
   }
 }
 .actions {

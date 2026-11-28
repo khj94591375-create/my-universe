@@ -47,5 +47,10 @@ test('설정·복선 항목에는 인물 소개 버튼이 없다', async ({ page
   await prepare(page, { user: true, mine: true });
   await page.route('**/functions/v1/**', (route) => route.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'application/json' }, body: JSON.stringify({ ok: true, enabled: true, limits: { text: 50, image: 8 }, usage: null }) }));
   await page.goto(`#/w/${MINE}/bible`);
-  await expect(page.getByRole('button', { name: 'AI 인물 소개' })).toHaveCount(2); // 리안·세린
+  // 오른쪽은 고른 항목 하나: 인물이면 버튼 1개, 설정·복선이면 없음
+  const index = page.getByRole('navigation', { name: '설정집 목차' });
+  await index.getByRole('button', { name: '세린' }).click();
+  await expect(page.getByRole('button', { name: 'AI 인물 소개' })).toHaveCount(1);
+  await index.getByRole('button', { name: '반쪽짜리 은열쇠' }).click();
+  await expect(page.getByRole('button', { name: 'AI 인물 소개' })).toHaveCount(0);
 });

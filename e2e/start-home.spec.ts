@@ -46,11 +46,13 @@ test('시작 화면: 알약 줄 왼쪽을 누르면 로그인 없이 예시 작�
 test('작업실: 작품명·다음 회차, 지도 미리보기, 확인할 내용(실제 개수·링크), 최근 원고, 구상 패널, 지도로 이동', async ({ page }) => {
   await prepare(page);
   await page.goto(`#/w/${SAMPLE}/home`);
-  await expect(page.getByRole('heading', { level: 1, name: /별의 도서관\s*다음 회차: 7화/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /별의 도서관\s*다음은 7화 차례예요/ })).toBeVisible();
   await expect(page.getByRole('img', { name: /우주 지도 미리보기: 별 9개/ })).toBeVisible();
-  for (const t of ['확인할 내용', '복선 회수 현황', '최근 원고']) await expect(page.getByText(t, { exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: /확인할 AI 추정 2개/ })).toHaveAttribute('href', /\/review$/);
-  await expect(page.getByRole('link', { name: /오래 잊힌 항목 \d+개/ })).toHaveAttribute('href', /\/forgot$/);
+  for (const t of ['나의 우주', '이어서 살펴볼 이야기', '정리 결과 검토', '복선 회수 현황', '최근 원고']) await expect(page.getByRole('heading', { name: t, exact: true })).toBeVisible();
+  await expect(page.getByText('확인할 AI 추정 2개')).toBeVisible();
+  await expect(page.getByRole('link', { name: /검토하기/ })).toHaveAttribute('href', /\/review$/);
+  // 이어서 살펴볼 이야기: 실제 잊힌 복선 2개, 누르면 그 복선의 가이드
+  await expect(page.getByRole('link', { name: /사라진 13번째 서가/ }).first()).toHaveAttribute('href', /\/forgot\?item=/);
   await expect(page.locator('a', { hasText: '6화' }).first()).toHaveAttribute('href', /episodes\?open=6/);
   // 이어서 구상하기 → 한 줄 제안 · 막힌 장면 풀기
   await page.getByRole('button', { name: /이어서 구상하기/ }).click();
@@ -82,7 +84,9 @@ test('예시 작품 홈: 최근 회차 등장 표시, 회수 숫자 일치, 설�
   // 회수 현황 = 회수 완료 + 재사용됨(재사용 예정 제외)
   await expect(page.getByText('/ 4개 회수')).toBeVisible();
   await expect(page.locator('p', { hasText: '/ 4개 회수' })).toContainText('1');
-  await page.getByRole('link', { name: '복선 두 개로 7화 설계 체험' }).click();
-  await expect(page).toHaveURL(/\/map\?sel=00000000-0000-4000-8001-000000000008,00000000-0000-4000-8001-000000000006/);
+  const demo = page.getByRole('link', { name: /복선 두 개로 7화 설계 체험/ });
+  await expect(demo).toHaveAttribute('href', /\/map\?sel=00000000-0000-4000-8001-000000000008,00000000-0000-4000-8001-000000000006$/);
+  await demo.click();
+  await expect(page).toHaveURL(/\/map\?sel=00000000-0000-4000-8001-000000000008,00000000-0000-4000-8001-000000000006/, { timeout: 20_000 });
   await expect(page.getByRole('button', { name: '설계 체험하기' })).toBeVisible();
 });

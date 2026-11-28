@@ -74,6 +74,8 @@ export function MapCanvasSection({
   const [label, setLabel] = useState('');
   const [dir, setDir] = useState<'both' | 'forward' | 'backward'>('both');
   const [removing, setRemoving] = useState<string | null>(null);
+  // 지도가 별자리를 가로로 펼친 배율(별로 옮길 때 같은 값으로)
+  const [stretch, setStretch] = useState(1);
 
   const items = useMemo(() => (data ? data.items.filter((i) => kinds.has(i.kind)) : []), [data, kinds]);
   const links = useMemo(() => {
@@ -92,7 +94,7 @@ export function MapCanvasSection({
     if (box && st) setCardRight(st.left + st.width / 2 - box.left < box.width / 2);
   }, [quickKey, view]);
   useEffect(() => {
-    if (center) setView(viewFocusing(items, links, center.id));
+    if (center) setView(viewFocusing(items, links, center.id, 1.4, stretch));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center]);
   const aiResolve = useMemo(() => (data ? aiResolveEps(data.appearances, data.episodes) : new Map<string, number>()), [data]);
@@ -124,7 +126,7 @@ export function MapCanvasSection({
     onClear();
   };
   const focusStar = (id: string) => {
-    setView(viewFocusing(items, links, id));
+    setView(viewFocusing(items, links, id, 1.4, stretch));
     openStar(id);
   };
 
@@ -257,6 +259,7 @@ export function MapCanvasSection({
           aiResolve={aiResolve}
           view={view}
           onView={setView}
+          onStretch={setStretch}
         />
         {/* 확대·축소·처음 크기: 지도 아래쪽에 */}
         <div className={s.zoomDock} role="group" aria-label={copy.map.zoomGroup}>

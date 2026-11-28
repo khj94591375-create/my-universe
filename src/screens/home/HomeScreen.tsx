@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArtImage } from '../../components/ArtImage';
 import { art } from '../../config/art';
 import { WriteButton } from '../../components/WriteButton';
+import { Icon } from '../../components/Icon';
 import { ScreenLayout } from '../../components/ScreenLayout';
 import { copy } from '../../config/copy';
 import { WorkDataGate } from '../shared/WorkDataGate';
@@ -23,7 +24,7 @@ export default function HomeScreen() {
   const nav = useNavigate();
   const { work } = useWork(workId);
   const upload = (
-    <WriteButton workId={workId} onClick={() => nav(`/w/${workId}/upload`)}>
+    <WriteButton workId={workId} onClick={() => nav(`/w/${workId}/upload`)} icon={<Icon name="upload" size={17} />}>
       {copy.home.upload}
     </WriteButton>
   );
@@ -36,13 +37,17 @@ export default function HomeScreen() {
           title={
             <span className={s.titleRow}>
               <span className={s.workTitle}>{work?.title ?? copy.home.roomName}</span>
-              <span className={s.next}>{copy.home.nextLine(data.next)}</span>
+              <span className={s.next}>{copy.home.nextTitle(data.next)}</span>
             </span>
           }
-          action={upload}
+          action={
+            <>
+              {/* 예시 작품이면 핵심 체험으로 바로(간결한 버튼) */}
+              <SampleDemoSection workId={workId} />
+              {upload}
+            </>
+          }
         >
-          {/* 예시 작품이면 핵심 체험으로 바로 */}
-          <SampleDemoSection workId={workId} />
           {data.episodes.length === 0 && data.items.length === 0 ? (
             <div className={s.empty}>
               <ArtImage art={art.emptyManuscript} className={s.emptyArt} />
@@ -56,7 +61,7 @@ export default function HomeScreen() {
                 <MapCardSection workId={workId} />
                 <RecentUploadsSection workId={workId} />
               </div>
-              <aside className={s.side}>
+              <aside className={s.sideCol}>
                 <CheckListSection workId={workId} />
                 <ResolveProgressSection workId={workId} />
               </aside>

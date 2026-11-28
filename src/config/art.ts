@@ -16,11 +16,10 @@ import featGuide from '../assets/art/feature-story-guide.webp';
 import emptyCollection from '../assets/art/empty-collection.webp';
 import emptyAnalysis from '../assets/art/empty-analysis.webp';
 import loading from '../assets/art/loading.webp';
-// 2026-11-28 디자인 키트 그림(글자 없음): 기본 책 표지 · 원고 없음 · 갤러리 비어 있음 · 지도 배경 안개
+// 2026-11-28 디자인 키트 그림(글자 없음): 기본 책 표지 · 원고 없음 · 갤러리 비어 있음
 import kitCover from '../assets/art/kit-cover.webp';
 import kitEmptyManuscript from '../assets/art/kit-empty-manuscript.webp';
 import kitEmptyGallery from '../assets/art/kit-empty-gallery.webp';
-import kitMapAtmosphere from '../assets/art/kit-map-atmosphere.webp';
 
 export type Art = { src: string; width: number; height: number };
 /** 밝은 화면·어두운 화면용 한 쌍(기기의 화면 모드에 맞춰 자동으로 바뀐다) */
@@ -43,8 +42,6 @@ export const art = {
   cover: { src: kitCover, width: 480, height: 720 } satisfies Art,
   emptyManuscript: { src: kitEmptyManuscript, width: 480, height: 320 } satisfies Art,
   emptyGallery: { src: kitEmptyGallery, width: 440, height: 402 } satisfies Art,
-  /** 지도 배경(별·선 없는 남색 안개) */
-  mapAtmosphere: { src: kitMapAtmosphere, width: 1536, height: 1024 } satisfies Art,
 };
 
 export type FeatureArt = keyof typeof art.feature;

@@ -21,9 +21,9 @@
 :global([data-theme='dark']) .sky {
   --map-sky-image: url('../assets/art/map-sky-dark.webp');
 }
-/* 작업 공간: 별·선이 없는 남색 안개(디자인 키트). 실제 별·이름·선은 코드로 그린다 */
+/* 작업 공간: 성운과 작은 배경 별이 보이는 밤하늘(시안 보완). 그림은 배경층에만, 별·이름·선은 코드로 그린다 */
 :global([data-mu-workspace]) .sky {
-  --map-sky-image: url('../assets/art/kit-map-atmosphere.webp');
+  --map-sky-image: url('../assets/art/map-nebula.webp');
 }
 .svg:active {
   cursor: grabbing;
@@ -147,11 +147,6 @@
   stroke-width: 2;
   stroke-dasharray: 6 4;
 }
-.selected .shape {
-  fill: var(--c-star-selected);
-  stroke: var(--c-star-selected-stroke);
-  stroke-width: 2;
-}
 .selected text {
   font-weight: 700;
 }
@@ -249,5 +244,101 @@
   .star:hover .shape,
   .star:focus-visible .shape {
     transform: none;
+  }
+}
+
+/* ── 시안 보완(2026-11-28): 발광 노드 · 금색 궤도 · 가는 곡선 · 크림색 이름 ── */
+.charStop1 {
+  stop-color: var(--c-node-char-1);
+}
+.charStop2 {
+  stop-color: var(--c-node-char-2);
+}
+.charStop3 {
+  stop-color: var(--c-node-char-3);
+}
+/* 노드: 모양은 종류 그대로(원·마름모·네 갈래 별), 가장자리 림과 부드러운 광채 */
+.character .node {
+  stroke: var(--c-node-char-rim);
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 6px var(--c-node-char-glow));
+}
+.setting .node {
+  fill: var(--c-node-set);
+  stroke: var(--c-node-set-rim);
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 5px var(--c-node-set-glow));
+}
+.foreshadow .node {
+  fill: var(--c-node-clue);
+  stroke: var(--c-node-clue-rim);
+  stroke-width: 0.8px;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 7px var(--c-node-clue-glow));
+}
+/* 고른 별은 색을 바꾸지 않고(종류 색 유지) 궤도로 표시. 림만 조금 굵게 */
+.selected .node {
+  stroke-width: 2px;
+}
+.orbit ellipse {
+  fill: none;
+  stroke: var(--c-node-orbit);
+  stroke-width: 0.9px;
+  opacity: 0.9;
+  vector-effect: non-scaling-stroke;
+}
+.orbitDot {
+  fill: #fff4d6;
+  filter: drop-shadow(0 0 3px var(--c-node-orbit));
+}
+/* 오래 안 나온 별: 채도와 광채를 낮추고(이름은 그대로 선명) */
+.faint .node {
+  filter: saturate(0.5) drop-shadow(0 0 3px rgba(255, 255, 255, 0.25));
+}
+/* 이름: 크림색, 얇은 남색 외곽 */
+.star text {
+  fill: var(--c-map-text);
+  font-weight: 500;
+  stroke: var(--c-map-halo);
+  stroke-width: 3px;
+  vector-effect: non-scaling-stroke;
+}
+.selected text,
+.neighbor text {
+  font-weight: 700;
+}
+/* 관계선: 화면에서 늘 같은 굵기 */
+.curve {
+  vector-effect: non-scaling-stroke;
+}
+.coLine {
+  stroke-opacity: 0.6;
+}
+.lineHit {
+  vector-effect: non-scaling-stroke;
+}
+/* 고르거나 가리키면 이어진 선은 조금 밝게 */
+.lineOn {
+  stroke-opacity: 0.95;
+}
+.lineDim {
+  stroke-opacity: 0.22;
+}
+.dim text {
+  opacity: 0.75;
+}
+/* 미리보기: 끌기·확대 없음, 별을 누르면 지도로 */
+.previewMode {
+  cursor: default;
+  touch-action: auto;
+}
+.previewMode .star {
+  cursor: pointer;
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbit ellipse {
+    transition: none;
   }
 }

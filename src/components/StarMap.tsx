@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import { copy } from '../config/copy';
-import type { ItemKind, ItemView, Link } from '../data/types';
+import type { ItemView, Link } from '../data/types';
 import { gapLabel } from '../features/foreshadow/gap';
-import { hubPos, layoutStars, type Pos } from '../features/map/layout';
+import { layoutStars, type Pos } from '../features/map/layout';
 import { shapePath, starRadius, starState } from '../features/map/stars';
 import { limits } from '../config/limits';
 import { circleBox, LABEL_FONT, LINK_FONT, placeLinkLabels, placeStarLabels, shortLabel, textBox, wrapLines } from '../features/map/labels';
@@ -34,6 +34,9 @@ export function StarMap({
   aiResolve,
   view,
   onView,
+  preview = false,
+  previewLabel,
+  onStretch,
 }: {
   title: string;
   items: ItemView[];
@@ -50,7 +53,14 @@ export function StarMap({
   aiResolve?: Map<string, number>;
   view: MapView;
   onView: (v: MapView) => void;
+  /** 작업실 미리보기: 확대·이동·키보드 없이 보기만(별을 누르면 onStar) */
+  preview?: boolean;
+  previewLabel?: string;
+  /** 가로로 펼친 배율(별로 화면을 옮길 때 viewFocusing에 같은 값을 쓴다) */
+  onStretch?: (sx: number) => void;
 }) {
+  // 같은 화면에 지도가 둘 있어도 그라데이션 id가 겹치지 않게
+  const gid = useId().replace(/:/g, '');
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ x: number; y: number; vx: number; vy: number; moved: boolean } | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
@@ -66,7 +76,28 @@ export function StarMap({
   };
   useEffect(() => () => window.clearTimeout(leaveTimer.current), []);
 
-  const pos = useMemo(() => layoutStars(items, links), [items, links]);
+  // 지도 칸의 가로세로 비율: 별자리를 칸 모양에 맞춰 가로로 펼친다(가운데에 몰리지 않게)
+  const [aspect, setAspect] = useState(1.6);
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    // 처음 그릴 때 한 번만(크게 보기·창 크기 바꾸기로 별 좌표가 움직이지 않게)
+    let done = false;
+    const measure = () => {
+      const r = svg.getBoundingClientRect();
+      if (done || r.width <= 0 || r.height <= 0) return;
+      done = true;
+      setAspect(Math.round((r.width / r.height) * 10) / 10);
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(svg);
+    return () => ro.disconnect();
+  }, []);
+  const sx = useMemo(() => stretchFor(items, links, aspect), [items, links, aspect]);
+  useEffect(() => onStretch?.(sx), [sx, onStretch]);
+  const pos = useMemo(() => mapPositions(items, links, sx), [items, links, sx]);
   const byId = useMemo(() => new Map(items.map((i) => [i.id, i])), [items]);
   const offsets = useMemo(() => pairOffsets(links), [links]);
   /** 선의 시작·제어점·끝(화살표 방향). 같은 두 별 사이에 선이 여럿이면 서로 반대쪽으로 휜다. */
@@ -77,30 +108,34 @@ export function StarMap({
     const p0 = pos.get(from);
     const p1 = pos.get(to);
     if (!pa || !pb || !p0 || !p1) return null;
-    const c = controlPoint(pa, pb, offsets.get(l.id) ?? 0);
+    // 한 쌍에 선이 하나뿐이어도 부드럽게 휘게(방향은 id로 고정해 매번 같은 모양)
+    const off = offsets.get(l.id) || Math.hypot(pb.x - pa.x, pb.y - pa.y) * 0.1 * (hashSign(l.id));
+    const c = controlPoint(pa, pb, off);
     return { p0, p1, c, directed, to };
   };
   // 별들이 차지한 범위에 맞춰 화면 크기를 정한다(라벨이 읽히도록)
-  const vb = useMemo(() => {
-    const pts = [...pos.values(), { x: 0, y: 0 }];
-    const pad = 80;
-    const xs = pts.map((p) => p.x);
-    const ys = pts.map((p) => p.y);
-    const half = { w: Math.max(...xs.map(Math.abs)) + pad, h: Math.max(...ys.map(Math.abs)) + pad };
-    return `${-half.w} ${-half.h} ${half.w * 2} ${half.h * 2}`;
-  }, [pos]);
-  const maxGap = Math.max(0, ...items.map((i) => i.gap ?? 0));
-  const kinds = [...new Set(items.map((i) => i.kind))] as ItemKind[];
-
   // 지도 1칸이 화면에서 몇 px인지(창 크기에 따라 바뀜). 이름 글자를 화면에서 늘 같은 크기로 그리는 데 쓴다.
   const [unitPx, setUnitPx] = useState(0.6);
+  const vb = useMemo(() => {
+    const pts = [...pos.values(), { x: 0, y: 0 }];
+    // 이름(별 아래·옆)이 지도 밖으로 잘리지 않게: 가장자리 여유를 화면 글자 크기에 맞춘다(좁은 화면일수록 넓게)
+    const longest = Math.max(4, ...items.map((i) => Math.min([...i.name].length, limits.mapLabelMax)));
+    const padX = Math.round(Math.max(110, (longest * LABEL_FONT * 0.55) / unitPx) / 10) * 10;
+    const padY = Math.round(Math.max(95, (LABEL_FONT * 2.6) / unitPx) / 10) * 10;
+    const xs = pts.map((p) => p.x);
+    const ys = pts.map((p) => p.y);
+    const half = { w: Math.max(...xs.map(Math.abs)) + padX, h: Math.max(...ys.map(Math.abs)) + padY };
+    return `${-half.w} ${-half.h} ${half.w * 2} ${half.h * 2}`;
+  }, [pos, items, unitPx]);
+  const maxGap = Math.max(0, ...items.map((i) => i.gap ?? 0));
+
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg) return;
     const [, , vw, vh] = vb.split(' ').map(Number);
     const measure = () => {
       const r = svg.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) setUnitPx(Math.min(r.width / vw, r.height / vh));
+      if (r.width > 0 && r.height > 0) setUnitPx(Math.round(Math.min(r.width / vw, r.height / vh) * 200) / 200);
     };
     measure();
     if (typeof ResizeObserver === 'undefined') return;
@@ -129,7 +164,7 @@ export function StarMap({
   latest.current = { view, onView };
   useEffect(() => {
     const svg = svgRef.current;
-    if (!svg) return;
+    if (!svg || preview) return;
     const onWheel = (e: globalThis.WheelEvent) => {
       e.preventDefault();
       const { view: v, onView: set } = latest.current;
@@ -207,27 +242,34 @@ export function StarMap({
 
   // 이름표: 확대 배율에 맞춰 겹치지 않는 것만(고른 별·가리킨 별은 항상)
   // 가운데 원·종류 동그라미·종류 이름(캐릭터·설정·복선) 자리는 별 이름이 피해 간다
+  // 가운데 원·종류 허브는 그리지 않으므로(시안 보완: 실제 항목이 별자리의 중심) 막힌 자리 없음
+  /** 화면에서 보이는 노드 반지름(px): 원 12~15, 마름모 11~14, 복선 별 13~17. 확대해도 너무 커지지 않게 */
+  const vr = (i: ItemView) => (Math.min(15, Math.max(12, starRadius(i.mention_count) * ks)) * (i.kind === 'foreshadow' ? 1.15 : i.kind === 'setting' ? 0.95 : 1)) / ks;
+  // 별 위의 작은 표식(AI · 회수 추정) 자리는 다른 별의 이름이 피해 간다
   const blocked = useMemo(() => {
-    const f = LABEL_FONT / ks;
-    return [
-      circleBox(0, 0, 54),
-      ...kinds.flatMap((kd) => {
-        const h = hubPos(kd);
-        return [circleBox(h.x, h.y, 28), textBox(h.x, h.y + 26 + f * 0.65, copy.labels.kind[kd], f * 0.8)];
-      }),
-    ];
-  }, [kinds.join(), ks]); // eslint-disable-line react-hooks/exhaustive-deps
+    const f = (LABEL_FONT / ks) * 0.75;
+    return items
+      .filter((i) => isUnconfirmedAi(i) || aiResolve?.has(i.id))
+      .map((i) => {
+        const q = pos.get(i.id) ?? { x: 0, y: 0 };
+        return textBox(q.x, q.y - vr(i) - (LABEL_FONT / ks) * 0.75, 'AI · 회수?', f);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, pos, ks, aiResolve]);
   const anchorKey = [...anchors].sort().join(',');
   const starLabels = useMemo(() => {
+    // 고르지 않은 별의 이름도 숨기지 않는다(자리가 겹치면 위·옆 자리를 찾고, 그래도 없으면 고르거나 가리킬 때 보임)
     const cands = items
-      .filter((i) => !focusMode || isLit(i.id))
       .map((i) => {
         const q = center(pos.get(i.id));
-        return { id: i.id, x: q.x, y: q.y, r: starRadius(i.mention_count), name: shortLabel(i.name, limits.mapLabelMax), priority: (anchors.has(i.id) ? 1000 : neighbors.has(i.id) ? 500 : 0) + i.mention_count, force: anchors.has(i.id) };
+        return { id: i.id, markTop: isUnconfirmedAi(i) || aiResolve?.has(i.id), x: q.x, y: q.y, r: vr(i), name: shortLabel(i.name, limits.mapLabelMax), priority: (anchors.has(i.id) ? 1000 : neighbors.has(i.id) ? 500 : 0) + i.mention_count, force: anchors.has(i.id) };
       });
-    return placeStarLabels(cands, ks, blocked);
+    // 지금 보이는 범위(확대·이동 반영) 안에서만 자리를 찾는다(가장자리에서 이름이 잘리지 않게)
+    const [vx, vy, vw, vh] = vb.split(' ').map(Number);
+    const bounds = { x0: (vx - view.x) / k, y0: (vy - view.y) / k, x1: (vx + vw - view.x) / k, y1: (vy + vh - view.y) / k };
+    return placeStarLabels(cands, ks, blocked, bounds);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, pos, ks, anchorKey, blocked]);
+  }, [items, pos, ks, anchorKey, blocked, vb, view.x, view.y, k]);
   const linkLabels = useMemo(() => {
     const cands = links
       // 고른 별이 있으면 그 별의 관계만. 없으면 두 별 이름이 모두 보이는 관계만(별이 많을 때 관계 이름이 지도를 덮지 않게)
@@ -237,7 +279,7 @@ export function StarMap({
         return g ? { id: l.id, text: shortLabel(l.label as string, limits.mapLinkLabelMax), at: (t: number) => pointOnCurve(g.p0, g.c, g.p1, t), force: activeLinkId === l.id } : null;
       })
       .filter((x): x is NonNullable<typeof x> => x != null);
-    const taken = [...blocked, ...starLabels.values(), ...items.map((i) => { const q = center(pos.get(i.id)); return circleBox(q.x, q.y, starRadius(i.mention_count)); })];
+    const taken = [...blocked, ...starLabels.values(), ...items.map((i) => { const q = center(pos.get(i.id)); return circleBox(q.x, q.y, vr(i)); })];
     const placed = placeLinkLabels(cands, ks, taken);
     if (focusMode) return placed;
     // 아무것도 고르지 않았을 때는 관계 이름을 최대 15개까지만
@@ -248,20 +290,20 @@ export function StarMap({
   const fs = LABEL_FONT / ks;
   const lfs = LINK_FONT / ks;
   // 이름표는 마우스·키보드로 가리킬 때만(고른 별은 오른쪽 창·간단 정보 카드에서 본다)
-  const tipItem = hover ? byId.get(hover) : null;
+  const tipItem = hover && !preview ? byId.get(hover) : null;
 
   return (
     <svg
       ref={svgRef}
-      className={`${s.svg} ${s.sky} ${dense ? s.dense : ''} ${focusMode ? s.focusMode : ''}`}
+      className={`${s.svg} ${s.sky} ${dense ? s.dense : ''} ${focusMode ? s.focusMode : ''} ${preview ? s.previewMode : ''}`}
       viewBox={vb}
       preserveAspectRatio="xMidYMid meet"
-      role="group"
-      aria-label={copy.map.label}
-      onPointerDown={onDown}
-      onPointerMove={onMove}
-      onPointerUp={onUp}
-      onPointerCancel={onUp}
+      role={preview ? 'img' : 'group'}
+      aria-label={preview ? previewLabel : copy.map.label}
+      onPointerDown={preview ? undefined : onDown}
+      onPointerMove={preview ? undefined : onMove}
+      onPointerUp={preview ? undefined : onUp}
+      onPointerCancel={preview ? undefined : onUp}
       onClick={(e) => {
         if (justDragged.current || (e.target as Element).closest('[data-star], [data-link]')) return;
         onBackground?.();
@@ -273,6 +315,12 @@ export function StarMap({
           <stop offset="0%" className={s.glowIn} />
           <stop offset="100%" className={s.glowOut} />
         </radialGradient>
+        {/* 캐릭터 노드: 보라 그라데이션 원 */}
+        <radialGradient id={`${gid}-char`} cx="40%" cy="35%" r="70%">
+          <stop offset="0%" className={s.charStop1} />
+          <stop offset="65%" className={s.charStop2} />
+          <stop offset="100%" className={s.charStop3} />
+        </radialGradient>
         {/* 화살촉(방향 있는 선) */}
         <marker id="arrow-manual" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
           <path d="M0,0 L10,5 L0,10 Z" className={s.arrowManual} />
@@ -282,16 +330,6 @@ export function StarMap({
         </marker>
       </defs>
       <g transform={`translate(${view.x} ${view.y}) scale(${k})`}>
-        {/* 종류 연결(가는 실선) */}
-        {kinds.map((kd) => {
-          const h = hubPos(kd);
-          return <line key={`c-${kd}`} x1={0} y1={0} x2={h.x} y2={h.y} className={s.kindLine} />;
-        })}
-        {items.map((i) => {
-          const h = hubPos(i.kind);
-          const q = center(pos.get(i.id));
-          return <line key={`k-${i.id}`} x1={h.x} y1={h.y} x2={q.x} y2={q.y} className={`${s.kindLine} ${s.spoke}`} />;
-        })}
         {/* 항목 사이 연결선(실제 기록된 관계만) */}
         {links.map((l) => {
           const g = geometry(l);
@@ -311,52 +349,34 @@ export function StarMap({
               }
             : {};
           if (l.kind === 'co_occur') {
+            const d0 = `M${g.p0.x},${g.p0.y} Q${g.c.x},${g.c.y} ${g.p1.x},${g.p1.y}`;
             return (
               <g key={l.id} {...pick}>
-                <line x1={g.p0.x} y1={g.p0.y} x2={g.p1.x} y2={g.p1.y} className={`${s.coLine} ${cls}`} strokeWidth={Math.min(1 + l.weight * 0.6, 4)} />
-                {onLink && <line x1={g.p0.x} y1={g.p0.y} x2={g.p1.x} y2={g.p1.y} className={s.lineHit} />}
+                <path d={d0} className={`${s.curve} ${s.coLine} ${cls}`} strokeWidth={on ? 1.8 : Math.min(0.9 + l.weight * 0.25, 1.8)} />
+                {onLink && <path d={d0} className={`${s.curve} ${s.lineHit}`} />}
                 {tip}
               </g>
             );
           }
           // 방향이 있으면 화살촉이 별에 가려지지 않게 끝을 별 크기만큼 당긴다(곡선의 끝 방향으로)
-          const end = g.directed ? shorten(g.c, g.p1, starRadius(byId.get(g.to)?.mention_count ?? 0) + 8) : g.p1;
+          const toItem = byId.get(g.to);
+          const end = g.directed ? shorten(g.c, g.p1, (toItem ? vr(toItem) : 12 / ks) + 6 / ks) : g.p1;
           const d = `M${g.p0.x},${g.p0.y} Q${g.c.x},${g.c.y} ${end.x},${end.y}`;
           return (
             <g key={l.id} {...pick}>
-              <path d={d} className={`${s.curve} ${l.kind === 'ai' ? s.aiLine : s.manualLine} ${cls}`} strokeWidth={on ? 2.6 : 1.8} markerEnd={g.directed ? `url(#arrow-${l.kind})` : undefined} />
+              <path d={d} className={`${s.curve} ${l.kind === 'ai' ? s.aiLine : s.manualLine} ${cls}`} strokeWidth={on ? 2 : 1.3} markerEnd={g.directed ? `url(#arrow-${l.kind})` : undefined} />
               {onLink && <path d={d} className={`${s.curve} ${s.lineHit}`} />}
               {tip}
             </g>
           );
         })}
-        {/* 중심과 종류 */}
-        <g className={s.center}>
-          <circle r={52} />
-          <title>{title}</title>
-          {centerLines(title).map((line, idx, arr) => (
-            <text key={idx} y={(idx - (arr.length - 1) / 2) * 17 + 5} style={{ fontSize: arr.length > 2 ? 13 : arr.length > 1 ? 15 : 17 }}>
-              {line}
-            </text>
-          ))}
-        </g>
-        {kinds.map((kd) => {
-          const h = hubPos(kd);
-          return (
-            <g key={kd} className={s.hub} transform={`translate(${h.x} ${h.y})`}>
-              <circle r={26} />
-              <path d={shapePath(kd, 10)} className={s[kd]} />
-              <text y={26 + fs * 0.95} style={{ fontSize: fs * 0.8 }}>
-                {copy.labels.kind[kd]}
-              </text>
-            </g>
-          );
-        })}
+        {/* 가운데 작품 원·종류 허브는 그리지 않는다(종류는 범례·필터로). 작품 이름은 화면 읽기용으로만 */}
+        <title>{title}</title>
         {/* 별 */}
         {items.map((i) => {
           const q = center(pos.get(i.id));
           const isSel = selected.has(i.id);
-          const r = starRadius(i.mention_count);
+          const r = vr(i);
           const st = starState(i, maxGap, aiResolve?.get(i.id) ?? null);
           const details = starDetails(i, st);
           const mark = [isUnconfirmedAi(i) ? 'AI' : '', st.aiResolveEp ? copy.map.state.aiResolveShort : ''].filter(Boolean).join(' · ');
@@ -367,26 +387,40 @@ export function StarMap({
               key={i.id}
               data-star
               data-id={i.id}
-              tabIndex={0}
-              role="button"
-              aria-pressed={isSel}
-              aria-label={copy.map.starLabel(i.name, copy.labels.kind[i.kind], details.join(', '))}
-              className={`${s.star} ${s[i.kind]} ${isSel ? s.selected : ''} ${near === i.id ? s.focused : ''} ${neighbors.has(i.id) ? s.neighbor : ''} ${dim ? s.dim : ''}`}
+              tabIndex={preview ? -1 : 0}
+              role={preview ? undefined : 'button'}
+              aria-pressed={preview ? undefined : isSel}
+              aria-label={preview ? undefined : copy.map.starLabel(i.name, copy.labels.kind[i.kind], details.join(', '))}
+              className={`${s.star} ${s[i.kind]} ${isSel ? s.selected : ''} ${near === i.id ? s.focused : ''} ${neighbors.has(i.id) ? s.neighbor : ''} ${dim ? s.dim : ''} ${st.forgotten ? s.faint : ''}`}
               transform={`translate(${q.x} ${q.y})`}
               onClick={() => onStar(i.id)}
-              onKeyDown={key(i.id)}
+              onKeyDown={preview ? undefined : key(i.id)}
               onPointerEnter={() => setHover(i.id)}
               onPointerLeave={() => setHover(null)}
               onFocus={() => setHover(i.id)}
               onBlur={() => setHover(null)}
             >
               {isSel && <circle r={r * 2.8} fill="url(#star-glow)" className={s.glow} />}
-              <circle r={r + 12} className={s.hit} />
-              {st.forgotten && !isSel && <circle r={r + 7} className={s.forgottenRing} />}
-              {(st.done || st.planned) && <circle r={r + 7} className={st.done ? s.doneRing : s.plannedRing} />}
-              <path d={shapePath(i.kind, r)} className={s.shape} opacity={isSel || isLit(i.id) ? 1 : dim ? 0.22 : st.brightness} />
+              {/* 고른 별: 금색 얇은 타원 궤도 두 개와 작은 광점(움직이지 않음) */}
+              {isSel && (
+                <g className={s.orbit} pointerEvents="none" aria-hidden="true">
+                  <ellipse rx={r * 2.2} ry={r * 0.95} transform="rotate(-16)" />
+                  <ellipse rx={r * 1.85} ry={r * 1.1} transform="rotate(22)" />
+                  <circle cx={r * 2.05} cy={-r * 0.62} r={2.2 / ks} className={s.orbitDot} />
+                </g>
+              )}
+              {/* 누르기 쉬운 영역(화면에서 최소 44px) */}
+              <circle r={Math.max(r + 8 / ks, 22 / ks)} className={s.hit} />
+              {st.forgotten && !isSel && <circle r={r + 6 / ks} className={s.forgottenRing} />}
+              {(st.done || st.planned) && <circle r={r + 6 / ks} className={st.done ? s.doneRing : s.plannedRing} />}
+              <path
+                d={shapePath(i.kind, r)}
+                className={`${s.shape} ${s.node}`}
+                style={i.kind === 'character' ? { fill: `url(#${gid}-char)` } : undefined}
+                opacity={isSel || isLit(i.id) ? 1 : dim ? 0.3 : Math.max(0.55, st.brightness)}
+              />
               {label && (
-                <text y={label.y1 - q.y - fs * 0.3} style={{ fontSize: fs }}>
+                <text x={(label.x0 + label.x1) / 2 - q.x} y={label.y1 - q.y - fs * 0.3} style={{ fontSize: fs }}>
                   {shortLabel(i.name, limits.mapLabelMax)}
                 </text>
               )}
@@ -411,7 +445,7 @@ export function StarMap({
         {/* 가리킨 별의 이름표(맨 위): 이름 · 종류 · 상태 */}
         {tipItem && (() => {
           const q = center(pos.get(tipItem.id));
-          const r = starRadius(tipItem.mention_count);
+          const r = vr(tipItem);
           const st = starState(tipItem, maxGap, aiResolve?.get(tipItem.id) ?? null);
           const line2 = [copy.labels.kind[tipItem.kind], ...starDetails(tipItem, st)].join(' · ');
           const f2 = fs * 0.8;
@@ -457,6 +491,36 @@ function starDetails(i: ItemView, st: ReturnType<typeof starState>): string[] {
   ].filter(Boolean);
 }
 
+/** 별 배치: 별자리를 가운데로 옮기고 가로로 sx배 펼친다(지도·미리보기·별로 옮기기가 같은 값을 쓴다) */
+export function mapPositions(items: ItemView[], links: Link[], sx = 1): Map<string, Pos> {
+  const raw = layoutStars(items, links);
+  const pts = [...raw.values()];
+  if (pts.length === 0) return raw;
+  const xs = pts.map((p) => p.x);
+  const ys = pts.map((p) => p.y);
+  const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+  const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+  return new Map([...raw].map(([id, p]) => [id, { x: (p.x - cx) * sx, y: p.y - cy }]));
+}
+
+/** 칸 비율(가로/세로)에 맞춰 가로로 얼마나 펼칠지: 1 ~ 2.2배 */
+export function stretchFor(items: ItemView[], links: Link[], aspect: number): number {
+  const pts = [...layoutStars(items, links).values()];
+  if (pts.length < 2) return 1;
+  const xs = pts.map((p) => p.x);
+  const ys = pts.map((p) => p.y);
+  const w = Math.max(...xs) - Math.min(...xs) + 190;
+  const h = Math.max(...ys) - Math.min(...ys) + 190;
+  return Math.round(Math.min(2.2, Math.max(1, (aspect * h) / w)) * 20) / 20;
+}
+
+/** id로 정하는 휘는 방향(+1 / -1): 같은 선은 언제나 같은 쪽으로 */
+function hashSign(id: string): number {
+  let h = 0;
+  for (let n = 0; n < id.length; n++) h = (h * 31 + id.charCodeAt(n)) | 0;
+  return h & 1 ? 1 : -1;
+}
+
 /** a → b 선의 끝을 by만큼 a 쪽으로 당긴다. */
 function shorten(a: Pos, b: Pos, by: number): Pos {
   const d = Math.hypot(b.x - a.x, b.y - a.y);
@@ -492,7 +556,7 @@ export function centerLines(title: string, perLine = 6, maxLines = 3): string[] 
 }
 
 /** 별 하나를 화면 가운데로 옮기는 view 값. */
-export function viewFocusing(items: ItemView[], links: Link[], id: string, k = 1.4): MapView {
-  const p = layoutStars(items, links).get(id);
+export function viewFocusing(items: ItemView[], links: Link[], id: string, k = 1.4, sx = 1): MapView {
+  const p = mapPositions(items, links, sx).get(id);
   return p ? { k, x: -p.x * k, y: -p.y * k } : MAP_HOME;
 }
