@@ -11,6 +11,32 @@
   white-space: nowrap;
   /* 칸보다 넓어지지 않게(긴 이름이 든 버튼) */
   max-width: 100%;
+  /* 누르면 살짝 작아지고(0.97), 색은 부드럽게. transition: all은 쓰지 않는다 */
+  transition:
+    transform var(--dur-press) var(--ease-out),
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+  touch-action: manipulation;
+}
+.btn:not(:disabled):active {
+  transform: scale(0.97);
+}
+/* 마우스가 있는 기기에서만 올렸을 때 색 변화(터치 기기에서 눌린 채 남지 않게) */
+@media (hover: hover) and (pointer: fine) {
+  .primary:not(:disabled):hover {
+    background: color-mix(in srgb, var(--c-primary) 86%, var(--c-ink));
+  }
+  .accent:not(:disabled):hover {
+    background: color-mix(in srgb, var(--c-accent) 88%, var(--c-ink));
+  }
+  .ghost:not(:disabled):hover {
+    border-color: var(--c-strong);
+    color: var(--c-strong);
+  }
+  .danger:not(:disabled):hover {
+    background: color-mix(in srgb, var(--c-danger) 88%, var(--c-ink));
+  }
 }
 .btn:disabled {
   opacity: 0.45;

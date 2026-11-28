@@ -21,6 +21,12 @@ const system = (): Theme => (systemQuery?.matches ? 'dark' : 'light');
 
 function apply(t: Theme) {
   document.documentElement.dataset.theme = t;
+  // 휴대폰 주소창 색을 화면 바탕(--c-paper)과 맞춘다(색 값은 tokens.css에만 둔다)
+  requestAnimationFrame(() => {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    const bg = getComputedStyle(document.documentElement).getPropertyValue('--c-paper').trim();
+    if (meta && bg) meta.setAttribute('content', bg);
+  });
 }
 
 let current: Theme = stored() ?? system();

@@ -241,6 +241,7 @@
   position: sticky;
   top: calc(var(--bar-h) + var(--sp-3));
   max-height: calc(100vh - var(--bar-h) - 32px);
+  max-height: calc(100dvh - var(--bar-h) - 32px);
   overflow-y: auto;
   padding: var(--sp-3);
   border: 1px solid var(--c-line);
