@@ -25,12 +25,9 @@ export function EpisodeListSection({ workId, openNo, onOpen }: { workId: string;
                 <span className={s.no}>{e.no}화</span>
                 <span className={s.rowMain}>
                   <strong>{e.title ?? `${e.no}화`}</strong>
-                  <span className={s.muted}>{e.summary ?? copy.episodes.noSummary}</span>
-                  <span className={s.tags}>
-                    {items.map((i) => (
-                      <Tag key={i.id}>{i.name}</Tag>
-                    ))}
-                  </span>
+                  {/* 한 줄 요약(등장 항목 이름은 회차를 열면 원문에서 강조) */}
+                  <span className={`${s.muted} ${s.oneLine}`}>{e.summary ?? copy.episodes.noSummary}</span>
+                  <span className={s.srOnly}>{items.map((i) => i.name).join(', ')}</span>
                 </span>
                 <span className={s.side}>
                   <span className={s.muted}>{copy.episodes.chars(e.body.replace(/\n/g, '').length)}</span>

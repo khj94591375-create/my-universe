@@ -753,6 +753,7 @@ export const copy = {
   episodes: {
     title: '원고를 올리면 자동으로 쌓여요',
     empty: '아직 기록된 회차가 없어요.',
+    pickHint: '왼쪽에서 회차를 고르면 원문·요약·맞춤법 검사를 여기서 볼 수 있어요.',
     pageName: '회차 기록',
     chars: (n: number) => `${n.toLocaleString('ko-KR')}자(공백 포함)`,
     analyzed: '규칙 정리 완료',

@@ -172,8 +172,11 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
                 </ul>
               </div>
             )}
-            <div className={s.pairs}>
-              <h3>{copy.review.pairsTitle}</h3>
+            {/* 장면별 공동 등장: 펼쳐 볼 때만(검토의 중심은 위의 항목 확인) */}
+            <details className={s.pairs}>
+              <summary>
+                {copy.review.pairsTitle} ({pairs.size})
+              </summary>
               {pairs.size === 0 ? (
                 <p className={s.muted}>{copy.review.pairsNone}</p>
               ) : (
@@ -184,7 +187,7 @@ export function ReviewListSection({ workId, nos }: { workId: string; nos: number
                   })}
                 </div>
               )}
-            </div>
+            </details>
           </Card>
         );
       })}

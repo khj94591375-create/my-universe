@@ -41,9 +41,14 @@
   padding-top: var(--sp-3);
   border-top: 1px solid var(--c-line);
 }
-.pairs h3 {
+.pairs summary {
   font-size: var(--fs-sm);
+  font-weight: 700;
   color: var(--c-sub);
+  cursor: pointer;
+  min-height: 32px;
+}
+.pairs[open] summary {
   margin-bottom: 6px;
 }
 .tags {
