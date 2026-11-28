@@ -3,6 +3,7 @@ import { ScreenLayout } from '../../components/ScreenLayout';
 import { copy } from '../../config/copy';
 import { WorkDataGate } from '../shared/WorkDataGate';
 import { AnalyzeRunBanner } from '../shared/AnalyzeRunBanner';
+import { ManuscriptTabs } from '../shared/ManuscriptTabs';
 import { ReviewListSection } from './sections/ReviewListSection';
 import { AiSuggestionsSection } from './sections/AiSuggestionsSection';
 import { ConfirmAllButton } from './sections/ConfirmAllButton';
@@ -19,6 +20,7 @@ export default function ReviewScreen() {
   return (
     <ScreenLayout
       tip="review"
+      tabs={<ManuscriptTabs workId={workId} />}
       pageName={copy.review.pageName}
       title={copy.review.title}
       action={<ConfirmAllButton workId={workId} />}

@@ -1,23 +1,20 @@
 import { Suspense } from 'react';
-import { NavLink, Navigate, Outlet, useParams, Link } from 'react-router-dom';
-import { workNav } from '../config/nav';
+import { Navigate, Outlet, useParams, Link } from 'react-router-dom';
 import { copy } from '../config/copy';
 import { LEGACY_SAMPLE_SLUG, SAMPLE_WORK_ID } from '../config/sample';
 import { useSession } from '../features/auth/SessionProvider';
 import { useWork } from '../features/works/useWork';
 import { useWorkData } from '../features/works/workData';
 import { unreviewedCount } from '../features/ai/review';
-import { BrandMark } from './BrandMark';
 import { Loading } from './Loading';
 import { ErrorState } from './ErrorState';
 import { WorkTitleContext } from './workTitle';
-import { AccountMenu } from './AccountMenu';
-import { ThemeToggle } from './ThemeToggle';
-import { Icon } from './Icon';
+import { BottomNav, WorkspaceBar } from './WorkspaceBar';
 import s from './AppShell.module.css';
 
 /**
- * 작품 안 화면의 공통 틀: 왼쪽 남색 메뉴 + 오른쪽 종이색 작업 영역. 860px 이하에서 메뉴는 위쪽 띠로 접힌다.
+ * 작품 안 화면의 공통 틀: 상단바(로고 · 작품 선택 · 다섯 메뉴 · 계정) + 종이색 작업 영역.
+ * 860px 이하에서는 다섯 메뉴가 화면 아래 탐색 막대로 내려간다.
  * 볼 수 있는 작품인지는 DB(RLS)가 정한다: 예시 작품은 누구나, 그 외는 소유자만.
  */
 export function AppShell() {
@@ -34,50 +31,18 @@ export function AppShell() {
 
   const isSample = Boolean(work?.is_sample);
   return (
-    <div className={s.app}>
-      <aside className={s.side}>
-        <a
-          href="#"
-          className={s.skip}
-          onClick={(e) => {
-            e.preventDefault();
-            document.getElementById('main')?.focus();
-          }}
-        >
-          {copy.shell.skip}
-        </a>
-        <div className={s.brandRow}>
-          <Link to={session ? '/works' : '/'} className={s.brand} title={session ? copy.common.back : copy.common.toStart}>
-            <BrandMark />
-            <b>{copy.brand.name}</b>
-          </Link>
-          <ThemeToggle compact className={s.theme} />
-        </div>
-        {work && (
-          <div className={s.work}>
-            {copy.shell.current}
-            <strong>{work.title}</strong>
-            {isSample && <span>{copy.works.sampleLabel}</span>}
-          </div>
-        )}
-        <nav className={s.nav} aria-label="작품 메뉴">
-          {workNav.map((n) => (
-            <NavLink key={n.path} to={`/w/${workId}/${n.path}`} className={({ isActive }) => (isActive ? `${s.link} ${s.active}` : s.link)}>
-              <Icon name={n.icon} className={s.icon} />
-              {n.label}
-              {n.path === 'review' && pending > 0 && (
-                <span className={s.badge} aria-label={copy.shell.pending(pending)}>
-                  {pending}
-                </span>
-              )}
-            </NavLink>
-          ))}
-        </nav>
-        <div className={s.foot}>
-          <span className={s.principle}>{copy.brand.principle}</span>
-          <AccountMenu />
-        </div>
-      </aside>
+    <div className={s.app} data-mu-workspace="">
+      <a
+        href="#"
+        className={s.skip}
+        onClick={(e) => {
+          e.preventDefault();
+          document.getElementById('main')?.focus();
+        }}
+      >
+        {copy.shell.skip}
+      </a>
+      <WorkspaceBar work={work} pending={pending} />
       <main className={s.main} id="main" tabIndex={-1}>
         {error ? (
           <ErrorState body={error} onRetry={() => window.location.reload()} />
@@ -103,6 +68,7 @@ export function AppShell() {
           </>
         )}
       </main>
+      {work && <BottomNav workId={work.id} pending={pending} />}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useParams, useSearchParams } from 'react-router-dom';
+import { ManuscriptTabs } from '../shared/ManuscriptTabs';
 import { ScreenLayout } from '../../components/ScreenLayout';
 import { copy } from '../../config/copy';
 import { WorkDataGate } from '../shared/WorkDataGate';
@@ -22,7 +23,7 @@ export default function EpisodesScreen() {
       return p;
     });
   return (
-    <ScreenLayout tip="episodes" pageName={copy.episodes.pageName} title={copy.episodes.title} action={<ReanalyzeAllButton workId={workId} />}>
+    <ScreenLayout tip="episodes" pageName={copy.episodes.pageName} title={copy.episodes.title} action={<ReanalyzeAllButton workId={workId} />} tabs={<ManuscriptTabs workId={workId} />}>
       <AnalyzeRunBanner workId={workId} />
       <WorkDataGate workId={workId}>
         {() => (

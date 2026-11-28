@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import { WorkspaceBar } from '../../components/WorkspaceBar';
 import { Button } from '../../components/Button';
 import { EmptyState } from '../../components/EmptyState';
 import { ErrorState } from '../../components/ErrorState';
 import { Loading } from '../../components/Loading';
-import { BrandMark } from '../../components/BrandMark';
-import { ThemeToggle } from '../../components/ThemeToggle';
-import { AccountMenu } from '../../components/AccountMenu';
 import { copy } from '../../config/copy';
 import { art } from '../../config/art';
 import { usePageTitle } from '../../lib/usePageTitle';
@@ -57,17 +55,8 @@ export default function WorksScreen() {
     setState((st) => (st.status === 'ready' ? { ...st, mine: fn(st.mine) } : st));
 
   return (
-    <div className={s.page}>
-      <header className={s.bar}>
-        <Link to="/works" className={s.brand}>
-          <BrandMark size={28} />
-          <b>{copy.brand.name}</b>
-        </Link>
-        <div className={s.barRight}>
-          <ThemeToggle />
-          <AccountMenu />
-        </div>
-      </header>
+    <div className={s.page} data-mu-workspace="">
+      <WorkspaceBar />
       <main className={s.main}>
         <div className={s.head}>
           <h1>{copy.works.title}</h1>

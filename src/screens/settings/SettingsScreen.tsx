@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { ConfirmBar } from '../../components/ConfirmBar';
@@ -28,6 +28,11 @@ export default function SettingsScreen() {
   const guide = useGuideState();
   const [busy, setBusy] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<'all' | 'account' | null>(null);
+  // 계정 메뉴의 "도움말 · 문의"(#help)로 오면 그 칸으로
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (hash) document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' });
+  }, [hash]);
 
   const logout = async () => {
     setBusy('logout');
@@ -150,7 +155,7 @@ export default function SettingsScreen() {
         </div>
       </Card>
 
-      <Card title={copy.help.title}>
+      <Card title={copy.help.title} id="help">
         <p>
           <a href={`mailto:${site.contactEmail}?subject=${encodeURIComponent(copy.help.mailSubject)}`}>{copy.help.mail}</a>
         </p>

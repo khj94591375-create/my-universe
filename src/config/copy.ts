@@ -84,6 +84,18 @@ export const copy = {
     account: '내 계정',
     signedIn: '로그인한 계정',
     pending: (n: number) => `확인하지 않은 AI 추정 ${n}개`,
+    /** 상단바 */
+    mainNav: '작품 메뉴',
+    bottomNav: '작품 메뉴(하단)',
+    toWorks: '내 작품으로',
+    switchWork: (title: string) => `작품 바꾸기 · 지금: ${title}`,
+    myWorks: '내 작품',
+    sampleWorks: '예시 작품',
+    allWorks: '작품 목록 전체 보기',
+    worksLoading: '작품 목록을 불러오는 중…',
+    accountMenu: (email: string) => `계정 메뉴 · ${email}`,
+    help: '도움말 · 문의',
+    manuscriptTabs: '원고 하위 메뉴',
   },
   universe: {
     title: (t: string) => `「${t}」의 우주`,

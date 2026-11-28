@@ -1,6 +1,7 @@
 import { Suspense, useEffect } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AppShell } from './components/AppShell';
+import { WorkspacePage } from './components/WorkspacePage';
 import StartScreen from './screens/start/StartScreen';
 import WorksScreen from './screens/works/WorksScreen';
 import HomeScreen from './screens/home/HomeScreen';
@@ -29,8 +30,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<StartScreen />} />
           <Route path="/works" element={<RequireAuth><WorksScreen /></RequireAuth>} />
-          <Route path="/settings" element={<RequireAuth><SettingsScreen /></RequireAuth>} />
-          <Route path="/eval" element={<RequireAuth><EvalScreen /></RequireAuth>} />
+          <Route path="/settings" element={<RequireAuth><WorkspacePage><SettingsScreen /></WorkspacePage></RequireAuth>} />
+          <Route path="/eval" element={<RequireAuth><WorkspacePage><EvalScreen /></WorkspacePage></RequireAuth>} />
           <Route path="/privacy" element={<PrivacyScreen />} />
           <Route path="/w/:workId" element={<AppShell />}>
             <Route index element={<Navigate to="home" replace />} />

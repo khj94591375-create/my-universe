@@ -218,3 +218,58 @@
   --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.45);
   --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.25);
 }
+
+/*
+ * ── 작업 공간(로그인 뒤 화면) 색 ── 2026-11-28 재디자인(디자인 키트).
+ * 따뜻한 종이 · 절제된 보라 · 금색은 작은 표식에만. data-mu-workspace가 붙은 곳에만 적용해
+ * 로그인 전 시작 화면은 그대로 둔다. 컴포넌트는 같은 역할 색 이름(--c-paper 등)을 그대로 쓴다.
+ */
+[data-mu-workspace] {
+  --c-paper: #f8f5ef;
+  --c-card: #fffdf9;
+  --c-field: #ffffff;
+  --c-line: #e4ddd9;
+  --c-ink: #2c2532;
+  --c-sub: #6c6371;
+  --c-strong: #655080;
+  --c-primary: #655080;
+  --c-on-primary: #ffffff;
+  --c-accent: #be9b61;
+  --c-on-accent: #2c2532;
+  --c-gold-ink: #7d5f22;
+  --c-highlight: #f2ebe0;
+  --c-focus: #70529a;
+  --c-ai: #5e4a85;
+  --c-ai-bg: #eee8f5;
+  --c-neutral-bg: #efeae4;
+
+  /* 상단바·하단 탐색 높이 */
+  --bar-h: 64px;
+  --bottom-nav-h: 64px;
+
+  background: var(--c-paper);
+  color: var(--c-ink);
+}
+:root[data-theme='dark'] [data-mu-workspace] {
+  --c-paper: #17151e;
+  --c-card: #24202d;
+  --c-field: #1c1924;
+  --c-line: #3e3549;
+  --c-ink: #f3eef5;
+  --c-sub: #bcadc9;
+  --c-strong: #c0a7dd;
+  --c-primary: #c0a7dd;
+  --c-on-primary: #21182e;
+  --c-accent: #d2b27a;
+  --c-on-accent: #21182e;
+  --c-gold-ink: #e3c690;
+  --c-highlight: #2f2839;
+  --c-focus: #dcc7f5;
+  --c-ai: #d4c3f0;
+  --c-ai-bg: #2e2640;
+  --c-neutral-bg: #2a2532;
+}
+[data-mu-workspace] :focus-visible {
+  outline: 3px solid var(--c-focus);
+  outline-offset: 2px;
+}
